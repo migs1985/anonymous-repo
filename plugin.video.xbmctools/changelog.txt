@@ -1,2 +1,7 @@
-﻿Versão 1.0.0:
+﻿Versão 1.0.1:
+Adicionado aviso para versões Helix (não instalar)
+Adicionado suporte a Linux
+
+Versão 1.0.0:
 Primeira versão
+Suporte a Android e Windows
