@@ -49,8 +49,12 @@ def CATEGORIES():
 	elif xbmc.getCondVisibility('system.platform.linux') and not xbmc.getCondVisibility('system.platform.Android'):
 		if os.uname()[4] == 'armv6l': 
 			#RASPBERRY
-			mensagem_os("de Raspberry")
-			addDir("Teclado","linux",1,artfolder + "keyboard.png")
+			if re.search(os.uname()[1],"openelec",re.IGNORECASE):
+				mensagem_os("Openelec")
+				addDir("Actualizar librtmp","-",8,artfolder + "dll.png",False)
+			else:
+				mensagem_os("de Raspberry")
+				addDir("Teclado","linux",1,artfolder + "keyboard.png")
 		elif os.uname()[4] == 'armv7l': erro_os()
 		else: 
 			#LINUX
@@ -88,6 +92,38 @@ def keyboard(url):
 		addDir("ABCDE","abcde",6,artfolder + "keyboard.png",False)
 		
 #########################################	LINUX
+
+def librtmp_openelec():
+	
+	my_tmp = os.path.join(addonfolder,"resources","temp","librtmp.so.0")
+	if not download(my_tmp,"http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"):
+		dialog.ok("Erro:", "Operação abortada.")
+		return;
+	
+	mensagemprogresso = xbmcgui.DialogProgress()
+	mensagemprogresso.create('XBMC Tools', 'A actualizar o librtmp.','Por favor aguarde...')
+	
+	subprocess.call("mkdir -p /storage/lib", shell=True)
+	mensagemprogresso.update(13)
+	subprocess.call("curl -L http://is.gd/kBaTzY -o /storage/.config/autostart.sh", shell=True)
+	mensagemprogresso.update(26)
+	subprocess.call("curl -L http://is.gd/yQUqNm -o /storage/.config/hacklib", shell=True)
+	mensagemprogresso.update(39)
+	subprocess.call("curl -L http://is.gd/GJdaEY -o /storage/.config/mktmplib", shell=True)
+	mensagemprogresso.update(52)
+	
+	subprocess.call("cp " + my_tmp + " /storage/lib/librtmp.so.0", shell=True)
+	mensagemprogresso.update(65)
+	subprocess.call("chmod 755 /storage/lib/librtmp.so.0", shell=True)
+	mensagemprogresso.update(78)
+	subprocess.call("ln -s /storage/lib/librtmp.so.0 /storage/lib/librtmp.so", shell=True)
+	mensagemprogresso.update(90)
+	subprocess.call("rm " + my_tmp, shell=True)
+	mensagemprogresso.update(100)
+	mensagemprogresso.close()
+	
+	dialog.ok("Aviso!","O XBMC vai agora reiniciar.")
+	subprocess.call("reboot", shell=True)
 
 def librtmp_linux():
 	ret = dialog.select('Qual é a sua versão do Linux?', ['x86', 'x64'])
@@ -409,4 +445,5 @@ elif mode==4: change_keyboard_android(url)
 elif mode==5: librtmp_android()
 elif mode==6: change_keyboard_linux(url)
 elif mode==7: librtmp_linux()
+elif mode==8: librtmp_openelec()
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
