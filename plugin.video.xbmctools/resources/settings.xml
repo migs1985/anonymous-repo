@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<settings>
-   <category label="Definicoes gerais">
-      <setting id="xbmc-folder" type="folder" label="[B]Pasta do XBMC[/B] (ex.: C:\Program Files\XBMC)" default="" visible="system.platform.windows"/>
-   </category>
-</settings>

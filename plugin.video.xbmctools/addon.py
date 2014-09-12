@@ -21,14 +21,12 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess
 h = HTMLParser.HTMLParser()
 
-versao = '1.0.1'
+versao = '1.0.2'
 addon_id = 'plugin.video.xbmctools'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
 artfolder = addonfolder + '/resources/img/'
 dialog = xbmcgui.Dialog()
-
-xbmc_folder = selfAddon.getSetting('xbmc-folder')
 
 ################################################## 
 
@@ -39,9 +37,6 @@ def CATEGORIES():
 	#WINDOWS
 		mensagem_os("Windows")
 		dialog.ok("IMPORTANTE!", "Estas modificações apenas funcionam se o XBMC for executado como administrador.")
-		if xbmc_folder == "": 
-			mensagem_aviso("Por favor defina a pasta do XBMC nas configurações.")
-			selfAddon.openSettings()
 		addDir("Teclado","windows",1,artfolder + "keyboard.png")
 		addDir("Actualizar librtmp","-",3,artfolder + "dll.png",False)
 	#-----------------------------------------------------------------------
@@ -55,12 +50,13 @@ def CATEGORIES():
 			else:
 				mensagem_os("de Raspberry")
 				addDir("Teclado","linux",1,artfolder + "keyboard.png")
+				addDir("Actualizar librtmp","raspberry",7,artfolder + "dll.png",False)
 		elif os.uname()[4] == 'armv7l': erro_os()
 		else: 
 			#LINUX
 			mensagem_os("Linux")
 			addDir("Teclado","linux",1,artfolder + "keyboard.png")
-			addDir("Actualizar librtmp","-",7,artfolder + "dll.png",False)
+			addDir("Actualizar librtmp","linux",7,artfolder + "dll.png",False)
 			
 	elif xbmc.getCondVisibility('system.platform.Android'): 
 	#ANDROID
@@ -92,6 +88,39 @@ def keyboard(url):
 		addDir("ABCDE","abcde",6,artfolder + "keyboard.png",False)
 		
 #########################################	LINUX
+
+def find_abs_path(str_path, search_str = ""):
+	p = subprocess.Popen('find / | grep ' + str_path, stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+	(output, err) = p.communicate()
+	p_status = p.wait()
+	
+	aux = ""
+	paths = []
+	letra = False
+	
+	for x in range(0, len(output)):
+		if not letra:
+			if output[x] == " " or output[x] == "\n": continue
+			else:
+				aux = aux + output[x]
+				letra = True
+		else:
+			if output[x] == " " or output[x] == "\n":
+				try:
+					if output[x+1] == "/" or output[x+1] == " " or output[x+1] == "\n":
+						paths.append(aux)
+						aux = ""
+						letra = False
+					else: aux = aux + output[x]
+				except: paths.append(aux)
+			else: aux = aux + output[x]
+	
+	if len(paths) == 1: return paths[0]
+	if search_str != "":
+		for x in range(0, len(paths)):
+			if search_str in paths[x]: return paths[x]
+		return "erro"
+	return paths
 
 def librtmp_openelec():
 	
@@ -125,16 +154,21 @@ def librtmp_openelec():
 	dialog.ok("Aviso!","O XBMC vai agora reiniciar.")
 	subprocess.call("reboot", shell=True)
 
-def librtmp_linux():
-	ret = dialog.select('Qual é a sua versão do Linux?', ['x86', 'x64'])
-	if ret == 0: url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x86&ATV1/librtmp.so.0"
-	elif ret == 1: url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x64/librtmp.so.0"
+def librtmp_linux(url):
+	
+	if url == "raspberry":
+		url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"
+	elif url == "linux":
+		ret = dialog.select('Qual é a sua versão do Linux?', ['x86', 'x64'])
+		if ret == 0: url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x86&ATV1/librtmp.so.0"
+		elif ret == 1: url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x64/librtmp.so.0"
+		else: return
 	else: return
-
+		
 	mensagemprogresso = xbmcgui.DialogProgress()
 	mensagemprogresso.create('XBMC Tools', 'A procurar ficheiro.','Por favor aguarde...')
 	mensagemprogresso.update(50)
-	file_path = find_abs_path("librtmp.so.0")
+	file_path = find_abs_path("librtmp.so.0","/lib/")
 
 	if (os.path.exists(file_path) and "librtmp.so.0" in file_path) is False:
 		mensagemprogresso.close()
@@ -201,12 +235,6 @@ def change_keyboard_linux(url):
 		dialog.ok("Aviso:", "Concluído!","Por favor reinicie o XBMC, para que as alterações façam efeito.")
 	else: dialog.ok("Erro:", "Operação abortada.")
 
-def find_abs_path(str_path):
-	p = subprocess.Popen('find / | grep ' + str_path, stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
-	(output, err) = p.communicate()
-	p_status = p.wait()
-	return output.replace("\n","").replace(" ","")
-
 #########################################	ANDROID
 	
 def checksu():
@@ -268,6 +296,7 @@ def android_xbmc_path():	#Obrigado enen92!
 #########################################	WINDOWS
 	
 def librtmp_windows():
+	xbmc_folder = xbmc.translatePath("special://xbmc")
 	librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
 	if os.path.exists(librtmp_path) is False:
 		dialog.ok("Erro:", "Impossível aceder à pasta do librtmp!")
@@ -279,6 +308,7 @@ def librtmp_windows():
 		else: dialog.ok("Erro:", "Operação abortada.")
 		
 def change_keyboard_windows(url):
+	xbmc_folder = xbmc.translatePath("special://xbmc")
 	keyboard_path = os.path.join(xbmc_folder, "addons/skin.confluence/720p/DialogKeyboard.xml")
 	if os.path.exists(keyboard_path) is False:
 		dialog.ok("Erro:", "Impossível aceder à pasta do teclado!")
@@ -444,6 +474,6 @@ elif mode==3: librtmp_windows()
 elif mode==4: change_keyboard_android(url)
 elif mode==5: librtmp_android()
 elif mode==6: change_keyboard_linux(url)
-elif mode==7: librtmp_linux()
+elif mode==7: librtmp_linux(url)
 elif mode==8: librtmp_openelec()
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

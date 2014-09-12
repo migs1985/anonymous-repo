@@ -1,4 +1,9 @@
-﻿Versão 1.0.1:
+﻿Versão 1.0.2:
+Adicionado suporte a raspberry - Openelec inclusive
+Corrigido bug em que era impossível actualizar librtmp em Linux
+Melhoramento na actualização do librtmp em Windows
+
+Versão 1.0.1:
 Adicionado aviso para versões Helix (não instalar)
 Adicionado suporte a Linux
 
