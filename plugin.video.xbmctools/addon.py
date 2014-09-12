@@ -159,10 +159,17 @@ def librtmp_linux(url):
 	if url == "raspberry":
 		url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"
 	elif url == "linux":
-		ret = dialog.select('Qual é a sua versão do Linux?', ['x86', 'x64'])
-		if ret == 0: url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x86&ATV1/librtmp.so.0"
-		elif ret == 1: url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x64/librtmp.so.0"
-		else: return
+		p = subprocess.Popen('uname -m', stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+		(output, err) = p.communicate()
+		p_status = p.wait()
+		output = output.replace(" ","").replace("\n","")
+		if output == "i686": url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x86&ATV1/librtmp.so.0"
+		elif output == "x86_64": url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x64/librtmp.so.0"
+		else:
+			ret = dialog.select('Qual é a sua versão do Linux?', ['x86', 'x64'])
+			if ret == 0: url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x86&ATV1/librtmp.so.0"
+			elif ret == 1: url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x64/librtmp.so.0"
+			else: return
 	else: return
 		
 	mensagemprogresso = xbmcgui.DialogProgress()
