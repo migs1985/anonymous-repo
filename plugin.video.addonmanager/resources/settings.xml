@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+   <category label="Definicoes gerais">
+	  <setting id="vista" type="enum" values="Thumbnails|Lista" label="Tipo de vista" default="0"/>
+      <setting id="lib" type="folder" label="Pasta dos dados" default=""/>
+      <setting id="indicador" type="bool" label="Esconder indicador de versão e definições" default="false"/>
+   </category>
+</settings>

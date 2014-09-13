@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+   <category label="Definições gerais">
+		<setting id="subs" type="bool" label="Embutir legendas" default="true"/>
+   </category>
+   <category label="Download">
+		<setting id="download-folder" type="folder" label="Pasta de Download" default=""/>
+   </category>
+</settings>

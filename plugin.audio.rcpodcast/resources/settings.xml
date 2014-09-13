@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+   <category label="Definicoes gerais">
+      <setting id="autoplay" type="bool" label="Reproduzir item seguinte automaticamente" default="true"/>
+   </category>
+</settings>

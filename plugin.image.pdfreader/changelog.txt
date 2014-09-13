@@ -1,0 +1,5 @@
+﻿Versão 1.0.1:
+Adicionada leitura de CBR/CBZ (Sem opção de download)
+
+Versão 1.0.0:
+Primeira versão

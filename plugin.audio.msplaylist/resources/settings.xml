@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+   <category label="30051">
+	  <setting id="playlist" type="folder" label="30053" default=""/>
+	  <setting id="autoplay" type="bool" label="30054" default="true"/>
+   </category>
+   <category label="Download">
+	  <setting id="download-folder" type="folder" label="30052" default=""/>
+	  <setting id="prog_down" type="bool" label="30059" default="true"/>
+   </category>
+</settings>
