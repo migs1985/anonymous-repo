@@ -186,8 +186,13 @@ def librtmp_linux(url):
 	my_tmp = os.path.join(addonfolder,"resources","temp","librtmp.so.0")
 	mensagemprogresso.update(100)
 	mensagemprogresso.close()
-
-	password = dialog.input("Introduza a palavra pass (sudo):",type = xbmcgui.INPUT_ALPHANUM, option=xbmcgui.ALPHANUM_HIDE_INPUT)
+	
+	keyb = xbmc.Keyboard('', 'Introduza a palavra pass (sudo):') 
+	keyb.setHiddenInput(True)
+	keyb.doModal()
+	if (keyb.isConfirmed()): password = keyb.getText()
+	else: return
+	
 	if verifica_pass(password) is False: 
 		dialog.ok("Erro:", "Password incorrecta!")
 		return
@@ -228,7 +233,12 @@ def change_keyboard_linux(url):
 	mensagemprogresso.update(100)
 	mensagemprogresso.close()
 	
-	password = dialog.input("Introduza a palavra pass (sudo):",type = xbmcgui.INPUT_ALPHANUM, option=xbmcgui.ALPHANUM_HIDE_INPUT)
+	keyb = xbmc.Keyboard('', 'Introduza a palavra pass (sudo):') 
+	keyb.setHiddenInput(True)
+	keyb.doModal()
+	if (keyb.isConfirmed()): password = keyb.getText()
+	else: return
+	
 	if verifica_pass(password) is False: 
 		dialog.ok("Erro:", "Password incorrecta!")
 		return
