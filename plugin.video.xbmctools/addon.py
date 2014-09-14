@@ -203,9 +203,8 @@ def librtmp_linux(url):
 		p = subprocess.Popen("sudo -S cp " + my_tmp + " " + librtmp_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 		p.communicate(password+"\n") 
 		remove_ficheiro(my_tmp)
-		if url == "raspberry":
-			p = subprocess.Popen("sudo -S chmod 755 " + file_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-			p.communicate(password+"\n") 
+		p = subprocess.Popen("sudo -S chmod 755 " + file_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+		p.communicate(password+"\n") 
 		dialog.ok("Aviso:", "Concluído!","Por favor reinicie o XBMC, para que as alterações façam efeito.")
 	else: dialog.ok("Erro:", "Operação abortada.")
     
@@ -275,6 +274,7 @@ def librtmp_android():
 	if download(my_librtmp,"http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Android/librtmp.so"):
 		os.system("su -c 'rm "+os.path.join(librtmp_path, "librtmp.so")+"'")
 		os.system("su -c 'cp -f "+my_librtmp+" "+librtmp_path+"/'")
+		os.system("su -c 'chmod 755 "+os.path.join(librtmp_path, "librtmp.so")+"'")
 		remove_ficheiro(my_librtmp)
 		dialog.ok("Aviso:", "Concluído!","Por favor reinicie o XBMC, para que as alterações façam efeito.")
 	else: dialog.ok("Erro:", "Operação abortada.")
@@ -331,6 +331,7 @@ def librtmp_updater(url):
 		
 	if remove_ficheiro(librtmp_path):
 		if download(librtmp_path,download_url):
+			os.chmod(librtmp_path,755)
 			dialog.ok("Aviso:", "Concluído!","Por favor reinicie o XBMC, para que as alterações façam efeito.")
 		else: dialog.ok("Erro:", "Operação abortada.")
 		
