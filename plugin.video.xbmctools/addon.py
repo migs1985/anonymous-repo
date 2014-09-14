@@ -38,7 +38,7 @@ def CATEGORIES():
 		mensagem_os("Windows")
 		dialog.ok("IMPORTANTE!", "Estas modificações apenas funcionam se o XBMC for executado como administrador.")
 		addDir("Teclado","windows",1,artfolder + "keyboard.png")
-		addDir("Actualizar librtmp","-",3,artfolder + "dll.png",False)
+		addDir("Actualizar librtmp","windows",3,artfolder + "dll.png",False)
 	#-----------------------------------------------------------------------
 	elif xbmc.getCondVisibility('System.Platform.OSX'): erro_os()
 	elif xbmc.getCondVisibility('system.platform.linux') and not xbmc.getCondVisibility('system.platform.Android'):
@@ -51,20 +51,24 @@ def CATEGORIES():
 				mensagem_os("de Raspberry")
 				addDir("Teclado","linux",1,artfolder + "keyboard.png")
 				addDir("Actualizar librtmp","raspberry",7,artfolder + "dll.png",False)
+			#-------------------------------------------------------------------
 		elif os.uname()[4] == 'armv7l': erro_os()
 		else: 
 			#LINUX
 			mensagem_os("Linux")
 			addDir("Teclado","linux",1,artfolder + "keyboard.png")
 			addDir("Actualizar librtmp","linux",7,artfolder + "dll.png",False)
-			
+			#-------------------------------------------------------------------
 	elif xbmc.getCondVisibility('system.platform.Android'): 
 	#ANDROID
 		mensagem_os("Android")
 		addDir("Teclado","android",1,artfolder + "keyboard.png")
 		addDir("Actualizar librtmp [COLOR blue](XBMC Gotham 13)[/COLOR]","-",5,artfolder + "dll.png",False)
 	#-------------------------------------------------------------------
-	elif xbmc.getCondVisibility('system.platform.IOS'): erro_os()
+	elif xbmc.getCondVisibility('system.platform.IOS'): 
+	#IOS
+		addDir("Actualizar librtmp","ios",3,artfolder + "dll.png",False)
+	#-------------------------------------------------------------------
 	else: erro_os()
 	
 	addLink('','','nothing')
@@ -159,12 +163,8 @@ def librtmp_linux(url):
 	if url == "raspberry":
 		url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"
 	elif url == "linux":
-		p = subprocess.Popen('uname -m', stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
-		(output, err) = p.communicate()
-		p_status = p.wait()
-		output = output.replace(" ","").replace("\n","")
-		if output == "i686": url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x86&ATV1/librtmp.so.0"
-		elif output == "x86_64": url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x64/librtmp.so.0"
+		if os.uname()[4] == "i686": url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x86&ATV1/librtmp.so.0"
+		elif os.uname()[4] == "x86_64": url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x64/librtmp.so.0"
 		else:
 			ret = dialog.select('Qual é a sua versão do Linux?', ['x86', 'x64'])
 			if ret == 0: url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x86&ATV1/librtmp.so.0"
@@ -303,17 +303,24 @@ def android_xbmc_path():	#Obrigado enen92!
 		xbmc_data_path = os.path.join("/data", "data", app_id)
 		if os.path.exists(xbmc_data_path) and uid == os.stat(xbmc_data_path).st_uid: return xbmc_data_path
 	return "erro"
-#########################################	WINDOWS
+#########################################	WINDOWS e IOS
 	
-def librtmp_windows():
+def librtmp_updater(url):
 	xbmc_folder = xbmc.translatePath("special://xbmc")
-	librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
+	if url == "windows": 
+		librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
+		download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Windows/librtmp.dll"
+	elif url == "ios":
+		librtmp_path = os.path.join(xbmc_folder.replace('XBMCData/XBMCHome','Frameworks'),"librtmp.0.dylib")
+		download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/iOS/librtmp.0.dylib"
+	else: return
+	
 	if os.path.exists(librtmp_path) is False:
 		dialog.ok("Erro:", "Impossível aceder à pasta do librtmp!")
 		return
 		
 	if remove_ficheiro(librtmp_path):
-		if download(librtmp_path,"http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Windows/librtmp.dll"):
+		if download(librtmp_path,download_url):
 			dialog.ok("Aviso:", "Concluído!","Por favor reinicie o XBMC, para que as alterações façam efeito.")
 		else: dialog.ok("Erro:", "Operação abortada.")
 		
@@ -480,7 +487,7 @@ print "Iconimage: "+str(iconimage)
 if mode==None or url==None or len(url)<1: CATEGORIES()
 elif mode==1: keyboard(url)
 elif mode==2: change_keyboard_windows(url)
-elif mode==3: librtmp_windows()
+elif mode==3: librtmp_updater(url)
 elif mode==4: change_keyboard_android(url)
 elif mode==5: librtmp_android()
 elif mode==6: change_keyboard_linux(url)
