@@ -437,9 +437,11 @@ def librtmp_updater(url):
 	xbmc_folder = xbmc.translatePath("special://xbmc")
 	if url == "windows": 
 		librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
+		my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.dll")
 		download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Windows/librtmp.dll"
 	elif url == "ios":
 		librtmp_path = os.path.join(xbmc_folder.replace('XBMCData/XBMCHome','Frameworks'),"librtmp.0.dylib")
+		my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.0.dylib")
 		download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/iOS/librtmp.0.dylib"
 	else: return
 	
@@ -447,11 +449,13 @@ def librtmp_updater(url):
 		dialog.ok("Erro:", "Impossível aceder à pasta do librtmp!")
 		return
 		
-	if remove_ficheiro(librtmp_path):
-		if download(librtmp_path,download_url):
-			os.chmod(librtmp_path,755)
-			dialog.ok("Aviso:", "Concluído!","Por favor reinicie o XBMC, para que as alterações façam efeito.")
-		else: dialog.ok("Erro:", "Operação abortada.")
+	if download(my_librtmp,download_url):
+		remove_ficheiro(librtmp_path)
+		shutil.copy(my_librtmp,librtmp_path)
+		remove_ficheiro(my_librtmp)
+		os.chmod(librtmp_path,755)
+		dialog.ok("Aviso:", "Concluído!","Por favor reinicie o XBMC, para que as alterações façam efeito.")
+	else: dialog.ok("Erro:", "Operação abortada.")
 		
 def change_keyboard_windows(url):
 	xbmc_folder = xbmc.translatePath("special://xbmc")
