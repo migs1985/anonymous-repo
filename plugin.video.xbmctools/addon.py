@@ -18,10 +18,10 @@
 
 ##############BIBLIOTECAS A IMPORTAR E DEFINICOES####################
 
-import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess
+import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil
 h = HTMLParser.HTMLParser()
 
-versao = '1.0.2'
+versao = '1.0.3'
 addon_id = 'plugin.video.xbmctools'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
@@ -39,6 +39,7 @@ def CATEGORIES():
 		dialog.ok("IMPORTANTE!", "Estas modificações apenas funcionam se o XBMC for executado como administrador.")
 		addDir("Teclado","windows",1,artfolder + "keyboard.png")
 		addDir("Actualizar librtmp","windows",3,artfolder + "dll.png",False)
+		addDir("Backup/Restore librtmp","windows",9,artfolder + "backup.png")
 	#-----------------------------------------------------------------------
 	elif xbmc.getCondVisibility('System.Platform.OSX'): erro_os()
 	elif xbmc.getCondVisibility('system.platform.linux') and not xbmc.getCondVisibility('system.platform.Android'):
@@ -47,10 +48,12 @@ def CATEGORIES():
 			if re.search(os.uname()[1],"openelec",re.IGNORECASE):
 				mensagem_os("Openelec")
 				addDir("Actualizar librtmp","-",8,artfolder + "dll.png",False)
+				addDir("Backup/Restore librtmp","openelec",9,artfolder + "backup.png")
 			else:
 				mensagem_os("de Raspberry")
 				addDir("Teclado","linux",1,artfolder + "keyboard.png")
 				addDir("Actualizar librtmp","raspberry",7,artfolder + "dll.png",False)
+				addDir("Backup/Restore librtmp","raspberry",9,artfolder + "backup.png")
 			#-------------------------------------------------------------------
 		elif os.uname()[4] == 'armv7l': erro_os()
 		else: 
@@ -58,16 +61,19 @@ def CATEGORIES():
 			mensagem_os("Linux")
 			addDir("Teclado","linux",1,artfolder + "keyboard.png")
 			addDir("Actualizar librtmp","linux",7,artfolder + "dll.png",False)
+			addDir("Backup/Restore librtmp","linux",9,artfolder + "backup.png")
 			#-------------------------------------------------------------------
 	elif xbmc.getCondVisibility('system.platform.Android'): 
 	#ANDROID
 		mensagem_os("Android")
 		addDir("Teclado","android",1,artfolder + "keyboard.png")
 		addDir("Actualizar librtmp [COLOR blue](XBMC Gotham 13)[/COLOR]","-",5,artfolder + "dll.png",False)
+		addDir("Backup/Restore librtmp","android",9,artfolder + "backup.png")
 	#-------------------------------------------------------------------
 	elif xbmc.getCondVisibility('system.platform.IOS'): 
 	#IOS
 		addDir("Actualizar librtmp","ios",3,artfolder + "dll.png",False)
+		addDir("Backup/Restore librtmp","ios",9,artfolder + "backup.png")
 	#-------------------------------------------------------------------
 	else: erro_os()
 	
@@ -158,6 +164,118 @@ def librtmp_openelec():
 	dialog.ok("Aviso!","O XBMC vai agora reiniciar.")
 	subprocess.call("reboot", shell=True)
 
+def backup(url):
+	addDir("Backup",url + " backup",10,artfolder + "backup.png",False)
+	addDir("Restore",url + " restore",10,artfolder + "backup.png",False)
+	addDir("Apagar backup",url + " remove",10,artfolder + "backup.png",False)
+	
+def backup_(url):
+	if "backup" in url:
+		if not dialog.yesno("Aviso!", "Este procedimento irá apagar o backup antigo, caso exista.","Continuar?"): return
+	elif "remove" in url:
+		if not dialog.yesno("Aviso!", "Este procedimento irá apagar o backup.","Continuar?"): return
+	elif "restore" in url:
+		if not dialog.yesno("Aviso!", "Este procedimento irá recuperar o librtmp antigo.","Continuar?"): return
+
+	if "linux" in url or "raspberry" in url or "openelec" in url:
+	
+		mensagemprogresso = xbmcgui.DialogProgress()
+		mensagemprogresso.create('XBMC Tools','Por favor aguarde...')
+		mensagemprogresso.update(50)
+		librtmp_path = find_abs_path("librtmp.so.0","/lib/")
+		mensagemprogresso.update(100)
+		mensagemprogresso.close()
+		
+		if (os.path.exists(librtmp_path) and "librtmp.so.0" in librtmp_path) is False:
+			mensagemprogresso.close()
+			dialog.ok("Erro:", "Impossível aceder à pasta do librtmp!")
+			return
+			
+		if ("remove" in url or "restore" in url) and not os.path.exists(librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak")): 
+			dialog.ok("Aviso!", "Não existe nenhum backup!")
+			return
+		
+		if "linux" in url or "raspberry" in url:
+			keyb = xbmc.Keyboard('', 'Introduza a palavra pass (sudo):') 
+			keyb.setHiddenInput(True)
+			keyb.doModal()
+			if (keyb.isConfirmed()): password = keyb.getText()
+			else: return
+			
+			if verifica_pass(password) is False: 
+				dialog.ok("Erro:", "Password incorrecta!")
+				return
+		if "openelec" in url:
+			if "remove" in url or "backup" in url: subprocess.call("rm " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak"), shell=True)
+			if "backup" in url: subprocess.call("cp " + librtmp_path + " " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak"), shell=True)
+			if "restore" in url: 
+				subprocess.call("rm " + librtmp_path, shell=True)
+				subprocess.call("cp " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak") + " " + librtmp_path, shell=True)
+				subprocess.call("rm " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak"), shell=True)
+			dialog.ok("Concluído","Operação concluída com sucesso!")
+			return
+		
+		if "remove" in url or "backup" in url:		
+			p = subprocess.Popen("sudo -S rm " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			p.communicate(password+"\n") 
+		if "backup" in url:
+			p = subprocess.Popen("sudo -S cp " + librtmp_path + " " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			p.communicate(password+"\n")
+		if "restore" in url:
+			p = subprocess.Popen("sudo -S rm " + librtmp_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			p.communicate(password+"\n") 
+			p = subprocess.Popen("sudo -S cp " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak") + " " + librtmp_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			p.communicate(password+"\n")
+			p = subprocess.Popen("sudo -S rm " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			p.communicate(password+"\n") 
+			p = subprocess.Popen("sudo -S chmod 755 " + librtmp_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			p.communicate(password+"\n") 
+		dialog.ok("Concluído","Operação concluída com sucesso!")
+		return
+		
+	if "windows" in url or "ios" in url:
+		xbmc_folder = xbmc.translatePath("special://xbmc")
+		if "windows" in url:
+			librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
+			bak_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll.bak")
+		if "ios" in url:
+			librtmp_path = os.path.join(xbmc_folder.replace('XBMCData/XBMCHome','Frameworks'),"librtmp.0.dylib")
+			bak_path = os.path.join(xbmc_folder.replace('XBMCData/XBMCHome','Frameworks'),"librtmp.0.dylib.bak")
+		
+		if ("remove" in url or "restore" in url) and not os.path.exists(bak_path): 
+			dialog.ok("Aviso!", "Não existe nenhum backup!")
+			return
+		
+		if "remove" in url or "backup" in url: remove_ficheiro(bak_path)
+		if "backup" in url: shutil.copy(librtmp_path,bak_path)
+		if "restore" in url:
+			remove_ficheiro(librtmp_path)
+			shutil.copy(bak_path,librtmp_path)
+			remove_ficheiro(bak_path)
+			os.chmod(librtmp_path,755)
+		dialog.ok("Concluído","Operação concluída com sucesso!")
+		return
+		
+	if "android" in url:
+		librtmp_path = os.path.join(android_xbmc_path(), "lib/librtmp.so")
+		bak_path = os.path.join(android_xbmc_path(), "lib/librtmp.so.bak")
+		
+		if ("remove" in url or "restore" in url) and not os.path.exists(bak_path): 
+			dialog.ok("Aviso!", "Não existe nenhum backup!")
+			return
+			
+		checksu()
+			
+		if "remove" in url or "backup" in url: os.system("su -c 'rm "+bak_path+"'")
+		if "backup" in url: os.system("su -c 'cp -f "+librtmp_path+" "+bak_path+"'")
+		if "restore" in url:
+			os.system("su -c 'rm "+librtmp_path+"'")
+			os.system("su -c 'cp -f "+bak_path+" "+librtmp_path+"'")
+			os.system("su -c 'rm "+bak_path+"'")
+			os.system("su -c 'chmod 755 "+librtmp_path+"'")
+		dialog.ok("Concluído","Operação concluída com sucesso!")
+		return
+		
 def librtmp_linux(url):
 	
 	if url == "raspberry":
@@ -179,7 +297,7 @@ def librtmp_linux(url):
 
 	if (os.path.exists(file_path) and "librtmp.so.0" in file_path) is False:
 		mensagemprogresso.close()
-		dialog.ok("Erro:", "Impossível aceder à pasta do teclado!")
+		dialog.ok("Erro:", "Impossível aceder à pasta do librtmp!")
 		return
 
 	librtmp_path = file_path.replace("librtmp.so.0","")
@@ -504,4 +622,6 @@ elif mode==5: librtmp_android()
 elif mode==6: change_keyboard_linux(url)
 elif mode==7: librtmp_linux(url)
 elif mode==8: librtmp_openelec()
+elif mode==9: backup(url)
+elif mode==10: backup_(url)
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

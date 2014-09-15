@@ -1,4 +1,9 @@
-﻿Versão 1.0.2:
+﻿Versão 1.0.3:
+Adicionado suporte a iOS
+Força permissões em todos os OS's
+Adicionada opção de Update/Restore
+
+Versão 1.0.2:
 Adicionado suporte a raspberry - Openelec inclusive
 Corrigido bug em que era impossível actualizar librtmp em Linux
 Melhoramento na actualização do librtmp em Windows
