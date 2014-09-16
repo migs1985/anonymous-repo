@@ -72,6 +72,7 @@ def CATEGORIES():
 	#-------------------------------------------------------------------
 	elif xbmc.getCondVisibility('system.platform.IOS'): 
 	#IOS
+		mensagem_os("iOS")
 		addDir("Actualizar librtmp","ios",3,artfolder + "dll.png",False)
 		addDir("Backup/Restore librtmp","ios",9,artfolder + "backup.png")
 	#-------------------------------------------------------------------
@@ -484,8 +485,7 @@ def remove_ficheiro(file_path):
 			except:	
 				dialog = xbmcgui.Dialog()
 				if dialog.yesno("Erro!", "Tentar outra vez?", "Caso o erro persista, certifique-se que iniciou o XBMC como administrador."): pass
-				else: 
-					return False
+				else: return False
 	return True
 	
 def mensagem_aviso(aviso):
