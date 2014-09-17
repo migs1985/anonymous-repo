@@ -437,10 +437,16 @@ def android_xbmc_path():	#Obrigado enen92!
 		if os.path.exists(xbmc_data_path) and uid == os.stat(xbmc_data_path).st_uid: return xbmc_data_path
 	return "erro"
 #########################################	WINDOWS e IOS
+def is_admin():
+	import ctypes
+	return ctypes.windll.shell32.IsUserAnAdmin() != 0
 	
 def librtmp_updater(url):
 	xbmc_folder = xbmc.translatePath("special://xbmc")
 	if url == "windows": 
+		if not is_admin():
+			dialog.ok("Aviso!","Por favor inicie o XBMC como administrador!")
+			return
 		librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
 		my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.dll")
 		download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Windows/librtmp.dll"
