@@ -1,4 +1,8 @@
-﻿Versão 1.0.3:
+﻿Versão 1.0.4:
+Adicionada tradução / Added translation
+Minor fixes
+
+Versão 1.0.3:
 Adicionado suporte a iOS
 Força permissões em todos os OS's
 Adicionada opção de Update/Restore

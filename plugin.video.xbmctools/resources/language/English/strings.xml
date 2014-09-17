@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<strings>
+    <!-- Meta Data -->
+    <string id="2000">WARNING</string>
+    <string id="2001">These modifications only work if XBMC has administrator privileges.</string>
+    <string id="2002">Keyboard</string>
+    <string id="2003">Update librtmp</string>
+    <string id="2004">Backup/Restore librtmp</string>
+    <string id="2005">Last version installed</string>
+    <string id="2006">Error verifying version!</string>
+    <string id="2007">New version available</string>
+    <string id="2008">Please update!</string>
+    <string id="2009">Attention!</string>
+    <string id="2010">These modifications only work on confluence skin (original).</string>
+    <string id="2011">Do NOT install these modifications on XBMC Helix (14)! - Corrupt XBMC</string>
+    <string id="2012">Updating librtmp.</string>
+    <string id="2013">Please wait...</string>
+    <string id="2014">Error:</string>
+    <string id="2015">Operation aborted.</string>
+    <string id="2016">Advice:</string>
+    <string id="2017">XBMC will now reboot.</string>
+    <string id="2018">This will delete the old backup, if any.</string>
+    <string id="2019">Continue?</string>
+    <string id="2020">This will delete the backup.</string>
+    <string id="2021">This will restore the old librtmp.</string>
+    <string id="2022">Unable to access the librtmp folder!</string>
+    <string id="2023">There is no backup!</string>
+    <string id="2024">Introduce sudo password:</string>
+    <string id="2025">Incorrect password!</string>
+    <string id="2026">Done!</string>
+    <string id="2027">Done with sucesso!</string>
+    <string id="2028">Please restart XBMC with administrator privileges!</string>
+    <string id="2029">This device does not have root access</string>
+    <string id="2030">What is your Linux version?</string>
+    <string id="2031">Searching file.</string>
+    <string id="2032">Please restart XBMC for the changes to take effect.</string>
+    <string id="2033">This procedure only works on devices with root access.</string>
+    <string id="2034">Unable to access the keyboard folder!</string>
+    <string id="2035">XBMC is detecting </string>
+    <string id="2036">If this is not your system, please leave the addon.</string>
+    <string id="2037">Operative system not supported!</string>
+    <string id="2038">There is already a file with the same name</string>
+    <string id="2039">Try again?</string>
+    <string id="2040">of</string>
+    <string id="2041">Estimated time:</string>
+</strings>
