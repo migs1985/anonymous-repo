@@ -163,6 +163,10 @@ def librtmp_openelec():
 	dialog.ok("Aviso!","O XBMC vai agora reiniciar.")
 	subprocess.call("reboot", shell=True)
 
+def is_admin():
+	import ctypes
+	return ctypes.windll.shell32.IsUserAnAdmin() != 0
+	
 def backup(url):
 	addDir("Backup",url + " backup",10,artfolder + "backup.png",False)
 	addDir("Restore",url + " restore",10,artfolder + "backup.png",False)
@@ -236,6 +240,9 @@ def backup_(url):
 	if "windows" in url or "ios" in url:
 		xbmc_folder = xbmc.translatePath("special://xbmc")
 		if "windows" in url:
+			if not is_admin():
+				dialog.ok("Erro!","Por favor inicie o XBMC como administrador!")
+				return
 			librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
 			bak_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll.bak")
 		if "ios" in url:
@@ -437,15 +444,12 @@ def android_xbmc_path():	#Obrigado enen92!
 		if os.path.exists(xbmc_data_path) and uid == os.stat(xbmc_data_path).st_uid: return xbmc_data_path
 	return "erro"
 #########################################	WINDOWS e IOS
-def is_admin():
-	import ctypes
-	return ctypes.windll.shell32.IsUserAnAdmin() != 0
 	
 def librtmp_updater(url):
 	xbmc_folder = xbmc.translatePath("special://xbmc")
 	if url == "windows": 
 		if not is_admin():
-			dialog.ok("Aviso!","Por favor inicie o XBMC como administrador!")
+			dialog.ok("Erro!","Por favor inicie o XBMC como administrador!")
 			return
 		librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
 		my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.dll")
@@ -469,6 +473,9 @@ def librtmp_updater(url):
 	else: dialog.ok("Erro:", "Operação abortada.")
 		
 def change_keyboard_windows(url):
+	if not is_admin():
+		dialog.ok("Erro!","Por favor inicie o XBMC como administrador!")
+		return
 	xbmc_folder = xbmc.translatePath("special://xbmc")
 	keyboard_path = os.path.join(xbmc_folder, "addons/skin.confluence/720p/DialogKeyboard.xml")
 	if os.path.exists(keyboard_path) is False:
@@ -490,7 +497,7 @@ def remove_ficheiro(file_path):
 			try: os.remove(file_path); break 
 			except:	
 				dialog = xbmcgui.Dialog()
-				if dialog.yesno("Erro!", "Tentar outra vez?", "Caso o erro persista, certifique-se que iniciou o XBMC como administrador."): pass
+				if dialog.yesno("Erro!", "Tentar outra vez?"): pass
 				else: return False
 	return True
 	
