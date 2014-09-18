@@ -21,17 +21,18 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil
 h = HTMLParser.HTMLParser()
 
-versao = '1.0.4'
+versao = '1.0.5'
 addon_id = 'plugin.video.xbmctools'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
+if not os.path.exists(addonfolder): addonfolder = addonfolder.decode('utf-8')
 artfolder = addonfolder + '/resources/img/'
 dialog = xbmcgui.Dialog()
 
 traducaoma= selfAddon.getLocalizedString
 
 def traducao(texto):
-      return traducaoma(texto).encode('utf-8')
+	return traducaoma(texto).encode('utf-8')
 
 ################################################## 
 
@@ -88,6 +89,10 @@ def CATEGORIES():
 	if disponivel==versao: addLink('[B][COLOR white]'+traducao(2005)+' (' + versao + ')[/COLOR][/B]','',artfolder + 'versao.png')
 	elif disponivel=='Erro ao verificar a versão!': addLink('[B][COLOR white]' + traducao(2006) + '[/COLOR][/B]','',artfolder + 'versao.png')
 	else: addLink('[B][COLOR white]'+traducao(2007)+' ('+ disponivel + '). '+traducao(2008)+'[/COLOR][/B]','',artfolder + 'versao.png')
+	
+	print "--------- XBMC Tools ---------"
+	print "---------ADDON FOLDER---------"
+	print addonfolder
 
 ###################################################################################
 #FUNCOES
@@ -476,7 +481,7 @@ def librtmp_updater(url):
 		os.chmod(librtmp_path,755)
 		dialog.ok(traducao(2016), traducao(2026),traducao(2032))
 	else: dialog.ok(traducao(2014), traducao(2015))
-		
+	
 def change_keyboard_windows(url):
 	if not is_admin():
 		dialog.ok(traducao(2014),traducao(2028))

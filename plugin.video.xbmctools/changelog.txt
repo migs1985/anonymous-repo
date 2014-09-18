@@ -1,4 +1,7 @@
-﻿Versão 1.0.4:
+﻿Versão 1.0.5:
+Fix para users com caracter especial
+
+Versão 1.0.4:
 Adicionada tradução / Added translation
 Minor fixes
 
