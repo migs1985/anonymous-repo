@@ -476,7 +476,7 @@ def librtmp_updater(url):
 		remove_ficheiro(librtmp_path)
 		shutil.copy(my_librtmp,librtmp_path)
 		remove_ficheiro(my_librtmp)
-		os.chmod(librtmp_path,755)
+		if url == "windows": os.chmod(librtmp_path,755)
 		dialog.ok(traducao(2016), traducao(2026),traducao(2032))
 	else: dialog.ok(traducao(2014), traducao(2015))
 	
