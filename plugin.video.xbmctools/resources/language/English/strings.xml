@@ -43,4 +43,6 @@
     <string id="2039">Try again?</string>
     <string id="2040">of</string>
     <string id="2041">Estimated time:</string>
+	<string id="2042">Librtmp is corrupted.</string>
+    <string id="2043">Please update again.</string>
 </strings>

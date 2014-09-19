@@ -18,7 +18,7 @@
 
 ##############BIBLIOTECAS A IMPORTAR E DEFINICOES####################
 
-import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil
+import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil,hashlib
 h = HTMLParser.HTMLParser()
 
 versao = '1.0.5'
@@ -287,7 +287,7 @@ def backup_(url):
 		if "backup" in url: os.system("su -c 'cp -f "+librtmp_path+" "+bak_path+"'")
 		if "restore" in url:
 			os.system("su -c 'rm "+librtmp_path+"'")
-			os.system("su -c 'cp -f "+bak_path+" "+librtmp_path+"'")
+			os.system("su -c 'cp "+bak_path+" "+librtmp_path+"'")
 			os.system("su -c 'rm "+bak_path+"'")
 			os.system("su -c 'chmod 755 "+librtmp_path+"'")
 		dialog.ok(traducao(2026),traducao(2027))
@@ -411,7 +411,8 @@ def librtmp_android():
 		
 	if download(my_librtmp,"http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Android/librtmp.so"):
 		os.system("su -c 'rm "+os.path.join(librtmp_path, "librtmp.so")+"'")
-		os.system("su -c 'cp -f "+my_librtmp+" "+librtmp_path+"/'")
+		os.system("su -c 'cp "+my_librtmp+" "+librtmp_path+"/'")
+		#os.system("su -c 'chown root.root "+os.path.join(librtmp_path, "librtmp.so")+"'")
 		os.system("su -c 'chmod 755 "+os.path.join(librtmp_path, "librtmp.so")+"'")
 		remove_ficheiro(my_librtmp)
 		dialog.ok(traducao(2016), traducao(2026),traducao(2032))
@@ -462,10 +463,12 @@ def librtmp_updater(url):
 		librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
 		my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.dll")
 		download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Windows/librtmp.dll"
+		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/windows.xml.md5")
 	elif url == "ios":
 		librtmp_path = os.path.join(xbmc_folder.replace('XBMCData/XBMCHome','Frameworks'),"librtmp.0.dylib")
 		my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.0.dylib")
 		download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/iOS/librtmp.0.dylib"
+		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/ios.xml.md5")
 	else: return
 	
 	if os.path.exists(librtmp_path) is False:
@@ -477,7 +480,8 @@ def librtmp_updater(url):
 		shutil.copy(my_librtmp,librtmp_path)
 		remove_ficheiro(my_librtmp)
 		if url == "windows": os.chmod(librtmp_path,755)
-		dialog.ok(traducao(2016), traducao(2026),traducao(2032))
+		if md5sum_verified(librtmp_path) == md5: dialog.ok(traducao(2016), traducao(2026),traducao(2032))
+		else: dialog.ok(traducao(2014),traducao(2042),traducao(2043))
 	else: dialog.ok(traducao(2014), traducao(2015))
 	
 def change_keyboard_windows(url):
@@ -498,6 +502,20 @@ def change_keyboard_windows(url):
 			dialog.ok(traducao(2016), traducao(2026),traducao(2032))
 		else: dialog.ok(traducao(2014), traducao(2015))
 
+def md5sum_verified(path):
+	BLOCK_SIZE = 65536
+	hasher = hashlib.md5()
+	f = open(path,'rb')
+	done = 0
+	size = os.path.getsize(path)
+	while done < size:
+		data = f.read(BLOCK_SIZE)
+		done += len(data)
+		hasher.update(data)
+		if not data: break		
+	md5sum = hasher.hexdigest()
+	return md5sum
+	
 #########################################
 
 def remove_ficheiro(file_path):
