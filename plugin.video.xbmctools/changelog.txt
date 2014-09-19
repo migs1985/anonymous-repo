@@ -1,4 +1,7 @@
-﻿Versão 1.0.5:
+﻿Versão 1.0.6:
+Adicionado MD5 Checker - Verifica a versão actual
+
+Versão 1.0.5:
 Fix para users com caracter especial
 
 Versão 1.0.4:

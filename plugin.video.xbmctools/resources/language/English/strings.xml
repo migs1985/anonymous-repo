@@ -45,4 +45,6 @@
     <string id="2041">Estimated time:</string>
 	<string id="2042">Librtmp is corrupted.</string>
     <string id="2043">Please update again.</string>
+	<string id="2044">Librtmp is already up to date.</string>
+    <string id="2045">Update anyway?</string>
 </strings>

@@ -21,7 +21,7 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil,hashlib
 h = HTMLParser.HTMLParser()
 
-versao = '1.0.5'
+versao = '1.0.6'
 addon_id = 'plugin.video.xbmctools'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
@@ -143,6 +143,10 @@ def find_abs_path(str_path, search_str = ""):
 
 def librtmp_openelec():
 	md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
+	
+	if md5sum_verified("/storage/lib/librtmp.so.0") == md5:
+		if not dialog.yesno(traducao(2016),traducao(2044),traducao(2045)): return
+	
 	my_tmp = os.path.join(addonfolder,"resources","temp","librtmp.so.0")
 	if not download(my_tmp,"http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"):
 		dialog.ok(traducao(2014), traducao(2015))
@@ -333,6 +337,9 @@ def librtmp_linux(url):
 	mensagemprogresso.update(100)
 	mensagemprogresso.close()
 	
+	if md5sum_verified(file_path) == md5:
+		if not dialog.yesno(traducao(2016),traducao(2044),traducao(2045)): return
+	
 	keyb = xbmc.Keyboard('', traducao(2024)) 
 	keyb.setHiddenInput(True)
 	keyb.doModal()
@@ -408,19 +415,21 @@ def checksu():
 	return False
 	
 def librtmp_android():
-	dialog = xbmcgui.Dialog()
-	if not dialog.yesno(traducao(2016), traducao(2033),traducao(2019)): return
-
-	if not checksu():
-		dialog.ok(traducao(2014),traducao(2029))
-		return
-	
 	my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.so")
 	librtmp_path = os.path.join(android_xbmc_path(), "lib")
 	md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/android.xml.md5")
 	
 	if os.path.exists(os.path.join(librtmp_path, "librtmp.so")) is False:
 		dialog.ok(traducao(2014), traducao(2022))
+		return
+		
+	if md5sum_verified(os.path.join(librtmp_path, "librtmp.so")) == md5:
+		if not dialog.yesno(traducao(2016),traducao(2044),traducao(2045)): return 
+		
+	if not dialog.yesno(traducao(2016), traducao(2033),traducao(2019)): return
+
+	if not checksu():
+		dialog.ok(traducao(2014),traducao(2029))
 		return
 	
 	if download(my_librtmp,"http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Android/librtmp.so"):
@@ -490,6 +499,9 @@ def librtmp_updater(url):
 		dialog.ok(traducao(2014), traducao(2022))
 		return
 		
+	if md5sum_verified(librtmp_path) == md5:
+		if not dialog.yesno(traducao(2016),traducao(2044),traducao(2045)): return 
+		
 	if download(my_librtmp,download_url):
 		remove_ficheiro(librtmp_path)
 		shutil.copy(my_librtmp,librtmp_path)
@@ -517,7 +529,8 @@ def change_keyboard_windows(url):
 			dialog.ok(traducao(2016), traducao(2026),traducao(2032))
 		else: dialog.ok(traducao(2014), traducao(2015))
 
-def md5sum_verified(path):
+def md5sum_verified(path):	#Obrigado Mafarricos!
+	if not os.path.exists(path): return "erro"
 	BLOCK_SIZE = 65536
 	hasher = hashlib.md5()
 	f = open(path,'rb')

@@ -45,4 +45,6 @@
     <string id="2041">Tempo estimado:</string>
     <string id="2042">O librtmp está corrompido.</string>
     <string id="2043">Por favor, actualize novamente.</string>
+    <string id="2044">Já tem a versão mais recente do librtmp.</string>
+    <string id="2045">Actualizar mesmo assim?</string>
 </strings>
