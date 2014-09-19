@@ -18,7 +18,7 @@
 
 ##############BIBLIOTECAS A IMPORTAR E DEFINICOES####################
 
-import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil
+import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil,hashlib
 h = HTMLParser.HTMLParser()
 
 versao = '1.0.5'
@@ -452,6 +452,19 @@ def android_xbmc_path():	#Obrigado enen92!
 		if os.path.exists(xbmc_data_path) and uid == os.stat(xbmc_data_path).st_uid: return xbmc_data_path
 	return "erro"
 #########################################	WINDOWS e IOS
+def md5sum_verified(path):
+	BLOCK_SIZE = 65536
+	hasher = hashlib.md5()
+	f = open(path,'rb')
+	done = 0
+	size = os.path.getsize(path)
+	while done < size:
+		data = f.read(BLOCK_SIZE)
+		done += len(data)
+		hasher.update(data)
+		if not data: break		
+	md5sum = hasher.hexdigest()
+	return md5sum
 	
 def librtmp_updater(url):
 	xbmc_folder = xbmc.translatePath("special://xbmc")
@@ -462,10 +475,12 @@ def librtmp_updater(url):
 		librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
 		my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.dll")
 		download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Windows/librtmp.dll"
+		md5checksum = "b7d8b17310e0525e7119f73d1222b093"
 	elif url == "ios":
 		librtmp_path = os.path.join(xbmc_folder.replace('XBMCData/XBMCHome','Frameworks'),"librtmp.0.dylib")
 		my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.0.dylib")
 		download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/iOS/librtmp.0.dylib"
+		md5checksum = "35588fa1b54e586b8fb2732d49ce015b"
 	else: return
 	
 	if os.path.exists(librtmp_path) is False:
@@ -473,11 +488,13 @@ def librtmp_updater(url):
 		return
 		
 	if download(my_librtmp,download_url):
-		remove_ficheiro(librtmp_path)
-		shutil.copy(my_librtmp,librtmp_path)
-		remove_ficheiro(my_librtmp)
-		if url == "windows": os.chmod(librtmp_path,755)
-		dialog.ok(traducao(2016), traducao(2026),traducao(2032))
+		if md5sum_verified(my_librtmp) == md5checksum:
+			remove_ficheiro(librtmp_path)
+			shutil.copy(my_librtmp,librtmp_path)
+			remove_ficheiro(my_librtmp)
+			if url == "windows": os.chmod(librtmp_path,755)
+			dialog.ok(traducao(2016), traducao(2026),traducao(2032))
+		else: dialog.ok(traducao(2014), 'falhou a verificação md5')	
 	else: dialog.ok(traducao(2014), traducao(2015))
 	
 def change_keyboard_windows(url):
