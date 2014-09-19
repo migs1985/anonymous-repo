@@ -91,8 +91,6 @@ def CATEGORIES():
 	else: addLink('[B][COLOR white]'+traducao(2007)+' ('+ disponivel + '). '+traducao(2008)+'[/COLOR][/B]','',artfolder + 'versao.png')
 	
 	print "--------- XBMC Tools ---------"
-	print "---------ADDON FOLDER---------"
-	print addonfolder
 
 ###################################################################################
 #FUNCOES
