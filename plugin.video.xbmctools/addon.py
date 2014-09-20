@@ -37,6 +37,21 @@ def traducao(texto):
 ################################################## 
 
 #MENUS############################################
+def VersionChecker(system):
+	if system == "windows":
+		xbmc_folder = xbmc.translatePath("special://xbmc")
+		librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
+		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/windows.xml.md5")
+	if system == "openelec":
+		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
+		librtmp_path = "/storage/lib/librtmp.so.0"
+	if system == "android":		
+		librtmp_path = os.path.join(android_xbmc_path(), "lib")
+		librtmp_path = os.path.join(librtmp_path, "librtmp.so")		
+		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/android.xml.md5")
+	if system:
+		if md5sum_verified(librtmp_path) == md5: addDir("Aviso: Já tem a versão mais actual do librtmp",system,'',artfolder,False)
+		else: addDir("Aviso: Deve Actualizar o librtmp",system,'',artfolder,False)
 
 def CATEGORIES():
 	if xbmc.getCondVisibility('system.platform.windows'):
@@ -46,6 +61,7 @@ def CATEGORIES():
 		addDir(traducao(2002),"windows",1,artfolder + "keyboard.png")
 		addDir(traducao(2003),"windows",3,artfolder + "dll.png",False)
 		addDir(traducao(2004),"windows",9,artfolder + "backup.png")
+		VersionChecker("windows")
 	#-----------------------------------------------------------------------
 	elif xbmc.getCondVisibility('System.Platform.OSX'): erro_os()
 	elif xbmc.getCondVisibility('system.platform.linux') and not xbmc.getCondVisibility('system.platform.Android'):
@@ -55,6 +71,7 @@ def CATEGORIES():
 				mensagem_os("Openelec")
 				addDir(traducao(2003),"-",8,artfolder + "dll.png",False)
 				addDir(traducao(2004),"openelec",9,artfolder + "backup.png")
+				VersionChecker("openelec")
 			else:
 				mensagem_os("RaspberryPI (OS)")
 				addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
@@ -75,6 +92,7 @@ def CATEGORIES():
 		addDir(traducao(2002),"android",1,artfolder + "keyboard.png")
 		addDir(traducao(2003)+" [COLOR blue](XBMC Gotham 13)[/COLOR]","-",5,artfolder + "dll.png",False)
 		addDir(traducao(2004),"android",9,artfolder + "backup.png")
+		VersionChecker("android")		
 	#-------------------------------------------------------------------
 	elif xbmc.getCondVisibility('system.platform.IOS'): 
 	#IOS
