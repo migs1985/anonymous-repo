@@ -1,0 +1,28 @@
+﻿Versão 1.0.6:
+Corrigida opção para ver vídeos
+
+Versão 1.0.6:
+Adicionadas sugestoes de pesquisas, para quando uma pesquisa nao tem resultados
+Melhorado o método de Download: Possível fazer download em background sem barra de progresso
+
+Versão 1.0.5:
+Adicionada função de pesquisa na Playlist
+
+Versão 1.0.4:
+Adicionada opção para ver vídeos
+
+Versão 1.0.3:
+Adicionada tradução para Inglês
+Corrigidos "minor-bugs"
+
+Versão 1.0.2:
+Corrigido erro em que a playlist desaparecia com actualizações
+Adicionada opção de ver a letra da música
+
+Versão 1.0.1:
+Corrigido bug em que em algumas músicas o download falhava
+Suporte a Gotham
+Possibilidade de reproduzir item seguinte automaticamente ou não
+
+Versão 1.0.0:
+Primeira versão

@@ -1,0 +1,9 @@
+﻿Versão 1.0.1a:
+Correcção de bug na mudança de icon
+
+Versão 1.0.1:
+Adicionada opção de mudar icons
+Outros melhoramentos
+
+Versão 1.0.0:
+Primeira versão

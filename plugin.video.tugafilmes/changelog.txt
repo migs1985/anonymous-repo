@@ -1,0 +1,10 @@
+﻿Versão 1.0.2:
+Correcção para mudança do domínio
+Correcção nas legendas
+
+Versão 1.0.1:
+Adicionada opção de Download
+Possível desligar legendas nas opções
+
+Versão 1.0.0:
+Primeira Versão

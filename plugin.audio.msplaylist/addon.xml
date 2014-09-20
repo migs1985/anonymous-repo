@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.xbmctools" name="XBMC Tools" version="1.0.6" provider-name="Anonymous">
+<addon id="plugin.audio.msplaylist" name="Mp3 Skull Playlist" version="1.0.7" provider-name="Anonymous">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
-    <provides>executable</provides>
+    <provides>audio</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
     <language>en</language>
     <platform>all</platform>
-    <summary lang="en">XBMC Tools</summary>
-    <description lang="en">Algumas ferramentas necessarias</description>
+    <summary lang="en">Mp3 Skull Playlist</summary>
+    <description lang="en">Cria a tua playlist de musica a partir do Mp3 Skull</description>
     <platform>all</platform>
   </extension>
 </addon>

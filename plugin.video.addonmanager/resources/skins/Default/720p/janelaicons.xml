@@ -1,0 +1,74 @@
+<window>
+    <defaultcontrol always="false">500</defaultcontrol>
+    <allowoverlay>no</allowoverlay>
+	<include>dialogeffect</include>
+    
+    <controls>
+		<control type="group">
+			<visible>true</visible>
+			<control type="image">
+				<posx>180</posx>
+				<posy>70</posy>
+				<width>900</width>
+				<height>470</height>
+				<texture>lateral-fundo.png</texture>
+			</control>
+			<control type="panel" id="500">
+				<posx>250</posx>
+				<posy>138</posy>
+				<width>800</width>
+				<height>485</height>
+				<onleft>2</onleft>
+				<onright>60</onright>
+				<onup>801</onup>
+				<align>center</align>
+				<viewtype label="21371">list</viewtype>
+				<pagecontrol>60</pagecontrol>
+				<scrolltime>200</scrolltime>
+				<preloaditems>2</preloaditems>
+				
+				<itemlayout height="150" width="150">
+					<control type="image">
+						<posx>15</posx>
+						<posy>0</posy>
+						<width>128</width>
+						<height>128</height>
+						<bordertexture border="5">button-nofocus.png</bordertexture>
+						<bordersize>5</bordersize>
+						<texture background="true">$INFO[Listitem.Icon]</texture>
+					</control>
+				</itemlayout>
+
+				<focusedlayout height="140" width="140">
+					<control type="image">
+						<posx>15</posx>
+						<posy>0</posy>
+						<width>132</width>
+						<height>132</height>
+						<bordertexture border="5">folder-focus.png</bordertexture>
+						<bordersize>5</bordersize>
+						<texture background="true">$INFO[Listitem.Icon]</texture>
+					</control>
+				</focusedlayout>
+			</control>
+		</control>
+		
+		<control type="button" id="801">
+            <posx>1020</posx>
+            <posy>80</posy>
+            <width>48</width>
+            <height>48</height>
+            <texturefocus>lateral-fechar-seleccionado.png</texturefocus>
+			<texturenofocus>lateral-fechar.png</texturenofocus>
+			<onup>6000</onup>
+			<onleft>4306</onleft>
+			<ondown>500</ondown>
+            <align>left</align>
+            <aligny>center</aligny>
+            <font>font13</font>
+            <textcolor>gold</textcolor>
+            <label></label>
+			<visible>true</visible>
+        </control>	
+    </controls>
+</window>
