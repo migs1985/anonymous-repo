@@ -108,6 +108,11 @@ def keyboard(url):
 		
 #########################################	LINUX
 
+def file_name(path):
+	import ntpath
+	head, tail = ntpath.split(path)
+	return tail or ntpath.basename(head)
+
 def find_abs_path(str_path, search_str = ""):
 	p = subprocess.Popen('find / | grep ' + str_path, stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
 	(output, err) = p.communicate()
@@ -134,10 +139,12 @@ def find_abs_path(str_path, search_str = ""):
 				except: paths.append(aux)
 			else: aux = aux + output[x]
 	
-	if len(paths) == 1: return paths[0]
+	if len(paths) == 1:
+		if file_name(paths[0]) == str_path: return paths[0]
+		else: return "erro"
 	if search_str != "":
 		for x in range(0, len(paths)):
-			if search_str in paths[x]: return paths[x]
+			if search_str in paths[x] and file_name(paths[x]) == str_path: return paths[x]
 		return "erro"
 	return paths
 
@@ -374,7 +381,7 @@ def change_keyboard_linux(url):
 	mensagemprogresso = xbmcgui.DialogProgress()
 	mensagemprogresso.create('XBMC Tools', traducao(3031),traducao(2013))
 	mensagemprogresso.update(50)
-	file_path = find_abs_path("skin.confluence/720p/DialogKeyboard.xml")
+	file_path = find_abs_path("DialogKeyboard.xml","skin.confluence/720p/")
 	
 	if (os.path.exists(file_path) and "skin.confluence/720p/DialogKeyboard.xml" in file_path) is False:
 		mensagemprogresso.close()
