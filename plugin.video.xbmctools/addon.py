@@ -564,10 +564,10 @@ def erro_os():
 	
 def download(mypath,url):
 	if os.path.isfile(mypath) is True:
-		dialog = xbmcgui.Dialog()
-		dialog.ok(traducao(2014),traducao(2038))
-		return False
-			  
+		if not remove_ficheiro(mypath):
+			dialog.ok(traducao(2014),traducao(2038))
+			return False
+
 	dp = xbmcgui.DialogProgress()
 	dp.create('Download')
 	start_time = time.time()		# url - url do ficheiro    mypath - localizacao ex: c:\file.mp3
