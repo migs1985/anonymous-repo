@@ -1,4 +1,8 @@
-﻿Versão 1.0.6:
+﻿Versão 1.0.7:
+Adicionada opção de download de apk para android
+Adicionado verificador de versão do librtmp ao início
+
+Versão 1.0.6:
 Adicionado MD5 Checker - Verifica a versão actual
 
 Versão 1.0.5:

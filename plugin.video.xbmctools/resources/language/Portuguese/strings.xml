@@ -50,4 +50,8 @@
     <string id="2046">Impossível aceder à pasta!</string>
     <string id="2047">Pasta de Download</string>
     <string id="2048">Download concluído com sucesso!</string>
+    <string id="2049">Tem a versão mais actual do librtmp</string>
+    <string id="2050">Librtmp desactualizado</string>
+    <string id="2051">Verificar a versão do librtmp ao iniciar</string>
+    <string id="2052">Definicoes gerais</string>
 </strings>

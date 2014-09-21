@@ -21,7 +21,7 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil,hashlib
 h = HTMLParser.HTMLParser()
 
-versao = '1.0.6'
+versao = '1.0.7'
 addon_id = 'plugin.video.xbmctools'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
@@ -33,25 +33,13 @@ traducaoma= selfAddon.getLocalizedString
 
 def traducao(texto):
 	return traducaoma(texto).encode('utf-8')
+	
+if selfAddon.getSetting('versioncheck') == "true": vc = True
+else: vc = False
 
 ################################################## 
 
 #MENUS############################################
-def VersionChecker(system):
-	if system == "windows":
-		xbmc_folder = xbmc.translatePath("special://xbmc")
-		librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
-		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/windows.xml.md5")
-	if system == "openelec":
-		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
-		librtmp_path = "/storage/lib/librtmp.so.0"
-	if system == "android":		
-		librtmp_path = os.path.join(android_xbmc_path(), "lib")
-		librtmp_path = os.path.join(librtmp_path, "librtmp.so")		
-		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/android.xml.md5")
-	if system:
-		if md5sum_verified(librtmp_path) == md5: addDir("Aviso: Já tem a versão mais actual do librtmp",system,'',artfolder,False)
-		else: addDir("Aviso: Deve Actualizar o librtmp",system,'',artfolder,False)
 
 def CATEGORIES():
 	if xbmc.getCondVisibility('system.platform.windows'):
@@ -61,6 +49,7 @@ def CATEGORIES():
 		addDir(traducao(2002),"windows",1,artfolder + "keyboard.png")
 		addDir(traducao(2003),"windows",3,artfolder + "dll.png",False)
 		addDir(traducao(2004),"windows",9,artfolder + "backup.png")
+		addLink('','','nothing')
 		VersionChecker("windows")
 	#-----------------------------------------------------------------------
 	elif xbmc.getCondVisibility('System.Platform.OSX'): erro_os()
@@ -71,12 +60,15 @@ def CATEGORIES():
 				mensagem_os("Openelec")
 				addDir(traducao(2003),"-",8,artfolder + "dll.png",False)
 				addDir(traducao(2004),"openelec",9,artfolder + "backup.png")
+				addLink('','','nothing')
 				VersionChecker("openelec")
 			else:
 				mensagem_os("RaspberryPI (OS)")
 				addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
 				addDir(traducao(2003),"raspberry",7,artfolder + "dll.png",False)
 				addDir(traducao(2004),"raspberry",9,artfolder + "backup.png")
+				addLink('','','nothing')
+				VersionChecker("raspberry")
 			#-------------------------------------------------------------------
 		elif os.uname()[4] == 'armv7l': erro_os()
 		else: 
@@ -85,6 +77,8 @@ def CATEGORIES():
 			addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
 			addDir(traducao(2003),"linux",7,artfolder + "dll.png",False)
 			addDir(traducao(2004),"linux",9,artfolder + "backup.png")
+			addLink('','','nothing')
+			VersionChecker("linux")
 			#-------------------------------------------------------------------
 	elif xbmc.getCondVisibility('system.platform.Android'): 
 	#ANDROID
@@ -93,26 +87,53 @@ def CATEGORIES():
 		addDir("Download APK","-",11,artfolder + "apk.png",False)
 		addDir(traducao(2003)+" [COLOR blue](XBMC Gotham 13)[/COLOR]","-",5,artfolder + "dll.png",False)
 		addDir(traducao(2004),"android",9,artfolder + "backup.png")
-		VersionChecker("android")		
+		addLink('','','nothing')
+		VersionChecker("android")
 	#-------------------------------------------------------------------
 	elif xbmc.getCondVisibility('system.platform.IOS'): 
 	#IOS
 		mensagem_os("iOS")
 		addDir(traducao(2003),"ios",3,artfolder + "dll.png",False)
 		addDir(traducao(2004),"ios",9,artfolder + "backup.png")
+		addLink('','','nothing')
+		VersionChecker("ios")
 	#-------------------------------------------------------------------
 	else: erro_os()
 	
-	addLink('','','nothing')
 	disponivel=versao_disponivel() # nas categorias
 	if disponivel==versao: addLink('[B][COLOR white]'+traducao(2005)+' (' + versao + ')[/COLOR][/B]','',artfolder + 'versao.png')
 	elif disponivel=='Erro ao verificar a versão!': addLink('[B][COLOR white]' + traducao(2006) + '[/COLOR][/B]','',artfolder + 'versao.png')
 	else: addLink('[B][COLOR white]'+traducao(2007)+' ('+ disponivel + '). '+traducao(2008)+'[/COLOR][/B]','',artfolder + 'versao.png')
-	
 	print "--------- XBMC Tools ---------"
 
 ###################################################################################
 #FUNCOES
+
+def VersionChecker(system):
+	if not vc: return
+	if system == "ios":
+		librtmp_path = os.path.join(xbmc_folder.replace('XBMCData/XBMCHome','Frameworks'),"librtmp.0.dylib")
+		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/ios.xml.md5")
+	elif system == "windows":
+		librtmp_path = os.path.join(xbmc.translatePath("special://xbmc"), "system/players/dvdplayer/librtmp.dll")
+		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/windows.xml.md5")
+	elif system == "android":		
+		librtmp_path = os.path.join(android_xbmc_path(), "lib","librtmp.so")	
+		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/android.xml.md5")
+	elif system == "openelec":
+		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
+		librtmp_path = "/storage/lib/librtmp.so.0"
+	elif system == "linux" or system == "raspberry":
+		librtmp_path = find_abs_path("librtmp.so.0","/lib/")
+		if system == "raspberry": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
+		elif system == "linux": 
+			if os.uname()[4] == "i686": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x86.xml.md5")
+			elif os.uname()[4] == "x86_64": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x64.xml.md5")
+			else: return
+			
+	if md5sum_verified(librtmp_path) == md5: addLink("[B][COLOR blue]"+traducao(2049)+"[/COLOR][/B]",'',artfolder + "check.png")
+	else: addLink("[B][COLOR red]"+traducao(2050)+"[/COLOR][/B]",'',artfolder + "check.png")
+
 def keyboard(url):
 	dialog.ok(traducao(2009), traducao(2010),"[COLOR red]"+traducao(2011)+"[/COLOR]")
 	if url == "windows":

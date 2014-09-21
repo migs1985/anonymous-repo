@@ -50,4 +50,8 @@
 	<string id="2046">Unable to access folder!</string>
     <string id="2047">Download folder</string>
     <string id="2048">Download completed!</string>
+	<string id="2049">Your librtmp is up to date</string>
+    <string id="2050">Librtmp outdated</string>
+	<string id="2051">Check librtmp version at start</string>
+	<string id="2052">Global settings</string>
 </strings>
