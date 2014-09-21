@@ -26,8 +26,8 @@
 	<string id="30022">Aviso!</string>
 	<string id="30023">Já existe uma playlist!</string>
 	<string id="30024">Deseja substituí-la?</string>
-	<string id="30025">Importar Playlist</string>
-	<string id="30026">Seleccione o ficheiro playlist.txt</string>
+	<string id="30025">Pasta da playlist</string>
+	<string id="30026">"playlist.txt" não encontrado.</string>
 	<string id="30027">Impossível importar Playlist!</string>
 	<string id="30028">Playlist importada com sucesso!</string>
 	<string id="30029">Exportar Playlist</string>
@@ -65,4 +65,5 @@
 	<string id="30061">Não foram encontrados resultados.</string>
 	<string id="30062">Sugestões de pesquisa</string>
 	<string id="30063">Tempo estimado:</string>
+	<string id="30064">Importar playlist</string>
 </strings>

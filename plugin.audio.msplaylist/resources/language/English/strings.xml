@@ -26,8 +26,8 @@
 	<string id="30022">Warning!</string>
 	<string id="30023">There is already a playlist!</string>
 	<string id="30024">Overwrite it?</string>
-	<string id="30025">Import Playlist</string>
-	<string id="30026">Select "playlist.txt"</string>
+	<string id="30025">Playlist folder</string>
+	<string id="30026">"playlist.txt" not found</string>
 	<string id="30027">Unable to import playlist!</string>
 	<string id="30028">Playlist imported successfully!</string>
 	<string id="30029">Export Playlist</string>
@@ -65,4 +65,5 @@
 	<string id="30061">No results found.</string>
 	<string id="30062">Search suggestions</string>
 	<string id="30063">Estimated time:</string>
+	<string id="30064">Import playlist</string>
 </strings>

@@ -323,7 +323,7 @@ def verifica_path():
 		selfAddon.openSettings()
 		return True
 	else: return False
-	
+
 def importar():
 	if verifica_path(): return
 	try:
@@ -335,9 +335,10 @@ def importar():
 			if not dialog.yesno(traducao(30022),traducao(30023),traducao(30024)): return
 	except: pass
 	dialog = xbmcgui.Dialog()
-	file = dialog.browse(1,traducao(30025),"myprograms")
+	file = dialog.browse(3,traducao(30025),'files')
 	if not file: return
-	if 'playlist.txt' not in file:
+	file = os.path.join(file,"playlist.txt")
+	if not os.path.exists(file):
 		dialog = xbmcgui.Dialog()
 		dialog.ok(traducao(30014), traducao(30026))
 		return
@@ -363,7 +364,7 @@ def importar():
 def exportar():
 	if verifica_path(): return
 	dialog = xbmcgui.Dialog()
-	dir = dialog.browse(0,traducao(30029),"myprograms")
+	dir = dialog.browse(int(3),traducao(30029),"files")
 	if not dir: return
 	try:
 		f = open(playlist,"r")
@@ -503,7 +504,7 @@ def addDir(name,url,mode,iconimage,pasta = True,playlist_dir = False):
 	cm = []
 	if playlist_dir:
 		cm.append((traducao(30029), 'XBMC.RunPlugin(%s?mode=12&url=%s&name=%s)' % (sys.argv[0], urllib.quote_plus(url),name)))
-		cm.append((traducao(30025), 'XBMC.RunPlugin(%s?mode=13&url=%s&name=%s)' % (sys.argv[0], urllib.quote_plus(url),name)))
+		cm.append((traducao(30064), 'XBMC.RunPlugin(%s?mode=13&url=%s&name=%s)' % (sys.argv[0], urllib.quote_plus(url),name)))
 		cm.append((traducao(30034), 'XBMC.RunPlugin(%s?mode=10&url=%s&name=%s)' % (sys.argv[0], urllib.quote_plus(url),name)))
 	liz.addContextMenuItems(cm, replaceItems=True)
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=pasta)
