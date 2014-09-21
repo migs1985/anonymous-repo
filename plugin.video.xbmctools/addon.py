@@ -73,6 +73,7 @@ def CATEGORIES():
 	#ANDROID
 		mensagem_os("Android")
 		addDir(traducao(2002),"android",1,artfolder + "keyboard.png")
+		addDir("Download APK","-",11,artfolder + "apk.png",False)
 		addDir(traducao(2003)+" [COLOR blue](XBMC Gotham 13)[/COLOR]","-",5,artfolder + "dll.png",False)
 		addDir(traducao(2004),"android",9,artfolder + "backup.png")
 	#-------------------------------------------------------------------
@@ -483,6 +484,16 @@ def android_xbmc_path():	#Obrigado enen92!
 		xbmc_data_path = os.path.join("/data", "data", app_id)
 		if os.path.exists(xbmc_data_path) and uid == os.stat(xbmc_data_path).st_uid: return xbmc_data_path
 	return "erro"
+	
+def download_apk():
+	dir = dialog.browse(int(3), traducao(2047), 'files')
+	if not os.path.exists(dir):
+		dialog.ok(traducao(2014),traducao(2046))
+		return
+	url = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/apk/url.txt")
+	if download(os.path.join(dir,file_name(url)),url): dialog.ok(traducao(2026),traducao(2048))
+	else: dialog.ok(traducao(2014), traducao(2015))
+	
 #########################################	WINDOWS e IOS
 	
 def librtmp_updater(url):
@@ -703,4 +714,5 @@ elif mode==7: librtmp_linux(url)
 elif mode==8: librtmp_openelec()
 elif mode==9: backup(url)
 elif mode==10: backup_(url)
+elif mode==11: download_apk()
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

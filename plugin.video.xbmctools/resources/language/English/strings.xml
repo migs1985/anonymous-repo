@@ -47,4 +47,7 @@
     <string id="2043">Please update again.</string>
 	<string id="2044">Librtmp is already up to date.</string>
     <string id="2045">Update anyway?</string>
+	<string id="2046">Unable to access folder!</string>
+    <string id="2047">Download folder</string>
+    <string id="2048">Download completed!</string>
 </strings>
