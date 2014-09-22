@@ -210,6 +210,9 @@ def librtmp_openelec():
 			subprocess.call("cp " + my_tmp + " /storage/lib/librtmp.so.0", shell=True)
 			subprocess.call("chmod 755 /storage/lib/librtmp.so.0", shell=True)
 			subprocess.call("rm " + my_tmp, shell=True)
+			
+			if md5sum_verified("/storage/lib/librtmp.so.0") != md5: dialog.ok(traducao(2014),traducao(2042),traducao(2043))
+			
 			dialog.ok(traducao(2016),traducao(2017))
 			subprocess.call("reboot", shell=True)
 			return
