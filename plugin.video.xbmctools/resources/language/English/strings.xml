@@ -54,4 +54,6 @@
     <string id="2050">Librtmp outdated</string>
 	<string id="2051">Check librtmp version at start</string>
 	<string id="2052">Global settings</string>
+	<string id="2053">The hack is already done.</string>
+    <string id="2054">Do it again?</string>
 </strings>

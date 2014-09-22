@@ -203,6 +203,16 @@ def librtmp_openelec():
 	if not download(my_tmp,"http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"):
 		dialog.ok(traducao(2014), traducao(2015))
 		return;
+		
+	if os.path.exists("/storage/lib/librtmp.so.0") and os.path.exists("/var/tmp/libhack/3rdparty/librtmp.so.0"):
+		if not dialog.yesno(traducao(2016),traducao(2053),traducao(2054)):
+			subprocess.call("rm /storage/lib/librtmp.so.0", shell=True)
+			subprocess.call("cp " + my_tmp + " /storage/lib/librtmp.so.0", shell=True)
+			subprocess.call("chmod 755 /storage/lib/librtmp.so.0", shell=True)
+			subprocess.call("rm " + my_tmp, shell=True)
+			dialog.ok(traducao(2016),traducao(2017))
+			subprocess.call("reboot", shell=True)
+			return
 	
 	mensagemprogresso = xbmcgui.DialogProgress()
 	mensagemprogresso.create('XBMC Tools', traducao(2012),traducao(2013))
