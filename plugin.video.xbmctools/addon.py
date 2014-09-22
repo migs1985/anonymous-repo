@@ -124,7 +124,11 @@ def VersionChecker(system):
 		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
 		librtmp_path = "/storage/lib/librtmp.so.0"
 	elif system == "linux" or system == "raspberry":
+		mensagemprogresso.create('XBMC Tools', traducao(3031),traducao(2013))
+		mensagemprogresso.update(50)
 		librtmp_path = find_abs_path("librtmp.so.0","/lib/")
+		mensagemprogresso.update(100)
+		mensagemprogresso.close()
 		if system == "raspberry": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
 		elif system == "linux": 
 			if os.uname()[4] == "i686": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x86.xml.md5")
