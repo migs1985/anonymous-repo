@@ -1,4 +1,8 @@
-﻿Versão 1.0.7:
+﻿Versão 1.0.8:
+Adicionado suporte a macOS
+Melhorias para openelec
+
+Versão 1.0.7:
 Adicionada opção de download de apk para android
 Adicionado verificador de versão do librtmp ao início
 
