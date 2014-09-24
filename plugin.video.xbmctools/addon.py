@@ -21,7 +21,7 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil,hashlib
 h = HTMLParser.HTMLParser()
 
-versao = '1.1.0'
+versao = '1.1.1'
 addon_id = 'plugin.video.xbmctools'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
@@ -38,6 +38,8 @@ if selfAddon.getSetting('versioncheck') == "true": vc = True
 else: vc = False
 if selfAddon.getSetting('force-openelec') == "false": forcar_openelec = False
 else: forcar_openelec = True
+if selfAddon.getSetting('first_run') == "true": first_run = True
+else: first_run = False
 ################################################## 
 
 #MENUS############################################
@@ -55,6 +57,14 @@ def CATEGORIES():
 	#-----------------------------------------------------------------------
 	elif xbmc.getCondVisibility('System.Platform.OSX'):
 		mensagem_os("macOS")
+		if first_run:
+			if os.uname()[4] == "i686" or os.uname()[4] == "i386": selfAddon.setSetting('mac_bits',value=str(0))
+			else:
+				ret = dialog.select(traducao(2056), ['x86', 'x64'])
+				if ret == -1: sys.exit(0); return;
+				selfAddon.setSetting('mac_bits',value=str(ret))
+			selfAddon.setSetting('first_run',value='false')
+		
 		addDir(traducao(2003),"macos",3,artfolder + "dll.png",False)
 		addDir(traducao(2004),"macos",9,artfolder + "backup.png")
 		addLink('','','nothing')
@@ -129,8 +139,8 @@ def VersionChecker(system):
 		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/ios.xml.md5")
 	elif system == "macos":
 		librtmp_path = os.path.join(xbmc.translatePath("special://xbmc").replace('Resources/XBMC','Libraries'),"librtmp.0.dylib")
-		if os.uname()[4] == "i686": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/macos_x86.xml.md5")
-		elif os.uname()[4] == "x86_64": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/macos_x64.xml.md5")
+		if selfAddon.getSetting('mac_bits') == "0": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/macos_x86.xml.md5")
+		elif selfAddon.getSetting('mac_bits') == "1": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/macos_x64.xml.md5")
 		else: return
 	elif system == "windows":
 		librtmp_path = os.path.join(xbmc.translatePath("special://xbmc"), "system/players/dvdplayer/librtmp.dll")
@@ -142,7 +152,7 @@ def VersionChecker(system):
 		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
 		librtmp_path = "/storage/lib/librtmp.so.0"
 	elif system == "openelec pc":
-		if os.uname()[4] == "i686": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x86.xml.md5")
+		if os.uname()[4] == "i686" or os.uname()[4] == "i386": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x86.xml.md5")
 		elif os.uname()[4] == "x86_64": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x64.xml.md5")
 		else: return
 		librtmp_path = "/storage/lib/librtmp.so.0"
@@ -155,7 +165,7 @@ def VersionChecker(system):
 		mensagemprogresso.close()
 		if system == "raspberry": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
 		elif system == "linux": 
-			if os.uname()[4] == "i686": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x86.xml.md5")
+			if os.uname()[4] == "i686" or os.uname()[4] == "i386": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x86.xml.md5")
 			elif os.uname()[4] == "x86_64": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x64.xml.md5")
 			else: return
 			
@@ -221,7 +231,7 @@ def librtmp_openelec(url):
 		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
 		url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"
 	else:
-		if os.uname()[4] == "i686": 
+		if os.uname()[4] == "i686" or os.uname()[4] == "i386": 
 			url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x86&ATV1/librtmp.so.0"
 			md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x86.xml.md5")
 		elif os.uname()[4] == "x86_64": 
@@ -416,7 +426,7 @@ def librtmp_linux(url):
 		url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"
 		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
 	elif url == "linux":
-		if os.uname()[4] == "i686": 
+		if os.uname()[4] == "i686" or os.uname()[4] == "i386": 
 			url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x86&ATV1/librtmp.so.0"
 			md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x86.xml.md5")
 		elif os.uname()[4] == "x86_64": 
@@ -615,21 +625,13 @@ def librtmp_updater(url):
 		download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/iOS/librtmp.0.dylib"
 		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/ios.xml.md5")
 	elif url == "macos":
-		if os.uname()[4] == "i686": 
+		if selfAddon.getSetting('mac_bits') == "0":
 			download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/macOS/x86/librtmp.0.dylib"
 			md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/macos_x86.xml.md5")
-		elif os.uname()[4] == "x86_64": 
+		elif selfAddon.getSetting('mac_bits') == "1":
 			download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/macOS/x64/librtmp.0.dylib"
 			md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/macos_x64.xml.md5")
-		else:
-			ret = dialog.select(traducao(2030), ['x86', 'x64'])
-			if ret == 0:
-				download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/macOS/x86/librtmp.0.dylib"
-				md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/macos_x86.xml.md5")
-			elif ret == 1: 
-				download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/macOS/x64/librtmp.0.dylib"
-				md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/macos_x64.xml.md5")
-			else: return
+		else: return
 		librtmp_path = os.path.join(xbmc_folder.replace('Resources/XBMC','Libraries'),"librtmp.0.dylib")
 		my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.0.dylib")
 	else: return

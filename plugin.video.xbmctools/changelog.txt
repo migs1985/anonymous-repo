@@ -1,4 +1,7 @@
-﻿Versão 1.1.0:
+﻿Versão 1.1.1:
+Fix para arquitecturas mac OS x64
+
+Versão 1.1.0:
 Adicionado suporte a Openelec (PC)
 Adicionada opção para forçar Openelec (Raspberry)
 

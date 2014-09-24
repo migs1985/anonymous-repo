@@ -2,6 +2,12 @@
 <settings>
    <category label="2052">
       <setting id="versioncheck" type="bool" label="2051" default="true"/>
-      <setting id="force-openelec" type="bool" label="2055" visible="System.Platform.Linux" default="false"/>
+   </category>
+   <category label="RaspberryPI">
+      <setting id="force-openelec" type="bool" label="2055" visible="true" default="false"/>
+   </category>
+   <category label="Mac OS">
+	  <setting id="mac_bits" type="enum" label="2057" values="x86|x64" default="0"/>
+	  <setting id="first_run" type="bool" label="Mac OS" default="true" visible="false"/>
    </category>
 </settings>
