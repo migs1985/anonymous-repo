@@ -2,5 +2,6 @@
 <settings>
    <category label="2052">
       <setting id="versioncheck" type="bool" label="2051" default="true"/>
+      <setting id="force-openelec" type="bool" label="2055" visible="System.Platform.Linux" default="false"/>
    </category>
 </settings>

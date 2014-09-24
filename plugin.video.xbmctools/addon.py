@@ -21,7 +21,7 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil,hashlib
 h = HTMLParser.HTMLParser()
 
-versao = '1.0.9'
+versao = '1.1.0'
 addon_id = 'plugin.video.xbmctools'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
@@ -36,7 +36,8 @@ def traducao(texto):
 	
 if selfAddon.getSetting('versioncheck') == "true": vc = True
 else: vc = False
-
+if selfAddon.getSetting('force-openelec') == "false": forcar_openelec = False
+else: forcar_openelec = True
 ################################################## 
 
 #MENUS############################################
@@ -61,9 +62,9 @@ def CATEGORIES():
 	elif xbmc.getCondVisibility('system.platform.linux') and not xbmc.getCondVisibility('system.platform.Android'):
 		if os.uname()[4] == 'armv6l': 
 			#RASPBERRY
-			if re.search(os.uname()[1],"openelec",re.IGNORECASE):
+			if re.search(os.uname()[1],"openelec",re.IGNORECASE) or forcar_openelec:
 				mensagem_os("Openelec")
-				addDir(traducao(2003),"-",8,artfolder + "dll.png",False)
+				addDir(traducao(2003),"raspberry",8,artfolder + "dll.png",False)
 				addDir(traducao(2004),"openelec",9,artfolder + "backup.png")
 				addLink('','','nothing')
 				VersionChecker("openelec")
@@ -78,12 +79,19 @@ def CATEGORIES():
 		elif os.uname()[4] == 'armv7l': erro_os()
 		else: 
 			#LINUX
-			mensagem_os("Linux")
-			addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
-			addDir(traducao(2003),"linux",7,artfolder + "dll.png",False)
-			addDir(traducao(2004),"linux",9,artfolder + "backup.png")
-			addLink('','','nothing')
-			VersionChecker("linux")
+			if re.search(os.uname()[1],"openelec",re.IGNORECASE): 
+				mensagem_os("Openelec")
+				addDir(traducao(2003),"-",8,artfolder + "dll.png",False)
+				addDir(traducao(2004),"openelec",9,artfolder + "backup.png")
+				addLink('','','nothing')
+				VersionChecker("openelec pc")
+			else:
+				mensagem_os("Linux")
+				addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
+				addDir(traducao(2003),"linux",7,artfolder + "dll.png",False)
+				addDir(traducao(2004),"linux",9,artfolder + "backup.png")
+				addLink('','','nothing')
+				VersionChecker("linux")
 			#-------------------------------------------------------------------
 	elif xbmc.getCondVisibility('system.platform.Android'): 
 	#ANDROID
@@ -132,6 +140,11 @@ def VersionChecker(system):
 		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/android.xml.md5")
 	elif system == "openelec":
 		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
+		librtmp_path = "/storage/lib/librtmp.so.0"
+	elif system == "openelec pc":
+		if os.uname()[4] == "i686": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x86.xml.md5")
+		elif os.uname()[4] == "x86_64": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x64.xml.md5")
+		else: return
 		librtmp_path = "/storage/lib/librtmp.so.0"
 	elif system == "linux" or system == "raspberry":
 		mensagemprogresso = xbmcgui.DialogProgress()
@@ -203,14 +216,33 @@ def find_abs_path(str_path, search_str = ""):
 		return "erro"
 	return paths
 
-def librtmp_openelec():
-	md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
-	
+def librtmp_openelec(url):
+	if url == "raspberry":
+		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
+		url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"
+	else:
+		if os.uname()[4] == "i686": 
+			url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x86&ATV1/librtmp.so.0"
+			md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x86.xml.md5")
+		elif os.uname()[4] == "x86_64": 
+			url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x64/librtmp.so.0"
+			md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x64.xml.md5")
+		else:
+			ret = dialog.select(traducao(2030), ['x86', 'x64'])
+			if ret == 0:
+				url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x86&ATV1/librtmp.so.0"
+				md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x86.xml.md5")
+			elif ret == 1: 
+				url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Linux/x64/librtmp.so.0"
+				md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x64.xml.md5")
+			else: return
+		
 	if md5sum_verified("/storage/lib/librtmp.so.0") == md5:
 		if not dialog.yesno(traducao(2016),traducao(2044),traducao(2045)): return
 	
 	my_tmp = os.path.join(addonfolder,"resources","temp","librtmp.so.0")
-	if not download(my_tmp,"http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"):
+	
+	if not download(my_tmp,url_download):
 		dialog.ok(traducao(2014), traducao(2015))
 		return;
 		
@@ -270,15 +302,16 @@ def backup_(url):
 		if not dialog.yesno(traducao(2016), traducao(2021),traducao(2019)): return
 
 	if "linux" in url or "raspberry" in url or "openelec" in url:
-	
-		mensagemprogresso = xbmcgui.DialogProgress()
-		mensagemprogresso.create('XBMC Tools',traducao(2013))
-		mensagemprogresso.update(50)
-		librtmp_path = find_abs_path("librtmp.so.0","/lib/")
-		mensagemprogresso.update(100)
-		mensagemprogresso.close()
+		if "openelec" in url: librtmp_path = "/storage/lib/librtmp.so.0"
+		else:
+			mensagemprogresso = xbmcgui.DialogProgress()
+			mensagemprogresso.create('XBMC Tools',traducao(2013))
+			mensagemprogresso.update(50)
+			librtmp_path = find_abs_path("librtmp.so.0","/lib/")
+			mensagemprogresso.update(100)
+			mensagemprogresso.close()
 		
-		if (os.path.exists(librtmp_path) and "librtmp.so.0" in librtmp_path) is False:
+		if os.path.exists(librtmp_path) is False:
 			mensagemprogresso.close()
 			dialog.ok(traducao(2014), traducao(2022))
 			return
@@ -799,7 +832,7 @@ elif mode==4: change_keyboard_android(url)
 elif mode==5: librtmp_android()
 elif mode==6: change_keyboard_linux(url)
 elif mode==7: librtmp_linux(url)
-elif mode==8: librtmp_openelec()
+elif mode==8: librtmp_openelec(url)
 elif mode==9: backup(url)
 elif mode==10: backup_(url)
 elif mode==11: download_apk()

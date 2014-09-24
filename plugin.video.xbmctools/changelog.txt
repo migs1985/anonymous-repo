@@ -1,4 +1,8 @@
-﻿Versão 1.0.9:
+﻿Versão 1.1.0:
+Adicionado suporte a Openelec (PC)
+Adicionada opção para forçar Openelec (Raspberry)
+
+Versão 1.0.9:
 macOS fix
 
 Versão 1.0.8:
