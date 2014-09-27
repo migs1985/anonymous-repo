@@ -1,4 +1,10 @@
-﻿Versão 1.1.1:
+﻿Versão 1.1.2:
+Fix Android - Addon não funcionava em alguns aparelhos
+Melhoria em OSx - O addon agora obtém automaticamente a versão do XBMC
+Limpeza do código
+Vários fixes/melhorias
+
+Versão 1.1.1:
 Fix para arquitecturas mac OS x64
 
 Versão 1.1.0:

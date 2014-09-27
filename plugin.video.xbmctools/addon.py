@@ -21,14 +21,14 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil,hashlib
 h = HTMLParser.HTMLParser()
 
-versao = '1.1.1'
+versao = '1.1.2'
 addon_id = 'plugin.video.xbmctools'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
 if not os.path.exists(addonfolder): addonfolder = addonfolder.decode('utf-8')
 artfolder = addonfolder + '/resources/img/'
 dialog = xbmcgui.Dialog()
-
+xbmc_version = int(xbmc.getInfoLabel("System.BuildVersion" )[0:2])
 traducaoma= selfAddon.getLocalizedString
 
 def traducao(texto):
@@ -49,7 +49,7 @@ def CATEGORIES():
 	#WINDOWS
 		mensagem_os("Windows")
 		dialog.ok(traducao(2000), traducao(2001))
-		addDir(traducao(2002),"windows",1,artfolder + "keyboard.png")
+		if xbmc_version < 14: addDir(traducao(2002),"windows",1,artfolder + "keyboard.png")
 		addDir(traducao(2003),"windows",3,artfolder + "dll.png",False)
 		addDir(traducao(2004),"windows",9,artfolder + "backup.png")
 		addLink('','','nothing')
@@ -60,9 +60,12 @@ def CATEGORIES():
 		if first_run:
 			if os.uname()[4] == "i686" or os.uname()[4] == "i386": selfAddon.setSetting('mac_bits',value=str(0))
 			else:
-				ret = dialog.select(traducao(2056), ['x86', 'x64'])
-				if ret == -1: sys.exit(0); return;
-				selfAddon.setSetting('mac_bits',value=str(ret))
+				if xbmc_bit_version() == "x32": selfAddon.setSetting('mac_bits',value=str(0))
+				elif xbmc_bit_version() == "x64": selfAddon.setSetting('mac_bits',value=str(1))
+				else:
+					ret = dialog.select(traducao(2056), ['x86', 'x64'])
+					if ret == -1: sys.exit(0); return;
+					selfAddon.setSetting('mac_bits',value=str(ret))
 			selfAddon.setSetting('first_run',value='false')
 		
 		addDir(traducao(2003),"macos",3,artfolder + "dll.png",False)
@@ -70,7 +73,7 @@ def CATEGORIES():
 		addLink('','','nothing')
 		VersionChecker("macos")
 	elif xbmc.getCondVisibility('system.platform.linux') and not xbmc.getCondVisibility('system.platform.Android'):
-		if os.uname()[4] == 'armv6l': 
+		if os.uname()[4] == 'armv6l' or os.uname()[4] == 'armv7l': 
 			#RASPBERRY
 			if re.search(os.uname()[1],"openelec",re.IGNORECASE) or forcar_openelec:
 				mensagem_os("Openelec")
@@ -79,14 +82,14 @@ def CATEGORIES():
 				addLink('','','nothing')
 				VersionChecker("openelec")
 			else:
-				mensagem_os("RaspberryPI (OS)")
-				addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
+				if os.uname()[4] == 'armv6l': mensagem_os("RaspberryPI (OS)")
+				elif os.uname()[4] == 'armv7l': mensagem_os("Linux")
+				if xbmc_version < 14: addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
 				addDir(traducao(2003),"raspberry",7,artfolder + "dll.png",False)
 				addDir(traducao(2004),"raspberry",9,artfolder + "backup.png")
 				addLink('','','nothing')
 				VersionChecker("raspberry")
 			#-------------------------------------------------------------------
-		elif os.uname()[4] == 'armv7l': erro_os()
 		else: 
 			#LINUX
 			if re.search(os.uname()[1],"openelec",re.IGNORECASE): 
@@ -97,7 +100,7 @@ def CATEGORIES():
 				VersionChecker("openelec pc")
 			else:
 				mensagem_os("Linux")
-				addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
+				if xbmc_version < 14: addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
 				addDir(traducao(2003),"linux",7,artfolder + "dll.png",False)
 				addDir(traducao(2004),"linux",9,artfolder + "backup.png")
 				addLink('','','nothing')
@@ -106,7 +109,7 @@ def CATEGORIES():
 	elif xbmc.getCondVisibility('system.platform.Android'): 
 	#ANDROID
 		mensagem_os("Android")
-		addDir(traducao(2002),"android",1,artfolder + "keyboard.png")
+		if xbmc_version < 14: addDir(traducao(2002),"android",1,artfolder + "keyboard.png")
 		addDir("Download APK","-",11,artfolder + "apk.png",False)
 		addDir(traducao(2003)+" [COLOR blue](XBMC Gotham 13)[/COLOR]","-",5,artfolder + "dll.png",False)
 		addDir(traducao(2004),"android",9,artfolder + "backup.png")
@@ -173,13 +176,13 @@ def VersionChecker(system):
 	else: addLink("[B][COLOR red]"+traducao(2050)+"[/COLOR][/B]",'',artfolder + "check.png")
 
 def keyboard(url):
-	dialog.ok(traducao(2009), traducao(2010),"[COLOR red]"+traducao(2011)+"[/COLOR]")
+	dialog.ok(traducao(2009), traducao(2010))
 	if url == "windows":
-		addDir("QWERTY","qwerty",2,artfolder + "keyboard.png",False)
-		addDir("ABCDE","abcde",2,artfolder + "keyboard.png",False)
+		addDir("QWERTY","qwerty windows",2,artfolder + "keyboard.png",False)
+		addDir("ABCDE","abcde windows",2,artfolder + "keyboard.png",False)
 	elif url == "android":
-		addDir("QWERTY","qwerty",4,artfolder + "keyboard.png",False)
-		addDir("ABCDE","abcde",4,artfolder + "keyboard.png",False)
+		addDir("QWERTY","qwerty android",2,artfolder + "keyboard.png",False)
+		addDir("ABCDE","abcde android",2,artfolder + "keyboard.png",False)
 	elif url == "linux":
 		addDir("QWERTY","qwerty",6,artfolder + "keyboard.png",False)
 		addDir("ABCDE","abcde",6,artfolder + "keyboard.png",False)
@@ -411,10 +414,10 @@ def backup_(url):
 			return
 			
 		if "remove" in url or "backup" in url: os.system("su -c 'rm "+bak_path+"'")
-		if "backup" in url: os.system("su -c 'cp -f "+librtmp_path+" "+bak_path+"'")
+		if "backup" in url: os.system("su -c 'cat "+librtmp_path+" > "+bak_path+"'")
 		if "restore" in url:
 			os.system("su -c 'rm "+librtmp_path+"'")
-			os.system("su -c 'cp "+bak_path+" "+librtmp_path+"'")
+			os.system("su -c 'cat "+bak_path+" > "+librtmp_path+"'")
 			os.system("su -c 'rm "+bak_path+"'")
 			os.system("su -c 'chmod 755 "+librtmp_path+"'")
 		dialog.ok(traducao(2026),traducao(2027))
@@ -537,14 +540,14 @@ def checksu():
 	
 def librtmp_android():
 	my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.so")
-	librtmp_path = os.path.join(android_xbmc_path(), "lib")
+	librtmp_path = os.path.join(android_xbmc_path(), "lib", "librtmp.so")
 	md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/android.xml.md5")
 	
-	if os.path.exists(os.path.join(librtmp_path, "librtmp.so")) is False:
+	if os.path.exists(librtmp_path) is False:
 		dialog.ok(traducao(2014), traducao(2022))
 		return
 		
-	if md5sum_verified(os.path.join(librtmp_path, "librtmp.so")) == md5:
+	if md5sum_verified(librtmp_path) == md5:
 		if not dialog.yesno(traducao(2016),traducao(2044),traducao(2045)): return 
 		
 	if not dialog.yesno(traducao(2016), traducao(2033),traducao(2019)): return
@@ -552,32 +555,20 @@ def librtmp_android():
 	if not checksu():
 		dialog.ok(traducao(2014),traducao(2029))
 		return
+		
+	print "my_librtmp: " + my_librtmp
+	print "librtmp_path: " + librtmp_path
 	
 	if download(my_librtmp,"http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Android/librtmp.so"):
-		os.system("su -c 'rm "+os.path.join(librtmp_path, "librtmp.so")+"'")
-		os.system("su -c 'cp "+my_librtmp+" "+librtmp_path+"/'")
-		#os.system("su -c 'chown root.root "+os.path.join(librtmp_path, "librtmp.so")+"'")
-		os.system("su -c 'chmod 755 "+os.path.join(librtmp_path, "librtmp.so")+"'")
+		c1 = os.system("su -c 'rm "+librtmp_path+"'")
+		c2 = os.system("su -c 'cat "+my_librtmp+" > "+librtmp_path+"'")
+		#os.system("su -c 'chown root.root "+librtmp_path+"'")
+		c3 = os.system("su -c 'chmod 755 "+librtmp_path+"'")
 		remove_ficheiro(my_librtmp)
-		if md5sum_verified(os.path.join(librtmp_path, "librtmp.so")) == md5: dialog.ok(traducao(2016), traducao(2026),traducao(2032))
+		if md5sum_verified(librtmp_path) == md5: dialog.ok(traducao(2016), traducao(2026),traducao(2032))
 		else: dialog.ok(traducao(2014),traducao(2042),traducao(2043))
+		print "Return: " + str(c1) +" "+ str(c2) +" "+ str(c3)
 	else: dialog.ok(traducao(2014), traducao(2015))
-	
-def change_keyboard_android(url):
-	xbmc_data_path = android_xbmc_path()
-	
-	keyboard_path = os.path.join(xbmc_data_path, "cache/apk/assets/addons/skin.confluence/720p/DialogKeyboard.xml")
-	if os.path.exists(keyboard_path) is False:
-		dialog.ok(traducao(2014), traducao(2034))
-		return
-	
-	if url == "qwerty": url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/keyboard/qwerty/DialogKeyboard.xml"
-	elif url == "abcde": url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/keyboard/abcd/DialogKeyboard.xml"
-	
-	if remove_ficheiro(keyboard_path):
-		if download(keyboard_path,url_download):
-			dialog.ok(traducao(2016), traducao(2026),traducao(2032))
-		else: dialog.ok(traducao(2014), traducao(2015))
 	
 def android_xbmc_path():	#Obrigado enen92!
 	xbmcfolder=xbmc.translatePath(addonfolder).split("/")
@@ -600,6 +591,7 @@ def android_xbmc_path():	#Obrigado enen92!
 	
 def download_apk():
 	dir = dialog.browse(int(3), traducao(2047), 'files')
+	if dir == "": return
 	if not os.path.exists(dir):
 		dialog.ok(traducao(2014),traducao(2046))
 		return
@@ -607,8 +599,25 @@ def download_apk():
 	if download(os.path.join(dir,file_name(url)),url): dialog.ok(traducao(2026),traducao(2048))
 	else: dialog.ok(traducao(2014), traducao(2015))
 	
-#########################################	WINDOWS e IOS
-	
+#########################################	WINDOWS, IOS e MAC OSX
+
+def xbmc_bit_version():
+	log_path = xbmc.translatePath('special://logpath')
+	log = os.path.join(log_path, 'xbmc.log')
+	f = open(log,"r")
+	aux = f.readlines()
+	f.close()
+	try: 
+		bits = re.compile('XBMC (.+?) build').findall(aux[3])[0]
+		if bits == "x32" or bits == "x64": return bits
+	except: pass
+	try:
+		i = aux[3].find("-bit version", 0)
+		bits = "x"+aux[3][i-2]+aux[3][i-1]
+		if bits == "x32" or bits == "x64": return bits
+		else: return "erro"
+	except: return "erro"
+
 def librtmp_updater(url):
 	xbmc_folder = xbmc.translatePath("special://xbmc")
 	if url == "windows": 
@@ -652,23 +661,30 @@ def librtmp_updater(url):
 		else: dialog.ok(traducao(2014),traducao(2042),traducao(2043))
 	else: dialog.ok(traducao(2014), traducao(2015))
 	
-def change_keyboard_windows(url):
-	if not is_admin():
-		dialog.ok(traducao(2014),traducao(2028))
-		return
-	xbmc_folder = xbmc.translatePath("special://xbmc")
-	keyboard_path = os.path.join(xbmc_folder, "addons/skin.confluence/720p/DialogKeyboard.xml")
+def change_keyboard(url):
+	if "windows" in url: 
+		if not is_admin():
+			dialog.ok(traducao(2014),traducao(2028))
+			return
+		keyboard_path = os.path.join(xbmc.translatePath("special://xbmc"), "addons/skin.confluence/720p/DialogKeyboard.xml")
+	elif "android" in url: keyboard_path = os.path.join(android_xbmc_path(), "cache/apk/assets/addons/skin.confluence/720p/DialogKeyboard.xml")
+	else: return
+	
+	my_tmp = os.path.join(addonfolder,"resources","temp","DialogKeyboard.xml")
 	if os.path.exists(keyboard_path) is False:
 		dialog.ok(traducao(2014), traducao(2034))
 		return
 		
-	if url == "qwerty": url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/keyboard/qwerty/DialogKeyboard.xml"
-	elif url == "abcde": url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/keyboard/abcd/DialogKeyboard.xml"
+	if "qwerty" in url: url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/keyboard/qwerty/DialogKeyboard.xml"
+	elif "abcde" in url: url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/keyboard/abcd/DialogKeyboard.xml"
+	else: return
 		
-	if remove_ficheiro(keyboard_path):
-		if download(keyboard_path,url_download):
-			dialog.ok(traducao(2016), traducao(2026),traducao(2032))
-		else: dialog.ok(traducao(2014), traducao(2015))
+	if download(my_tmp,url_download):
+		remove_ficheiro(keyboard_path)
+		shutil.copy(my_tmp,keyboard_path)
+		remove_ficheiro(my_tmp)
+		dialog.ok(traducao(2016), traducao(2026),traducao(2032))
+	else: dialog.ok(traducao(2014), traducao(2015))
 
 def md5sum_verified(path):	#Obrigado Mafarricos!
 	if not os.path.exists(path): return "erro"
@@ -720,6 +736,7 @@ def download(mypath,url):
 		dp.close()
 		return False
 	dp.close()
+	if not os.path.isfile(mypath): return False
 	return True
 
 def dialogdown(numblocks, blocksize, filesize, dp, start_time):
@@ -828,9 +845,8 @@ print "Iconimage: "+str(iconimage)
 
 if mode==None or url==None or len(url)<1: CATEGORIES()
 elif mode==1: keyboard(url)
-elif mode==2: change_keyboard_windows(url)
+elif mode==2: change_keyboard(url)
 elif mode==3: librtmp_updater(url)
-elif mode==4: change_keyboard_android(url)
 elif mode==5: librtmp_android()
 elif mode==6: change_keyboard_linux(url)
 elif mode==7: librtmp_linux(url)
