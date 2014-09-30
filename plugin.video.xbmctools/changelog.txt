@@ -1,4 +1,10 @@
-﻿Versão 1.1.2:
+﻿Versão 1.1.3:
+Agora o addon guarda a localização do librtmp, de modo a que fique mais rápido
+Já não pede password sudo em sistemas sem password
+Fix Download APK
+Várias melhorias
+
+Versão 1.1.2:
 Fix Android - Addon não funcionava em alguns aparelhos
 Melhoria em OSx - O addon agora obtém automaticamente a versão do XBMC
 Limpeza do código

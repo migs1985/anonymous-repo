@@ -21,7 +21,7 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil,hashlib
 h = HTMLParser.HTMLParser()
 
-versao = '1.1.2'
+versao = '1.1.3'
 addon_id = 'plugin.video.xbmctools'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
@@ -34,8 +34,6 @@ traducaoma= selfAddon.getLocalizedString
 def traducao(texto):
 	return traducaoma(texto).encode('utf-8')
 	
-if selfAddon.getSetting('versioncheck') == "true": vc = True
-else: vc = False
 if selfAddon.getSetting('force-openelec') == "false": forcar_openelec = False
 else: forcar_openelec = True
 if selfAddon.getSetting('first_run') == "true": first_run = True
@@ -73,7 +71,7 @@ def CATEGORIES():
 		addLink('','','nothing')
 		VersionChecker("macos")
 	elif xbmc.getCondVisibility('system.platform.linux') and not xbmc.getCondVisibility('system.platform.Android'):
-		if os.uname()[4] == 'armv6l' or os.uname()[4] == 'armv7l': 
+		if os.uname()[4] == 'armv6l': 
 			#RASPBERRY
 			if re.search(os.uname()[1],"openelec",re.IGNORECASE) or forcar_openelec:
 				mensagem_os("Openelec")
@@ -82,14 +80,29 @@ def CATEGORIES():
 				addLink('','','nothing')
 				VersionChecker("openelec")
 			else:
-				if os.uname()[4] == 'armv6l': mensagem_os("RaspberryPI (OS)")
-				elif os.uname()[4] == 'armv7l': mensagem_os("Linux")
+				mensagem_os("RaspberryPI (OS)")
+				set_librtmp_path()
 				if xbmc_version < 14: addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
 				addDir(traducao(2003),"raspberry",7,artfolder + "dll.png",False)
 				addDir(traducao(2004),"raspberry",9,artfolder + "backup.png")
 				addLink('','','nothing')
 				VersionChecker("raspberry")
 			#-------------------------------------------------------------------
+		elif os.uname()[4] == 'armv7l':
+			#ARMv7
+			erro_os()
+			'''if re.search(os.uname()[1],"openelec",re.IGNORECASE) or forcar_openelec:
+				mensagem_os("Openelec")
+				addDir(traducao(2003),"raspberry",8,artfolder + "dll.png",False)
+				addDir(traducao(2004),"openelec",9,artfolder + "backup.png")
+				addLink('','','nothing')
+				VersionChecker("openelec")
+			else:
+				mensagem_os("Linux")
+				addDir(traducao(2003),"armv7",3,artfolder + "dll.png",False) 
+				addDir(traducao(2004),"armv7",9,artfolder + "backup.png")
+				addLink('','','nothing')
+				VersionChecker("raspberry")'''
 		else: 
 			#LINUX
 			if re.search(os.uname()[1],"openelec",re.IGNORECASE): 
@@ -100,6 +113,7 @@ def CATEGORIES():
 				VersionChecker("openelec pc")
 			else:
 				mensagem_os("Linux")
+				set_librtmp_path()
 				if xbmc_version < 14: addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
 				addDir(traducao(2003),"linux",7,artfolder + "dll.png",False)
 				addDir(traducao(2004),"linux",9,artfolder + "backup.png")
@@ -136,7 +150,6 @@ def CATEGORIES():
 #FUNCOES
 
 def VersionChecker(system):
-	if not vc: return
 	if system == "ios":
 		librtmp_path = os.path.join(xbmc.translatePath("special://xbmc").replace('XBMCData/XBMCHome','Frameworks'),"librtmp.0.dylib")
 		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/ios.xml.md5")
@@ -160,12 +173,7 @@ def VersionChecker(system):
 		else: return
 		librtmp_path = "/storage/lib/librtmp.so.0"
 	elif system == "linux" or system == "raspberry":
-		mensagemprogresso = xbmcgui.DialogProgress()
-		mensagemprogresso.create('XBMC Tools', traducao(3031),traducao(2013))
-		mensagemprogresso.update(50)
-		librtmp_path = find_abs_path("librtmp.so.0","/lib/")
-		mensagemprogresso.update(100)
-		mensagemprogresso.close()
+		librtmp_path, lib = _librtmp_path()
 		if system == "raspberry": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
 		elif system == "linux": 
 			if os.uname()[4] == "i686" or os.uname()[4] == "i386": md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/linux_x86.xml.md5")
@@ -188,6 +196,25 @@ def keyboard(url):
 		addDir("ABCDE","abcde",6,artfolder + "keyboard.png",False)
 		
 #########################################	LINUX
+
+def _librtmp_path():
+	file_path = selfAddon.getSetting('librtmp_path')
+	if "librtmp.so.0" in file_path: lib = "librtmp.so.0"
+	elif "librtmp.so.1" in file_path: lib = "librtmp.so.1"
+	else: lib = "erro"
+	return file_path,lib
+
+def set_librtmp_path():
+	if selfAddon.getSetting('librtmp_path') != "": return
+	mensagemprogresso = xbmcgui.DialogProgress()
+	mensagemprogresso.create('XBMC Tools', traducao(3031),traducao(2013))
+	mensagemprogresso.update(33)
+	file_path = find_abs_path("librtmp.so.0","/lib/")
+	if file_path == "erro": file_path = find_abs_path("librtmp.so.1","/lib/")
+	mensagemprogresso.update(66)
+	selfAddon.setSetting('librtmp_path',value=file_path)
+	mensagemprogresso.update(100)
+	mensagemprogresso.close()
 
 def file_name(path):
 	import ntpath
@@ -317,15 +344,9 @@ def backup_(url):
 	if "linux" in url or "raspberry" in url or "openelec" in url:
 		if "openelec" in url: librtmp_path = "/storage/lib/librtmp.so.0"
 		else:
-			mensagemprogresso = xbmcgui.DialogProgress()
-			mensagemprogresso.create('XBMC Tools',traducao(2013))
-			mensagemprogresso.update(50)
-			librtmp_path = find_abs_path("librtmp.so.0","/lib/")
-			mensagemprogresso.update(100)
-			mensagemprogresso.close()
+			librtmp_path, lib = _librtmp_path()
 		
 		if os.path.exists(librtmp_path) is False:
-			mensagemprogresso.close()
 			dialog.ok(traducao(2014), traducao(2022))
 			return
 			
@@ -334,15 +355,17 @@ def backup_(url):
 			return
 		
 		if "linux" in url or "raspberry" in url:
-			keyb = xbmc.Keyboard('', traducao(2024)) 
-			keyb.setHiddenInput(True)
-			keyb.doModal()
-			if (keyb.isConfirmed()): password = keyb.getText()
-			else: return
-			
-			if verifica_pass(password) is False: 
-				dialog.ok(traducao(2014), traducao(2025))
-				return
+			if verifica_pass(""): password = ""
+			else:
+				keyb = xbmc.Keyboard('', traducao(2024)) 
+				keyb.setHiddenInput(True)
+				keyb.doModal()
+				if (keyb.isConfirmed()): password = keyb.getText()
+				else: return
+				
+				if verifica_pass(password) is False: 
+					dialog.ok(traducao(2014), traducao(2025))
+					return
 		if "openelec" in url:
 			if "remove" in url or "backup" in url: subprocess.call("rm " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak"), shell=True)
 			if "backup" in url: subprocess.call("cp " + librtmp_path + " " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak"), shell=True)
@@ -355,24 +378,24 @@ def backup_(url):
 			return
 		
 		if "remove" in url or "backup" in url:		
-			p = subprocess.Popen("sudo -S rm " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			p = subprocess.Popen("sudo -S rm " + librtmp_path.replace(lib,lib+".bak"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 			p.communicate(password+"\n") 
 		if "backup" in url:
-			p = subprocess.Popen("sudo -S cp " + librtmp_path + " " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			p = subprocess.Popen("sudo -S cp " + librtmp_path + " " + librtmp_path.replace(lib,lib+".bak"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 			p.communicate(password+"\n")
 		if "restore" in url:
 			p = subprocess.Popen("sudo -S rm " + librtmp_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 			p.communicate(password+"\n") 
-			p = subprocess.Popen("sudo -S cp " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak") + " " + librtmp_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			p = subprocess.Popen("sudo -S cp " + librtmp_path.replace(lib,lib+".bak") + " " + librtmp_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 			p.communicate(password+"\n")
-			p = subprocess.Popen("sudo -S rm " + librtmp_path.replace("librtmp.so.0","librtmp.so.0.bak"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+			p = subprocess.Popen("sudo -S rm " + librtmp_path.replace(lib,lib+".bak"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 			p.communicate(password+"\n") 
 			p = subprocess.Popen("sudo -S chmod 755 " + librtmp_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 			p.communicate(password+"\n") 
 		dialog.ok(traducao(2026),traducao(2027))
 		return
 		
-	if "windows" in url or "ios" in url or "macos" in url:
+	if "windows" in url or "ios" in url or "macos" in url or "armv7" in url:
 		xbmc_folder = xbmc.translatePath("special://xbmc")
 		if "windows" in url:
 			if not is_admin():
@@ -386,15 +409,23 @@ def backup_(url):
 		if "macos" in url:
 			librtmp_path = os.path.join(xbmc_folder.replace('Resources/XBMC','Libraries'),"librtmp.0.dylib")
 			bak_path = os.path.join(xbmc_folder.replace('Resources/XBMC','Libraries'),"librtmp.0.dylib.bak")
+		if "armv7" in url:
+			librtmp_path, lib = _librtmp_path()
+			bak_path = librtmp_path.replace(lib,lib+'.bak')
+		
+		if os.path.exists(librtmp_path) is False:
+			dialog.ok(traducao(2014), traducao(2022))
+			return
 		
 		if ("remove" in url or "restore" in url) and not os.path.exists(bak_path): 
 			dialog.ok(traducao(2016), traducao(2023))
 			return
 		
-		if "remove" in url or "backup" in url: remove_ficheiro(bak_path)
+		if "remove" in url or "backup" in url: 
+			if not remove_ficheiro(bak_path): return
 		if "backup" in url: shutil.copy(librtmp_path,bak_path)
 		if "restore" in url:
-			remove_ficheiro(librtmp_path)
+			if not remove_ficheiro(librtmp_path): return
 			shutil.copy(bak_path,librtmp_path)
 			remove_ficheiro(bak_path)
 			if "windows" in url: os.chmod(librtmp_path,755)
@@ -446,33 +477,29 @@ def librtmp_linux(url):
 			else: return
 	else: return
 		
-	mensagemprogresso = xbmcgui.DialogProgress()
-	mensagemprogresso.create('XBMC Tools', traducao(3031),traducao(2013))
-	mensagemprogresso.update(50)
-	file_path = find_abs_path("librtmp.so.0","/lib/")
+	file_path, lib = _librtmp_path()
 
-	if (os.path.exists(file_path) and "librtmp.so.0" in file_path) is False:
-		mensagemprogresso.close()
+	if os.path.exists(file_path) is False:
 		dialog.ok(traducao(2014), traducao(2022))
 		return
 
-	librtmp_path = file_path.replace("librtmp.so.0","")
-	my_tmp = os.path.join(addonfolder,"resources","temp","librtmp.so.0")
-	mensagemprogresso.update(100)
-	mensagemprogresso.close()
+	librtmp_path = file_path.replace(lib,"")
+	my_tmp = os.path.join(addonfolder,"resources","temp",lib)
 	
 	if md5sum_verified(file_path) == md5:
 		if not dialog.yesno(traducao(2016),traducao(2044),traducao(2045)): return
 	
-	keyb = xbmc.Keyboard('', traducao(2024)) 
-	keyb.setHiddenInput(True)
-	keyb.doModal()
-	if (keyb.isConfirmed()): password = keyb.getText()
-	else: return
-	
-	if verifica_pass(password) is False: 
-		dialog.ok(traducao(2014), traducao(2025))
-		return
+	if verifica_pass(""): password = ""
+	else:
+		keyb = xbmc.Keyboard('', traducao(2024)) 
+		keyb.setHiddenInput(True)
+		keyb.doModal()
+		if (keyb.isConfirmed()): password = keyb.getText()
+		else: return
+		
+		if verifica_pass(password) is False: 
+			dialog.ok(traducao(2014), traducao(2025))
+			return
 
 	if download(my_tmp,url_download):
 		p = subprocess.Popen("sudo -S rm " + file_path, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
@@ -510,15 +537,17 @@ def change_keyboard_linux(url):
 	mensagemprogresso.update(100)
 	mensagemprogresso.close()
 	
-	keyb = xbmc.Keyboard('', traducao(2024)) 
-	keyb.setHiddenInput(True)
-	keyb.doModal()
-	if (keyb.isConfirmed()): password = keyb.getText()
-	else: return
-	
-	if verifica_pass(password) is False: 
-		dialog.ok(traducao(2014), traducao(2025))
-		return
+	if verifica_pass(""): password = ""
+	else:
+		keyb = xbmc.Keyboard('', traducao(2024)) 
+		keyb.setHiddenInput(True)
+		keyb.doModal()
+		if (keyb.isConfirmed()): password = keyb.getText()
+		else: return
+		
+		if verifica_pass(password) is False: 
+			dialog.ok(traducao(2014), traducao(2025))
+			return
 	
 	if url == "qwerty": url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/keyboard/qwerty/DialogKeyboard.xml"
 	elif url == "abcde": url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/keyboard/abcd/DialogKeyboard.xml"
@@ -589,6 +618,11 @@ def android_xbmc_path():	#Obrigado enen92!
 		if os.path.exists(xbmc_data_path) and uid == os.stat(xbmc_data_path).st_uid: return xbmc_data_path
 	return "erro"
 	
+def get_mediafire_url(url):
+	codigo_fonte = abrir_url(url).replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')    
+	try: return re.compile('kNO = "(.+?)"').findall(codigo_fonte)[0]
+	except: return "erro"
+	
 def download_apk():
 	dir = dialog.browse(int(3), traducao(2047), 'files')
 	if dir == "": return
@@ -596,6 +630,10 @@ def download_apk():
 		dialog.ok(traducao(2014),traducao(2046))
 		return
 	url = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/apk/url.txt")
+	url = get_mediafire_url(url)
+	if url == "erro":
+		dialog.ok(traducao(2014), traducao(2015))
+		return
 	if download(os.path.join(dir,file_name(url)),url): dialog.ok(traducao(2026),traducao(2048))
 	else: dialog.ok(traducao(2014), traducao(2015))
 	
@@ -643,6 +681,11 @@ def librtmp_updater(url):
 		else: return
 		librtmp_path = os.path.join(xbmc_folder.replace('Resources/XBMC','Libraries'),"librtmp.0.dylib")
 		my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.0.dylib")
+	elif url == "armv7":
+		download_url = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"
+		md5 = abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
+		librtmp_path, lib = _librtmp_path()
+		my_librtmp = os.path.join(addonfolder,"resources","temp",lib)
 	else: return
 	
 	if os.path.exists(librtmp_path) is False:
@@ -653,10 +696,10 @@ def librtmp_updater(url):
 		if not dialog.yesno(traducao(2016),traducao(2044),traducao(2045)): return 
 		
 	if download(my_librtmp,download_url):
-		remove_ficheiro(librtmp_path)
+		if not remove_ficheiro(librtmp_path): return
 		shutil.copy(my_librtmp,librtmp_path)
 		remove_ficheiro(my_librtmp)
-		if url == "windows": os.chmod(librtmp_path,755)
+		if url == "windows" or url == "armv7": os.chmod(librtmp_path,755)
 		if md5sum_verified(librtmp_path) == md5: dialog.ok(traducao(2016), traducao(2026),traducao(2032))
 		else: dialog.ok(traducao(2014),traducao(2042),traducao(2043))
 	else: dialog.ok(traducao(2014), traducao(2015))
@@ -680,7 +723,7 @@ def change_keyboard(url):
 	else: return
 		
 	if download(my_tmp,url_download):
-		remove_ficheiro(keyboard_path)
+		if not remove_ficheiro(keyboard_path): return
 		shutil.copy(my_tmp,keyboard_path)
 		remove_ficheiro(my_tmp)
 		dialog.ok(traducao(2016), traducao(2026),traducao(2032))
