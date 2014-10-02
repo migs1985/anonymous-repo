@@ -584,14 +584,14 @@ def librtmp_android():
 	if not checksu():
 		dialog.ok(traducao(2014),traducao(2029))
 		return
-		
+	
+	print "////////ANDROID////////"
 	print "my_librtmp: " + my_librtmp
 	print "librtmp_path: " + librtmp_path
 	
 	if download(my_librtmp,"http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Android/librtmp.so"):
 		c1 = os.system("su -c 'rm "+librtmp_path+"'")
 		c2 = os.system("su -c 'cat "+my_librtmp+" > "+librtmp_path+"'")
-		#os.system("su -c 'chown root.root "+librtmp_path+"'")
 		c3 = os.system("su -c 'chmod 755 "+librtmp_path+"'")
 		remove_ficheiro(my_librtmp)
 		if md5sum_verified(librtmp_path) == md5: dialog.ok(traducao(2016), traducao(2026),traducao(2032))
@@ -762,7 +762,7 @@ def erro_os():
 	dialog.ok(traducao(2014), traducao(2037))
 	sys.exit(0)
 	
-def download(mypath,url):
+def download(mypath,url,md5 = ''):
 	if os.path.isfile(mypath) is True:
 		if not remove_ficheiro(mypath):
 			dialog.ok(traducao(2014),traducao(2038))
@@ -779,8 +779,11 @@ def download(mypath,url):
 		dp.close()
 		return False
 	dp.close()
+	print "MD5: " + md5sum_verified(mypath)
 	if not os.path.isfile(mypath): return False
-	return True
+	if md5 == '': return True
+	if md5 == md5sum_verified(mypath): return True
+	return False
 
 def dialogdown(numblocks, blocksize, filesize, dp, start_time):
       try:
