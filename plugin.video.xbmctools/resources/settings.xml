@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
+   <category label="Android">
+      <setting id="auto_update_librtmp" type="bool" label="2058" visible="true" default="false"/>
+   </category>
    <category label="RaspberryPI">
       <setting id="force-openelec" type="bool" label="2055" visible="true" default="false"/>
 	  <setting id="librtmp_path" type="text" label="Librtmp Path" default="" visible="False"/>
