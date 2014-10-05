@@ -5,7 +5,6 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time,subprocess,shutil,hashlib,zipfile,ctypes
 h = HTMLParser.HTMLParser()
 
-versao = '1.1.3'
 addon_id = 'plugin.video.xbmctools'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
@@ -127,7 +126,7 @@ class librtmp:
 			return "erro"
 		return paths
 
-	def librtmp_openelec(self,url):
+	def librtmp_openelec(self,url,autorun=False):
 		if url == "raspberry":
 			md5 = self.abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
 			url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"
@@ -149,7 +148,11 @@ class librtmp:
 				else: return
 			
 		if self.md5sum_verified("/storage/lib/librtmp.so.0") == md5:
+			if autorun: return
 			if not dialog.yesno(traducao(2016),traducao(2044),traducao(2045)): return
+		
+		if autorun:
+			if not dialog.yesno(traducao(2016),traducao(2060),traducao(2061)): return
 		
 		my_tmp = os.path.join(addonfolder,"resources","temp","librtmp.so.0")
 		
@@ -324,7 +327,7 @@ class librtmp:
 			dialog.ok(traducao(2026),traducao(2027))
 			return
 			
-	def librtmp_linux(self,url):
+	def librtmp_linux(self,url,autorun=False):
 		
 		if url == "raspberry":
 			url_download = "http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/RaspberryPI/librtmp.so.0"
@@ -350,14 +353,22 @@ class librtmp:
 		file_path, lib = self._librtmp_path()
 
 		if os.path.exists(file_path) is False:
-			dialog.ok(traducao(2014), traducao(2022))
-			return
+			if autorun and file_path == "":
+				self.set_librtmp_path()
+				file_path, lib = self._librtmp_path()
+			else:
+				dialog.ok(traducao(2014), traducao(2022))
+				return
 
 		librtmp_path = file_path.replace(lib,"")
 		my_tmp = os.path.join(addonfolder,"resources","temp",lib)
 		
 		if self.md5sum_verified(file_path) == md5:
+			if autorun: return
 			if not dialog.yesno(traducao(2016),traducao(2044),traducao(2045)): return
+			
+		if autorun:
+			if not dialog.yesno(traducao(2016),traducao(2060),traducao(2061)): return
 		
 		if self.verifica_pass(""): password = ""
 		else:
@@ -637,10 +648,10 @@ class librtmp:
 			else: return "erro"
 		except: return "erro"
 
-	def librtmp_updater(self,url):
+	def librtmp_updater(self,url,autorun = False):
 		xbmc_folder = xbmc.translatePath("special://xbmc")
 		if url == "windows": 
-			if not self.is_admin():
+			if not self.is_admin() and not autorun:
 				dialog.ok(traducao(2014),traducao(2028))
 				return
 			librtmp_path = os.path.join(xbmc_folder, "system/players/dvdplayer/librtmp.dll")
@@ -674,7 +685,14 @@ class librtmp:
 			return
 			
 		if self.md5sum_verified(librtmp_path) == md5:
-			if not dialog.yesno(traducao(2016),traducao(2044),traducao(2045)): return 
+			if autorun: return
+			if not dialog.yesno(traducao(2016),traducao(2044),traducao(2045)): return
+		if autorun:
+			if not dialog.yesno(traducao(2016),traducao(2060),traducao(2061)): return
+			if url == "windows": 
+				if not self.is_admin():
+					dialog.ok(traducao(2014),traducao(2028))
+					return
 			
 		if self.download(my_librtmp,download_url):
 			if not self.remove_ficheiro(librtmp_path): return
@@ -807,4 +825,3 @@ class librtmp:
 		liz.setProperty('fanart_image', addonfolder + '/fanart.jpg')
 		ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=pasta,totalItems=total)
 		return ok
-

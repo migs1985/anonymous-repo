@@ -1,4 +1,11 @@
-﻿Versão 1.1.3:
+﻿Versão 1.1.4:
+Addon reescrito - Agora pode ser chamado por outros addons
+Adicionado "hack" android - librtmp copiado sempre que se reinicia o Android
+Adicionada opção para actualizar o librtmp automaticamente
+Criado service.py
+Múltiplas melhorias
+
+Versão 1.1.3:
 Agora o addon guarda a localização do librtmp, de modo a que fique mais rápido
 Já não pede password sudo em sistemas sem password
 Fix Download APK
