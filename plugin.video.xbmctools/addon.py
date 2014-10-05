@@ -47,8 +47,10 @@ else: first_run = False
 def CATEGORIES():
 	if xbmc.getCondVisibility('system.platform.windows'):
 	#WINDOWS
-		mensagem_os("Windows")
-		dialog.ok(traducao(2000), traducao(2001))
+		if first_run:
+			mensagem_os("Windows")
+			dialog.ok(traducao(2000), traducao(2001))
+			selfAddon.setSetting('first_run',value='false')
 		if xbmc_version < 14: addDir(traducao(2002),"windows",1,artfolder + "keyboard.png")
 		addDir(traducao(2003),"windows",3,artfolder + "dll.png",False)
 		addDir(traducao(2004),"windows",9,artfolder + "backup.png")
@@ -56,8 +58,8 @@ def CATEGORIES():
 		librtmp.VersionChecker("windows")
 	#-----------------------------------------------------------------------
 	elif xbmc.getCondVisibility('System.Platform.OSX'):
-		mensagem_os("macOS")
 		if first_run:
+			mensagem_os("macOS")
 			if os.uname()[4] == "i686" or os.uname()[4] == "i386": selfAddon.setSetting('mac_bits',value=str(0))
 			else:
 				if xbmc_bit_version() == "x32": selfAddon.setSetting('mac_bits',value=str(0))
@@ -76,13 +78,13 @@ def CATEGORIES():
 		if os.uname()[4] == 'armv6l': 
 			#RASPBERRY
 			if re.search(os.uname()[1],"openelec",re.IGNORECASE) or forcar_openelec:
-				mensagem_os("Openelec")
+				mensagem_os("Openelec",True)
 				addDir(traducao(2003),"raspberry",8,artfolder + "dll.png",False)
 				addDir(traducao(2004),"openelec",9,artfolder + "backup.png")
 				addLink('','','nothing')
 				librtmp.VersionChecker("openelec")
 			else:
-				mensagem_os("RaspberryPI (OS)")
+				mensagem_os("RaspberryPI (OS)",True)
 				librtmp.set_librtmp_path()
 				if xbmc_version < 14: addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
 				addDir(traducao(2003),"raspberry",7,artfolder + "dll.png",False)
@@ -94,13 +96,13 @@ def CATEGORIES():
 			#ARMv7
 			erro_os()
 			'''if re.search(os.uname()[1],"openelec",re.IGNORECASE) or forcar_openelec:
-				mensagem_os("Openelec")
+				mensagem_os("Openelec",True)
 				addDir(traducao(2003),"raspberry",8,artfolder + "dll.png",False)
 				addDir(traducao(2004),"openelec",9,artfolder + "backup.png")
 				addLink('','','nothing')
 				librtmp.VersionChecker("openelec")
 			else:
-				mensagem_os("Linux")
+				mensagem_os("Linux",True)
 				librtmp.set_librtmp_path()
 				addDir(traducao(2003),"armv7",3,artfolder + "dll.png",False) 
 				addDir(traducao(2004),"armv7",9,artfolder + "backup.png")
@@ -109,13 +111,13 @@ def CATEGORIES():
 		else: 
 			#LINUX
 			if re.search(os.uname()[1],"openelec",re.IGNORECASE): 
-				mensagem_os("Openelec")
+				mensagem_os("Openelec",True)
 				addDir(traducao(2003),"-",8,artfolder + "dll.png",False)
 				addDir(traducao(2004),"openelec",9,artfolder + "backup.png")
 				addLink('','','nothing')
 				librtmp.VersionChecker("openelec pc")
 			else:
-				mensagem_os("Linux")
+				mensagem_os("Linux",True)
 				librtmp.set_librtmp_path()
 				if xbmc_version < 14: addDir(traducao(2002),"linux",1,artfolder + "keyboard.png")
 				addDir(traducao(2003),"linux",7,artfolder + "dll.png",False)
@@ -125,18 +127,19 @@ def CATEGORIES():
 			#-------------------------------------------------------------------
 	elif xbmc.getCondVisibility('system.platform.Android'): 
 	#ANDROID
-		mensagem_os("Android")
+		mensagem_os("Android",True)
 		if xbmc_version < 14: addDir(traducao(2002),"android",1,artfolder + "keyboard.png")
-		#addDir("Teste","-",100,artfolder + "apk.png",False)
 		addDir("Download APK","-",11,artfolder + "apk.png",False)
 		addDir(traducao(2003)+" [COLOR blue](XBMC Gotham 13)[/COLOR]","-",5,artfolder + "dll.png",False)
+		if librtmp.android_hack_checker(): addDir(traducao(2059)+" [COLOR blue](On)[/COLOR]","-",12,artfolder + "hack.png",False)
+		else: addDir(traducao(2059)+" [COLOR red](Off)[/COLOR]","-",13,artfolder + "hack.png",False)
 		addDir(traducao(2004),"android",9,artfolder + "backup.png")
 		addLink('','','nothing')
 		librtmp.VersionChecker("android")
 	#-------------------------------------------------------------------
 	elif xbmc.getCondVisibility('system.platform.IOS'): 
 	#IOS
-		mensagem_os("iOS")
+		mensagem_os("iOS",True)
 		addDir(traducao(2003),"ios",3,artfolder + "dll.png",False)
 		addDir(traducao(2004),"ios",9,artfolder + "backup.png")
 		addLink('','','nothing')
@@ -151,8 +154,13 @@ def CATEGORIES():
 	print "--------- XBMC Tools ---------"
 
 ###################################################################################
-def mensagem_os(so_name):
-	dialog.ok(traducao(2016), traducao(2035) + so_name +".",traducao(2036))
+def mensagem_os(so_name,on_first_run = False):
+	if on_first_run:
+		if first_run: 
+			dialog.ok(traducao(2016), traducao(2035) + so_name +".",traducao(2036))
+			selfAddon.setSetting('first_run',value='false')
+	else: dialog.ok(traducao(2016), traducao(2035) + so_name +".",traducao(2036))
+	
 
 def erro_os():
 	dialog.ok(traducao(2014), traducao(2037))
@@ -246,5 +254,7 @@ elif mode==8: librtmp.librtmp_openelec(url)
 elif mode==9: librtmp.backup(url)
 elif mode==10: librtmp.backup_(url)
 elif mode==11: librtmp.download_apk()
-elif mode==100: librtmp.xbmc_android_hack()
+elif mode==12: librtmp.android_hack_off()
+elif mode==13: librtmp.android_hack_on()
+	
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

@@ -60,4 +60,7 @@
 	<string id="2056">What is your XBMC version?</string>
 	<string id="2057">XBMC version</string>
 	<string id="2058">Auto update librtmp</string>
+	<string id="2059">Hack librtmp on startup</string>
+	<string id="2060">New librtmp version available.</string>
+	<string id="2061">Update?</string>
 </strings>

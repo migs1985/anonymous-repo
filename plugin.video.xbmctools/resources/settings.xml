@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-   <category label="Android">
+   <category label="2052">
       <setting id="auto_update_librtmp" type="bool" label="2058" visible="true" default="false"/>
    </category>
    <category label="RaspberryPI">
@@ -10,5 +10,6 @@
    <category label="Mac OS">
 	  <setting id="mac_bits" type="enum" label="2057" values="x86|x64" default="0"/>
 	  <setting id="first_run" type="bool" label="Mac OS" default="true" visible="false"/>
+	  <setting id="android_hack" type="bool" label="Android Hack" default="false" visible="false"/>
    </category>
 </settings>
