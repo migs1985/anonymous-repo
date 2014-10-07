@@ -1,4 +1,7 @@
-﻿Versão 1.0.2:
+﻿Versão 1.0.3:
+Adicionada opção de fanart
+
+Versão 1.0.2:
 Correcção para mudança do domínio
 Correcção nas legendas
 

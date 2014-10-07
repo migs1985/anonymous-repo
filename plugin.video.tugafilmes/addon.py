@@ -18,10 +18,10 @@
 
 ##############BIBLIOTECAS A IMPORTAR E DEFINICOES####################
 
-import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,time,os
+import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,time,os,json
 h = HTMLParser.HTMLParser()
 
-versao = '1.0.2'
+versao = '1.0.3'
 addon_id = 'plugin.video.tugafilmes'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
@@ -46,6 +46,7 @@ def CATEGORIES():
 	if disponivel==versao: addLink('[B][COLOR white]Última versão instalada (' + versao + ')[/COLOR][/B]','',artfolder + 'versao.png')
 	elif disponivel=='Erro ao verificar a versão!': addLink('[B][COLOR white]' + disponivel + '[/COLOR][/B]','',artfolder + 'versao.png')
 	else: addLink('[B][COLOR white]Versão nova disponível ('+ disponivel + '). Por favor actualize![/COLOR][/B]','',artfolder + 'versao.png')
+	xbmc.executebuiltin("Container.SetViewMode(50)")
 
 
 ###################################################################################
@@ -154,13 +155,70 @@ def listar_videos(url):
 	total = len(a)
 	for url2, titulo, img in a:
 		titulo = titulo.replace('&#39;',"'")
-		addDirPlayer(titulo,url2,4,img,total)
+		
+		if selfAddon.getSetting('fanart') == 'true':
+			user_agent = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1468.0 Safari/537.36'
+			txheaders= {'User-Agent':user_agent,'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'}
+			tmdbim='http://d3gtl9l2a4fn1j.cloudfront.net/t/p/'
+			try:
+				t = titulo
+				request='http://api.themoviedb.org/3/search/movie?api_key=6ee3768ba155b41252384a1148398b34&order=asc&query=%s&per_page=1'%(urllib.quote_plus(t))
+				req = urllib2.Request(request,None,txheaders)
+				response=load_json(urllib2.urlopen(req).read())
+				fanart = tmdbim + 'w780' + response['results'][0]['backdrop_path']
+			except:
+				try:
+					t = file_name(url2).replace(".html","").replace("-"," ")
+					request='http://api.themoviedb.org/3/search/movie?api_key=6ee3768ba155b41252384a1148398b34&order=asc&query=%s&per_page=1'%(urllib.quote_plus(t))
+					req = urllib2.Request(request,None,txheaders)
+					response=load_json(urllib2.urlopen(req).read())
+					fanart = tmdbim + 'w780' + response['results'][0]['backdrop_path']
+				except: 
+					try:
+						t = file_name(url2).replace(".html","").replace("-"," ")
+						t = ''.join(i for i in t if not i.isdigit())
+						t = t.replace("(","").replace(")","")
+						request='http://api.themoviedb.org/3/search/movie?api_key=6ee3768ba155b41252384a1148398b34&order=asc&query=%s&per_page=1'%(urllib.quote_plus(t))
+						req = urllib2.Request(request,None,txheaders)
+						response=load_json(urllib2.urlopen(req).read())
+						fanart = tmdbim + 'w780' + response['results'][0]['backdrop_path']
+					except:fanart = ''
+		else: fanart = ''
+		addDirPlayer(titulo,url2,4,img,total,fanart)
 		
 	page = re.compile("<a class='blog-pager-older-link' href='(.+?)'").findall(codigo_fonte)
-	for prox_pagina in page:
-		addDir('Página Seguinte >>',prox_pagina,2,artfolder + 'proxpagina.png')
-		break
+	try: addDir('Página Seguinte >>',page[0],2,artfolder + 'proxpagina.png')
+	except: pass
+	xbmcplugin.setContent(int(sys.argv[1]), 'Movies')
+	if selfAddon.getSetting('fanart') == 'true': xbmc.executebuiltin("Container.SetViewMode(515)")
+	else: xbmc.executebuiltin("Container.SetViewMode(50)")
 	
+def file_name(path):
+	import ntpath
+	head, tail = ntpath.split(path)
+	return tail or ntpath.basename(head)
+		
+def load_json(data):
+	def to_utf8(dct):
+		rdct = {}
+		for k, v in dct.items() :
+			if isinstance(v, (str, unicode)): rdct[k] = v.encode('utf8', 'ignore')
+			else: rdct[k] = v
+		return rdct
+	try :        
+		from lib import simplejson
+		json_data = simplejson.loads(data, object_hook=to_utf8)
+		return json_data
+	except:
+		try:
+			import json
+			json_data = json.loads(data, object_hook=to_utf8)
+			return json_data
+		except:
+			import sys
+			for line in sys.exc_info(): print "%s" % line
+	return None
+		
 def obtem_url_dropvideo(url):
 	codigo_fonte = abrir_url(url)
 	try: url_video = re.compile('var vurl = "(.+?)";').findall(codigo_fonte)[0]
@@ -229,15 +287,17 @@ def pesquisa():
 
 		###################################################################################
 
-def addDirPlayer(name,url,mode,iconimage,total):
+def addDirPlayer(name,url,mode,iconimage,total,fnart=fanart):
+	if fnart == '': fnart = fanart
 	codigo_fonte = abrir_url(url)
+	
 	try: plot = re.compile('<b>SINOPSE:.+?</b><span style=".+?">(.+?)</span>').findall(codigo_fonte)[0]
-	except: plot = 'Erro a obter sinopse...'
+	except: plot = 'Sem sinopse...'
 	
 	u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
 	ok=True
 	liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
-	liz.setProperty('fanart_image', fanart)
+	liz.setProperty('fanart_image', fnart)
 	liz.setInfo( type="Video", infoLabels= { "Title": name,
 											 "OriginalTitle": name,
 											 "Plot": plot 
