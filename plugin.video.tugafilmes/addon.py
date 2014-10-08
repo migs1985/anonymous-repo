@@ -247,7 +247,9 @@ def player(name,url,iconimage):
 	matriz = []
 	codigo_fonte = abrir_url(url)
 	try: url_video = re.compile('<iframe frameborder=".+?" height=".+?" scrolling=".+?" src="(.+?)"').findall(codigo_fonte)[0]
-	except: return
+	except: 
+		try: url_video = re.compile("<iframe width='.+?' height='.+?' scrolling='.+?' frameborder='.+?' src='(.+?)'").findall(codigo_fonte)[0]
+		except: return
 
 	mensagemprogresso.update(66)
 	

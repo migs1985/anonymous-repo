@@ -476,8 +476,9 @@ class librtmp:
 		
 		if self.download(my_librtmp,"http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/Android/librtmp.so"):
 			if selfAddon.getSetting('android_hack') == "true":
-				self.remove_ficheiro(os.path.join(addonfolder,"resources","android_hack","librtmp.so"))
-				shutil.copy(my_librtmp,os.path.join(addonfolder,"resources","android_hack","librtmp.so"))
+				librtmp_hack_path = os.path.join(addonfolder,"resources","android_hack","librtmp.so")
+				os.system("su -c 'rm "+librtmp_hack_path+"'")
+				os.system("su -c 'cat "+my_librtmp+" > "+librtmp_hack_path+"'")
 			c1 = os.system("su -c 'rm "+librtmp_path+"'")
 			c2 = os.system("su -c 'cat "+my_librtmp+" > "+librtmp_path+"'")
 			c3 = os.system("su -c 'chmod 755 "+librtmp_path+"'")
