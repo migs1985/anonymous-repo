@@ -263,14 +263,13 @@ def player(name,url,iconimage):
 	
 	mensagemprogresso.update(100)
 	mensagemprogresso.close()
-	
-	listitem = xbmcgui.ListItem() # name, iconImage="DefaultVideo.png", thumbnailImage="DefaultVideo.png"
+	listitem = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
 	listitem.setPath(url)
 	listitem.setProperty('mimetype', 'video/x-msvideo')
 	listitem.setProperty('IsPlayable', 'true')
 	try:
 		xbmcPlayer = xbmc.Player(xbmc.PLAYER_CORE_AUTO)
-		xbmcPlayer.play(url)
+		xbmcPlayer.play(url,listitem)
 		if subs == 'true':
 			if legendas != '-': xbmcPlayer.setSubtitles(legendas)
 	except:
@@ -296,7 +295,7 @@ def addDirPlayer(name,url,mode,iconimage,total,fnart=fanart):
 	try: plot = re.compile('<b>SINOPSE:.+?</b><span style=".+?">(.+?)</span>').findall(codigo_fonte)[0]
 	except: plot = 'Sem sinopse...'
 	
-	u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)
+	u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)
 	ok=True
 	liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
 	liz.setProperty('fanart_image', fnart)
@@ -377,7 +376,6 @@ try:
         mode=int(params["mode"])
 except:
         pass
-
 try:        
         iconimage=urllib.unquote_plus(params["iconimage"])
 except:
