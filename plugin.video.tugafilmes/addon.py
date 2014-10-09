@@ -233,9 +233,7 @@ def obtem_url_videomega(url):
 	texto = urllib.unquote(code[0])
 	try: url_video = re.compile('file: "(.+?)"').findall(texto)[0]
 	except: url_video = '-'
-	try: 
-		id = re.compile('http://(.+?).mp4').findall(url_video)[0]
-		url_legendas = 'http://' + id.replace('/v/','/videos/subs/') + '.srt'
+	try: url_legendas = re.compile('http://videomega.tv/servesrt.php\?s=(.+?).srt').findall(texto)[0] + '.srt'
 	except: url_legendas = '-'
 	return [url_video,url_legendas]
 
