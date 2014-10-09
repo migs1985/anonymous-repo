@@ -268,8 +268,8 @@ def player(name,url,iconimage):
 	try:
 		xbmcPlayer = xbmc.Player(xbmc.PLAYER_CORE_AUTO)
 		xbmcPlayer.play(url,listitem)
-		if subs == 'true':
-			if legendas != '-': xbmcPlayer.setSubtitles(legendas)
+		while not xbmcPlayer.isPlaying(): xbmc.sleep(500)
+		if subs == 'true' and legendas != '-': xbmcPlayer.setSubtitles(legendas)
 	except:
 		dialog = xbmcgui.Dialog()
 		dialog.ok(" Erro:", " Impossível abrir vídeo! ")
