@@ -62,8 +62,8 @@ def CATEGORIES():
 			mensagem_os("macOS")
 			if os.uname()[4] == "i686" or os.uname()[4] == "i386": selfAddon.setSetting('mac_bits',value=str(0))
 			else:
-				if xbmc_bit_version() == "x32": selfAddon.setSetting('mac_bits',value=str(0))
-				elif xbmc_bit_version() == "x64": selfAddon.setSetting('mac_bits',value=str(1))
+				if librtmp.xbmc_bit_version() == "x32": selfAddon.setSetting('mac_bits',value=str(0))
+				elif librtmp.xbmc_bit_version() == "x64": selfAddon.setSetting('mac_bits',value=str(1))
 				else:
 					ret = dialog.select(traducao(2056), ['x86', 'x64'])
 					if ret == -1: sys.exit(0); return;

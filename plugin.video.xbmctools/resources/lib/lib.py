@@ -646,8 +646,8 @@ class librtmp:
 			i = aux[3].find("-bit version", 0)
 			bits = "x"+aux[3][i-2]+aux[3][i-1]
 			if bits == "x32" or bits == "x64": return bits
-			else: return "erro"
-		except: return "erro"
+		except: pass
+		return "erro"
 
 	def librtmp_updater(self,url,autorun = False):
 		xbmc_folder = xbmc.translatePath("special://xbmc")
