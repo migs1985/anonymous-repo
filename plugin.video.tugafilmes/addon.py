@@ -247,7 +247,12 @@ def player(name,url,iconimage):
 	try: url_video = re.compile('<iframe frameborder=".+?" height=".+?" scrolling=".+?" src="(.+?)"').findall(codigo_fonte)[0]
 	except: 
 		try: url_video = re.compile("<iframe width='.+?' height='.+?' scrolling='.+?' frameborder='.+?' src='(.+?)'").findall(codigo_fonte)[0]
-		except: return
+		except: 
+			try:
+				js = re.compile("<script type='text/javascript' src='(.+?)'").findall(codigo_fonte)[0]
+				ref = re.compile('var ref="(.+?)";').findall(abrir_url(js))[0]
+				url_video = 'http://videomega.tv/iframe.php?ref=' + ref
+			except: return
 
 	mensagemprogresso.update(66)
 	
