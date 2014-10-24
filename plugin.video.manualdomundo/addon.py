@@ -21,32 +21,29 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser
 h = HTMLParser.HTMLParser()
 
-
 addon_id = 'plugin.video.manualdomundo'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
 artfolder = addonfolder + '/resources/img/'
 fanart = addonfolder + '/fanart.jpg'
-versao = '1.0.0'
-
+versao = '1.0.1'
 
 ################################################## 
 
 #MENUS############################################
 
 def CATEGORIES():
-	addDir('Vídeos Novos','http://www.manualdomundo.com.br',2,artfolder + 'videos.png')
-	addDir('Experiências','http://www.manualdomundo.com.br/category/experiencias/',2,artfolder + 'ciencia.png')
-	addDir('Mágicas','http://www.manualdomundo.com.br/category/magica/',2,artfolder + 'magic.png')
-	addDir('Pegadinhas','http://www.manualdomundo.com.br/category/pegadinhas/',2,artfolder + 'prank.png')
-	addDir('Vlog','http://www.manualdomundo.com.br/category/vlog/',2,artfolder + 'vlog.png')
-	addDir('Origami e Papel','http://www.manualdomundo.com.br/category/origami/',2,artfolder + 'origami.png')
-	addDir('Receitas','http://www.manualdomundo.com.br/category/receitas-cozinha/',2,artfolder + 'cozinha.png')
-	addDir('Desafios','http://www.manualdomundo.com.br/category/desafios/',2,artfolder + 'desafios.png')
+	addDir("Videos Recentes",'-',1,artfolder + 'icon.png')
+	addDir("Receitas",'http://www.manualdomundo.com.br/category/receitas-faceis-para-criancas-fazer/',2,artfolder + 'cozinha.png')
+	addDir('Experiências','http://www.manualdomundo.com.br/category/experiencias-e-experimentos/',2,artfolder + 'ciencia.png')
 	addDir('Brinquedos','http://www.manualdomundo.com.br/category/como-fazer-brinquedos-simples-baratos/',2,artfolder + 'toys.png')
-	addDir('Camping e Aventura','http://www.manualdomundo.com.br/category/acampamento/',2,artfolder + 'camping.png')
-	addDir('Casa e Carro','http://www.manualdomundo.com.br/category/casa/',2,artfolder + 'home.png')
-	addDir('Música','http://www.manualdomundo.com.br/category/musicas/',2,artfolder + 'music.png')
+	addDir('Desafios','http://www.manualdomundo.com.br/category/desafios-charadas-enigmas/',2,artfolder + 'desafios.png')
+	addDir('Pegadinhas','http://www.manualdomundo.com.br/category/pegadinhas-brincadeiras-para-fazer-com-amigos-escola/',2,artfolder + 'prank.png')
+	addDir('Mágicas','http://www.manualdomundo.com.br/category/como-fazer-magicas-simples-gratis/',2,artfolder + 'magic.png')
+	addDir('Sobrevivência','http://www.manualdomundo.com.br/category/dicas-caseiras/',2,artfolder + 'sobrevivencia.png')
+	addDir('Origami e Papel','http://www.manualdomundo.com.br/category/origami-e-papel/',2,artfolder + 'origami.png')
+	addDir('Blog','http://www.manualdomundo.com.br/category/blog/',2,artfolder + 'blog.png')
+	addDir('Boravê','http://www.manualdomundo.com.br/category/lugares-proibidos/',2,artfolder + 'borave.png')
 	addDir('Outros','http://www.manualdomundo.com.br/category/sem-categoria/',2,artfolder + 'other.png')
 
 	addLink("",'','-')
@@ -57,6 +54,16 @@ def CATEGORIES():
 
 ###################################################################################
 #FUNCOES
+def recentes():
+	addLink('[B][COLOR white]Últimos Posts[/COLOR][/B]','','-')
+	codigo_fonte = abrir_url("http://www.manualdomundo.com.br")
+	link = re.compile('<li class="thumbs-ultimos-artigos"><a href="(.+?)">').findall(codigo_fonte)
+	titulo = re.compile('<h2 class="title-posts-thumbs">(.+?)</h2>').findall(codigo_fonte)
+	img = re.compile('<div id="imagens-posts" class="large-12 medium-12 small-12 left"><img class="lazy compress-image" src=".+?" data-original="(.+?)"').findall(codigo_fonte)
+
+	for x in range(0,len(link)):
+		addDir(titulo[x],link[x],3,img[x])
+	
 def versao_disponivel():
 	try:
 		codigo_fonte=abrir_url('http://anonymous-repo.googlecode.com/svn/trunk/anonymous-repo/plugin.video.manualdomundo/addon.xml')		#ALTERAR NO FIM
@@ -67,31 +74,12 @@ def versao_disponivel():
 
 def listar_videos(url):
 	codigo_fonte = abrir_url(url)
-	img = re.compile("<img src='(.+?)' title=").findall(codigo_fonte)
-	match = re.compile('<a href="(.+?)" rel="bookmark" title="Permanent Link: (.+?)">.+?</a>').findall(codigo_fonte)
-	if len(match)!=len(img): # algumas postagens nao tem imagem
-		a = re.compile("<a href='(.+?)'><img src='(.+?)' title='(.+?)'").findall(codigo_fonte)
-		for x in range(0, len(match)):
-			flag = True
-			for j in range(0, len(a)):
-				if match[x][0] == a[j][0]:
-					#a[j][2] = match[x][1] # altera o título, pois o de match é mais correcto
-					flag = False
-			if flag: a.append([match[x][0],'-',match[x][1]])
-	else:
-		a = []
-		for x in range(0, len(match)):
-			temp = [match[x][0],img[x],match[x][1]]; 
-			a.append(temp)
-			
-	for url,img,titulo in a:
-		titulo = titulo.replace('&#8211;', '')
-		addDir(titulo,url,3,img)
+	link = re.compile('<a href="(.+?)" id="imagens-posts" class="large-12 medium-12 small-12 left">').findall(codigo_fonte)
+	img = re.compile('<img class="lazy-mansory compress-image"\s+src=".+?"\s+data-original="(.+?)"').findall(codigo_fonte)
+	titulo = re.compile('<h1 class="title-posts-thumbs-categorias">(.+?)</h1>').findall(codigo_fonte)
 	
-	try: 
-		page =  re.compile("<link rel='next' href='(.+?)'").findall(codigo_fonte)[0]
-		addDir('Página Seguinte >>',page,2,'')
-	except: pass
+	for x in range(0,len(link)):
+		addDir(titulo[x],link[x],3,img[x])
    
 def encontrar_fontes(url):
 	codigo_fonte = abrir_url(url)
@@ -100,12 +88,13 @@ def encontrar_fontes(url):
 		dialog = xbmcgui.Dialog()
 		dialog.ok(" Erro:", " Impossível abrir vídeo! ")
 		return
-		
-	i = 1
+	
+	if len(id_video) == 0: addLink("Sem vídeos...","","-")
 	for id in id_video:
-		addDir('Vídeo ' + str(i),'plugin://plugin.video.youtube/?action=play_video&videoid=' + id,4,'DefaultVideo.png',False)
-		i = i + 1
-
+		html = abrir_url('http://www.youtube.com/embed/' + id)
+		img = re.compile('"iurl": "(.+?)"').findall(html)[0].replace('\\','')
+		titulo = re.compile('"title": "(.+?)"').findall(html)[0]
+		addDir(titulo.decode('unicode-escape').encode('utf-8'),'plugin://plugin.video.youtube/?action=play_video&videoid=' + id,4,img,False)
 
 def play(url):
 	listitem = xbmcgui.ListItem()
@@ -122,7 +111,6 @@ def play(url):
 
 ###################################################################################
 #FUNCOES JÁ FEITAS
-
 
 def abrir_url(url):
 	req = urllib2.Request(url)
@@ -177,56 +165,27 @@ name=None
 mode=None
 iconimage=None
 
-
-try:
-        url=urllib.unquote_plus(params["url"])
-except:
-        pass
-try:
-        name=urllib.unquote_plus(params["name"])
-except:
-        pass
-try:
-        mode=int(params["mode"])
-except:
-        pass
-
-try:        
-        iconimage=urllib.unquote_plus(params["iconimage"])
-except:
-        pass
-
+try: url=urllib.unquote_plus(params["url"])
+except: pass
+try: name=urllib.unquote_plus(params["name"])
+except: pass
+try: mode=int(params["mode"])
+except: pass
+try: iconimage=urllib.unquote_plus(params["iconimage"])
+except: pass
 
 print "Mode: "+str(mode)
 print "URL: "+str(url)
 print "Name: "+str(name)
 print "Iconimage: "+str(iconimage)
 
-
-
-
 ###############################################################################################################
 #                                                   MODOS                                                     #
 ###############################################################################################################
 
-
-if mode==None or url==None or len(url)<1:
-        print ""
-        CATEGORIES()
-
-elif mode==1:
-	print ""
-	
-elif mode==2:
-	print ""
-	listar_videos(url)
-
-elif mode==3:
-	print ""
-	encontrar_fontes(url)
-	
-elif mode==4:
-	print ""
-	play(url)
-       
+if mode==None or url==None or len(url)<1: CATEGORIES()
+elif mode==1: recentes()
+elif mode==2: listar_videos(url)
+elif mode==3: encontrar_fontes(url)
+elif mode==4: play(url)
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

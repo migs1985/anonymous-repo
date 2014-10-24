@@ -1,3 +1,6 @@
-﻿Versão  1.0.0:
+﻿Versão  1.0.1:
+Correcção do addon para novo site
+
+Versão  1.0.0:
 Primeira Versão
 
