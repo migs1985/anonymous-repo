@@ -18,7 +18,7 @@
 
 ##############BIBLIOTECAS A IMPORTAR E DEFINICOES####################
 
-import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser
+import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,xbmcvfs,time,os
 h = HTMLParser.HTMLParser()
 
 addon_id = 'plugin.video.manualdomundo'
@@ -27,6 +27,8 @@ addonfolder = selfAddon.getAddonInfo('path')
 artfolder = addonfolder + '/resources/img/'
 fanart = addonfolder + '/fanart.jpg'
 versao = '1.0.1'
+pastaperfil = xbmc.translatePath(selfAddon.getAddonInfo('profile')).decode('utf-8')
+if xbmc.getCondVisibility('system.platform.windows'): pastaperfil = pastaperfil.replace('\\','/')
 
 ################################################## 
 
@@ -101,21 +103,55 @@ def encontrar_fontes(url):
 				txt += t + '\n\n'
 			if txt.replace('\n','').replace(' ','') != '': texto = '[B][COLOR blue]Descrição:[/COLOR][/B]\n' + texto + '\n\n[B][COLOR blue]Texto:[/COLOR][/B]\n' + txt
 		except: pass
-		if texto != '': addDir('Descrição',texto,5,'-',False)
+		if texto != '': 
+			addLink('[B][COLOR white]Descrição/Texto[/COLOR][/B]','','-')
+			addDir('Descrição',texto,5,'-',False)
 	except: pass
 	
-	if len(id_video) == 0: addLink("Sem vídeos...","","-")
+	if len(id_video) != 0: 
+		addLink("","","-")
+		addLink('[B][COLOR white]Vídeos[/COLOR][/B]','','-')
 	for id in id_video:
 		html = abrir_url('http://www.youtube.com/embed/' + id)
 		img = re.compile('"iurl": "(.+?)"').findall(html)[0].replace('\\','')
 		titulo = re.compile('"title": "(.+?)"').findall(html)[0]
 		addDir(titulo.decode('unicode-escape').encode('utf-8'),'plugin://plugin.video.youtube/?action=play_video&videoid=' + id,4,img,False)
-	'''
+
 	images = re.compile('<meta property="og:image" content="(.+?)" />').findall(codigo_fonte)
 	if len(images) <= 1: return
-	for x in range(1,len(images)):
-		addLink('Imagem ' + str(x),images[x],images[x])
-	'''
+	addLink('','','-')
+	addLink('[B][COLOR white]Imagens[/COLOR][/B]','','-')
+	for x in range(0,len(images)):
+		addDir('Imagem ' + str(x+1),images[x],6,images[x],False)
+
+def playimage(url):
+	if re.search('.gif',url):
+		listitem = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=url)
+		player = xbmc.Player(xbmc.PLAYER_CORE_AUTO)
+		player.play(url,listitem)
+		return
+	xbmc.executebuiltin("ActivateWindow(busydialog)")
+	extensao = ['.jpg','.png','.gif','.bmp']
+	extfic = ''
+	for x in range(0,len(extensao)):
+		if re.search(extensao[x],url): extfic='temp' + extensao[x]
+	if extfic == '': return
+	for ext in extensao:
+		try:os.remove(os.path.join(pastaperfil,'temp'+ext))
+		except:pass	
+	mypath = os.path.join(pastaperfil,extfic)
+	import requests
+	with open(mypath, 'wb') as handle:
+		response = requests.get(url, stream=True)
+		if not response.ok: 
+			print 'ERRO'
+			xbmc.executebuiltin("Dialog.Close(busydialog)")
+			return
+		for block in response.iter_content(1024):
+			if not block: break
+			handle.write(block)
+	xbmc.executebuiltin("Dialog.Close(busydialog)")
+	xbmc.executebuiltin("SlideShow("+pastaperfil+")")
 	
 def texto(url):
     try:
@@ -138,7 +174,7 @@ def play(url):
 		dialog = xbmcgui.Dialog()
 		dialog.ok(" Erro:", " Impossível abrir vídeo! ")
 		pass
-
+	  
 ###################################################################################
 #FUNCOES JÁ FEITAS
 
@@ -154,7 +190,7 @@ def addLink(name,url,iconimage):
 	ok=True
 	liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
 	liz.setProperty('fanart_image', fanart)
-	liz.setInfo( type="Image", infoLabels={ "Title": name } )
+	liz.setInfo( type="Video", infoLabels={ "Title": name } )
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz)
 	return ok
 
@@ -213,10 +249,13 @@ print "Iconimage: "+str(iconimage)
 #                                                   MODOS                                                     #
 ###############################################################################################################
 
-if mode==None or url==None or len(url)<1: CATEGORIES()
+if mode==None or url==None or len(url)<1:
+	if not xbmcvfs.exists(pastaperfil): xbmcvfs.mkdir(pastaperfil)
+	CATEGORIES()
 elif mode==1: recentes()
 elif mode==2: listar_videos(url)
 elif mode==3: encontrar_fontes(url)
 elif mode==4: play(url)
 elif mode==5: texto(url)
+elif mode==6: playimage(url)
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
