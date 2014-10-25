@@ -18,7 +18,7 @@
 
 ##############BIBLIOTECAS A IMPORTAR E DEFINICOES####################
 
-import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,xbmcvfs,time,os
+import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,xbmcvfs,time,os,requests
 h = HTMLParser.HTMLParser()
 
 addon_id = 'plugin.video.manualdomundo'
@@ -106,20 +106,19 @@ def encontrar_fontes(url):
 		if texto != '': 
 			addLink('[B][COLOR white]Descrição/Texto[/COLOR][/B]','','-')
 			addDir('Descrição',texto,5,'-',False)
+			addLink('','','-')
 	except: pass
 	
-	if len(id_video) != 0: 
-		addLink("","","-")
-		addLink('[B][COLOR white]Vídeos[/COLOR][/B]','','-')
+	if len(id_video) != 0: addLink('[B][COLOR white]Vídeos[/COLOR][/B]','','-')
 	for id in id_video:
 		html = abrir_url('http://www.youtube.com/embed/' + id)
 		img = re.compile('"iurl": "(.+?)"').findall(html)[0].replace('\\','')
 		titulo = re.compile('"title": "(.+?)"').findall(html)[0]
 		addDir(titulo.decode('unicode-escape').encode('utf-8'),'plugin://plugin.video.youtube/?action=play_video&videoid=' + id,4,img,False)
-
+	if len(id_video) != 0: addLink('','','-')
+	
 	images = re.compile('<meta property="og:image" content="(.+?)" />').findall(codigo_fonte)
 	if len(images) <= 1: return
-	addLink('','','-')
 	addLink('[B][COLOR white]Imagens[/COLOR][/B]','','-')
 	for x in range(0,len(images)):
 		addDir('Imagem ' + str(x+1),images[x],6,images[x],False)
@@ -135,16 +134,19 @@ def playimage(url):
 	extfic = ''
 	for x in range(0,len(extensao)):
 		if re.search(extensao[x],url): extfic='temp' + extensao[x]
-	if extfic == '': return
+	if extfic == '': 
+		print 'Extensão desconhecida'
+		xbmc.executebuiltin("Dialog.Close(busydialog)")
+		return
 	for ext in extensao:
 		try:os.remove(os.path.join(pastaperfil,'temp'+ext))
 		except:pass	
 	mypath = os.path.join(pastaperfil,extfic)
-	import requests
+	#import requests
 	with open(mypath, 'wb') as handle:
 		response = requests.get(url, stream=True)
 		if not response.ok: 
-			print 'ERRO'
+			print 'Response Error'
 			xbmc.executebuiltin("Dialog.Close(busydialog)")
 			return
 		for block in response.iter_content(1024):
