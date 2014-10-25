@@ -60,7 +60,7 @@ def recentes():
 	link = re.compile('<li class="thumbs-ultimos-artigos"><a href="(.+?)">').findall(codigo_fonte)
 	titulo = re.compile('<h2 class="title-posts-thumbs">(.+?)</h2>').findall(codigo_fonte)
 	img = re.compile('<div id="imagens-posts" class="large-12 medium-12 small-12 left"><img class="lazy compress-image" src=".+?" data-original="(.+?)"').findall(codigo_fonte)
-
+	
 	for x in range(0,len(link)):
 		addDir(titulo[x],link[x],3,img[x])
 	
@@ -74,7 +74,9 @@ def versao_disponivel():
 
 def listar_videos(url):
 	codigo_fonte = abrir_url(url)
-	link = re.compile('<a href="(.+?)" id="imagens-posts" class="large-12 medium-12 small-12 left">').findall(codigo_fonte)
+	link = re.compile('<div class="thumbs-content-categorias"><a href="(.+?)" id="imagens-posts" class="large-12 medium-12 small-12 left">').findall(codigo_fonte)
+	try: nada = link[0]
+	except: link = re.compile('<div class="thumbs-content-categorias">\s+<a href="(.+?)" id="imagens-posts" class="large-12 medium-12 small-12 left">').findall(codigo_fonte)
 	img = re.compile('<img class="lazy-mansory compress-image"\s+src=".+?"\s+data-original="(.+?)"').findall(codigo_fonte)
 	titulo = re.compile('<h1 class="title-posts-thumbs-categorias">(.+?)</h1>').findall(codigo_fonte)
 	
@@ -83,11 +85,24 @@ def listar_videos(url):
    
 def encontrar_fontes(url):
 	codigo_fonte = abrir_url(url)
-	try: id_video = re.compile('www.youtube.com/embed/(.+?)"').findall(codigo_fonte)
-	except: 
-		dialog = xbmcgui.Dialog()
-		dialog.ok(" Erro:", " Impossível abrir vídeo! ")
-		return
+	id_video = re.compile('www.youtube.com/embed/(.+?)"').findall(codigo_fonte)
+	try:
+		texto = re.compile('<meta property="og:description" content="(.+?)"').findall(codigo_fonte)[0]
+		try:
+			txt = ''
+			texto2 = re.findall('<div id="posts-conteudo" class="large-12 medium-12 small-12 columns">(.*?)<footer id="footer-posts" class="large-12 medium-12 small-12 left">',codigo_fonte,re.DOTALL)
+			nada = texto2[0]
+			texto2 = re.findall('<p>(.+?)</p>',codigo_fonte,re.DOTALL)
+			nada = texto2[0]
+			for t in texto2: 
+				if 'href' in t or 'target' in t or 'src' in t: continue
+				t = t.replace('<span style="font-size: 14px; line-height: 1.5em;">','').replace('</span>','').replace('&nbsp;','').replace('<sub>','').replace('</sub>','')
+				t = t.replace('<strong>','').replace('</strong>','').replace('<span style="line-height: 1.5em;">','').replace('<br />','')
+				txt += t + '\n\n'
+			if txt.replace('\n','').replace(' ','') != '': texto = '[B][COLOR blue]Descrição:[/COLOR][/B]\n' + texto + '\n\n[B][COLOR blue]Texto:[/COLOR][/B]\n' + txt
+		except: pass
+		if texto != '': addDir('Descrição',texto,5,'-',False)
+	except: pass
 	
 	if len(id_video) == 0: addLink("Sem vídeos...","","-")
 	for id in id_video:
@@ -95,7 +110,22 @@ def encontrar_fontes(url):
 		img = re.compile('"iurl": "(.+?)"').findall(html)[0].replace('\\','')
 		titulo = re.compile('"title": "(.+?)"').findall(html)[0]
 		addDir(titulo.decode('unicode-escape').encode('utf-8'),'plugin://plugin.video.youtube/?action=play_video&videoid=' + id,4,img,False)
-
+	'''
+	images = re.compile('<meta property="og:image" content="(.+?)" />').findall(codigo_fonte)
+	if len(images) <= 1: return
+	for x in range(1,len(images)):
+		addLink('Imagem ' + str(x),images[x],images[x])
+	'''
+	
+def texto(url):
+    try:
+        xbmc.executebuiltin("ActivateWindow(10147)")
+        window = xbmcgui.Window(10147)
+        xbmc.sleep(100)
+        window.getControl(1).setLabel( "%s - %s" % ('Manual do Mundo','Descrição'))
+        window.getControl(5).setText(url)
+    except: pass
+		
 def play(url):
 	listitem = xbmcgui.ListItem()
 	listitem.setPath(url)
@@ -124,7 +154,7 @@ def addLink(name,url,iconimage):
 	ok=True
 	liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
 	liz.setProperty('fanart_image', fanart)
-	liz.setInfo( type="Video", infoLabels={ "Title": name } )
+	liz.setInfo( type="Image", infoLabels={ "Title": name } )
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz)
 	return ok
 
@@ -188,4 +218,5 @@ elif mode==1: recentes()
 elif mode==2: listar_videos(url)
 elif mode==3: encontrar_fontes(url)
 elif mode==4: play(url)
+elif mode==5: texto(url)
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
