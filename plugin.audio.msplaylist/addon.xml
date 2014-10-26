@@ -2,6 +2,7 @@
 <addon id="plugin.audio.msplaylist" name="Mp3 Skull Playlist" version="1.0.7" provider-name="Anonymous">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
+	<import addon="plugin.video.youtube" />
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>audio</provides>
