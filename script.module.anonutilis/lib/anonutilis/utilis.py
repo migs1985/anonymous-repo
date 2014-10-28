@@ -35,6 +35,8 @@ class utilis:
 		self.selfAddon = xbmcaddon.Addon(id='script.module.anonutilis')
 		self.addon = xbmcaddon.Addon(id=addon_id)
 		self.addon_name = self.addon.getAddonInfo('name')
+		self.profile = xbmc.translatePath(self.addon.getAddonInfo('profile')).decode('utf-8')
+		if xbmc.getCondVisibility('system.platform.windows'): self.profile = self.profile.replace('\\','/')
 		
 		self.pastaperfil = xbmc.translatePath(self.selfAddon.getAddonInfo('profile')).decode('utf-8')
 		if xbmc.getCondVisibility('system.platform.windows'): self.pastaperfil = self.pastaperfil.replace('\\','/')
@@ -133,12 +135,16 @@ class utilis:
 	'''
 	
 	def abrir_url(self,url):
-		req = urllib2.Request(url)
-		req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-		response = urllib2.urlopen(req)
-		link=response.read()
-		response.close()
-		return link
+		try:
+			req = urllib2.Request(url)
+			req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
+			response = urllib2.urlopen(req)
+			link=response.read()
+			response.close()
+			return link
+		except:
+			print "Error: Unable to open url"
+			return None	
 		
 	'''
 	Returns your addon (online) version
@@ -157,6 +163,51 @@ class utilis:
 			print match
 		return match
 		
+	'''
+	Save and openfile
+	'''
+		
+	def savefile(self,filename, contents,pastafinal=self.profile):
+		try:
+			destination = os.path.join(pastafinal,filename)
+			fh = open(destination, 'wb')
+			fh.write(contents)  
+			fh.close()
+		except: print "Error on writing file"
+		
+	def openfile(self,filename,pastafinal=self.profile):
+		try:
+			destination = os.path.join(pastafinal, filename)
+			fh = open(destination, 'rb')
+			contents=fh.read()
+			fh.close()
+			return contents
+		except:
+			print "Error on opening file"
+			return None
+		
+	'''
+	Returns the file name of path
+	'''
+		
+	def file_name(self,path):
+		import ntpath
+		head, tail = ntpath.split(path)
+		return tail or ntpath.basename(head)
+	
+	'''
+	Converts string to int. Not the same as str()
+	Ex: str_int('12345zxc6v') => 12345
+	'''
+	
+	def str_int(self,str):
+		try: int(str[0])
+		except: return -1
+		for x in range(0,len(str)):
+			try: int(str[x])
+			except: return int(str[0:x])
+		return int(str)
+	
 	'''
 	Download with progress
 	url = file url; ex: http://mysite.com/image.jpg
