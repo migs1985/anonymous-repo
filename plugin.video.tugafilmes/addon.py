@@ -162,14 +162,14 @@ def listar_videos(url):
 			tmdbim='http://d3gtl9l2a4fn1j.cloudfront.net/t/p/'
 			try:
 				t = titulo
-				request='http://api.themoviedb.org/3/search/movie?api_key=6ee3768ba155b41252384a1148398b34&order=asc&query=%s&per_page=1'%(urllib.quote_plus(t))
+				request='http://api.themoviedb.org/3/search/movie?api_key=eee9ac1822295afd8dadb555a0cc4ea8&order=asc&query=%s&per_page=1'%(urllib.quote_plus(t))
 				req = urllib2.Request(request,None,txheaders)
 				response=load_json(urllib2.urlopen(req).read())
 				fanart = tmdbim + 'w780' + response['results'][0]['backdrop_path']
 			except:
 				try:
 					t = file_name(url2).replace(".html","").replace("-"," ")
-					request='http://api.themoviedb.org/3/search/movie?api_key=6ee3768ba155b41252384a1148398b34&order=asc&query=%s&per_page=1'%(urllib.quote_plus(t))
+					request='http://api.themoviedb.org/3/search/movie?api_key=eee9ac1822295afd8dadb555a0cc4ea8&order=asc&query=%s&per_page=1'%(urllib.quote_plus(t))
 					req = urllib2.Request(request,None,txheaders)
 					response=load_json(urllib2.urlopen(req).read())
 					fanart = tmdbim + 'w780' + response['results'][0]['backdrop_path']
@@ -178,7 +178,7 @@ def listar_videos(url):
 						t = file_name(url2).replace(".html","").replace("-"," ")
 						t = ''.join(i for i in t if not i.isdigit())
 						t = t.replace("(","").replace(")","")
-						request='http://api.themoviedb.org/3/search/movie?api_key=6ee3768ba155b41252384a1148398b34&order=asc&query=%s&per_page=1'%(urllib.quote_plus(t))
+						request='http://api.themoviedb.org/3/search/movie?api_key=eee9ac1822295afd8dadb555a0cc4ea8&order=asc&query=%s&per_page=1'%(urllib.quote_plus(t))
 						req = urllib2.Request(request,None,txheaders)
 						response=load_json(urllib2.urlopen(req).read())
 						fanart = tmdbim + 'w780' + response['results'][0]['backdrop_path']
