@@ -76,6 +76,7 @@ class joker:
 				return
 			xbmc.sleep(3000)
 			r = requests.post(url, data=json.dumps(data), headers=headers)
+			r_json = r.json()
 			status = r_json['status']
 
 		mensagemprogresso.update(50,'Opening media.','Please wait...')
