@@ -38,6 +38,7 @@ import xbmcgui
 
 class joker:
 	def play(self,magnet,name='',iconimage=''):
+		self._start()
 		print 'Magnet: '+magnet
 		mensagemprogresso = xbmcgui.DialogProgress()
 		mensagemprogresso.create('Joker', 'Opening media.','Please wait...')
@@ -54,11 +55,31 @@ class joker:
 				   'Content-type': 'application/json;charset=UTF-8',
 				   'Referer':'http://joker.org/',
 				   'Accept-Encoding':'gzip,deflate'}
-		
+				   
 		r = requests.post(url, data=json.dumps(data), headers=headers)
-		mensagemprogresso.update(50)
+		r_json = r.json()
+		status = r_json['status']
+		try: print 'Status: '+str(status)+' | Message: '+r_json['message']
+		except: print 'Status: '+str(status)
+		while(status != 3):
+			mensagemprogresso.update(0,r_json['message'])
+			try: print 'Status: '+str(status)+' | Message: '+r_json['message']
+			except: print 'Status: '+str(status)
+			if mensagemprogresso.iscanceled():
+				print 'Canceled by user'
+				self._end()
+				return
+			if status == -1:
+				xbmcgui.Dialog().ok("Error:", "Invalid torrent or magnet")
+				print 'Invalid torrent or magnet'
+				self._end()
+				return
+			xbmc.sleep(3000)
+			r = requests.post(url, data=json.dumps(data), headers=headers)
+			status = r_json['status']
+
+		mensagemprogresso.update(50,'Opening media.','Please wait...')
 		try:
-			r_json = r.json()
 			id = r_json['message']['vids'][0]['files'][0]['uuid']
 			ip = r_json['message']['server']
 			if name == '':
@@ -70,6 +91,7 @@ class joker:
 			url_vid = 'http://'+ip+'/v/'+id+'.mp4'
 			print 'Trying to play: '+url_vid
 			print 'Name: '+name
+			print 'Iconimage: '+iconimage
 			url_video = url_vid + '|Host='+ip+'&Connection=keep-alive&Accept=*/*&User-Agent=Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36&Referer=http://joker.org/&Accept-Encoding=identity;q=1, *;q=0&Cookie=martha='+cookies+';'
 			mensagemprogresso.update(100)
 			mensagemprogresso.close()
@@ -81,3 +103,13 @@ class joker:
 			mensagemprogresso.close()
 			xbmcgui.Dialog().ok("Error:", "Unable to open torrent!")
 			print 'Error opening url'
+		self._end()
+		
+	def _start(self):
+		print '==============================================================================='
+		print '===                                  Joker                                  ==='
+		print '==============================================================================='
+		
+	def _end(self):
+		print '==============================================================================='
+		print '=====================================///======================================='
