@@ -35,6 +35,8 @@ import requests
 import json
 import xbmc
 import xbmcgui
+import sys
+import xbmcplugin
 
 class joker:
 	def play(self,magnet,name='',iconimage=''):
@@ -63,8 +65,6 @@ class joker:
 		except: print 'Status: '+str(status)
 		while(status != 3):
 			mensagemprogresso.update(0,r_json['message'])
-			try: print 'Status: '+str(status)+' | Message: '+r_json['message']
-			except: print 'Status: '+str(status)
 			if mensagemprogresso.iscanceled():
 				print 'Canceled by user'
 				self._end()
@@ -78,6 +78,8 @@ class joker:
 			r = requests.post(url, data=json.dumps(data), headers=headers)
 			r_json = r.json()
 			status = r_json['status']
+			try: print 'Status: '+str(status)+' | Message: '+r_json['message']
+			except: print 'Status: '+str(status)
 
 		mensagemprogresso.update(50,'Opening media.','Please wait...')
 		try:
@@ -96,15 +98,22 @@ class joker:
 			url_video = url_vid + '|Host='+ip+'&Connection=keep-alive&Accept=*/*&User-Agent=Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36&Referer=http://joker.org/&Accept-Encoding=identity;q=1, *;q=0&Cookie=martha='+cookies+';'
 			mensagemprogresso.update(100)
 			mensagemprogresso.close()
-			liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+			self._end()
+			playlist = xbmc.PlayList(1)
+			playlist.clear()
+			listitem = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+			listitem.setProperty('mimetype', 'video/x-msvideo')
+			listitem.setProperty('IsPlayable', 'true')
+			playlist.add(url_video, listitem)
+			xbmcplugin.setResolvedUrl(int(sys.argv[1]),True,listitem)
 			player = xbmc.Player(xbmc.PLAYER_CORE_AUTO)
-			player.play(url_video,liz)
+			player.play(playlist)
 		
 		except: 
 			mensagemprogresso.close()
 			xbmcgui.Dialog().ok("Error:", "Unable to open torrent!")
 			print 'Error opening url'
-		self._end()
+			self._end()
 		
 	def _start(self):
 		print '==============================================================================='
