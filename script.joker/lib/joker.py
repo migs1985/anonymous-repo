@@ -58,7 +58,18 @@ class joker:
 				   'Referer':'http://joker.org/',
 				   'Accept-Encoding':'gzip,deflate'}
 				   
-		r = requests.post(url, data=json.dumps(data), headers=headers)
+		try: 
+			r = requests.post(url, data=json.dumps(data), headers=headers)
+			flag = r.ok
+		except: flag = False
+		
+		if not flag: 
+			mensagemprogresso.close()
+			xbmcgui.Dialog().ok("Error:", "Response error.","Joker might be down...")
+			print 'Response error'
+			self._end()
+			return
+		
 		r_json = r.json()
 		status = r_json['status']
 		try: print 'Status: '+str(status)+' | Message: '+r_json['message']
