@@ -93,7 +93,7 @@ class joker:
 			cookies = r.cookies['martha']
 			url_vid = 'http://'+ip+'/v/'+id+'.mp4'
 			print 'Trying to play: '+url_vid
-			print 'Name: '+name
+			print 'Name: '+name.encode('utf-8')
 			print 'Iconimage: '+iconimage
 			url_video = url_vid + '|Host='+ip+'&Connection=keep-alive&Accept=*/*&User-Agent=Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.104 Safari/537.36&Referer=http://joker.org/&Accept-Encoding=identity;q=1, *;q=0&Cookie=martha='+cookies+';'
 			mensagemprogresso.update(100)
@@ -101,20 +101,19 @@ class joker:
 			self._end()
 			playlist = xbmc.PlayList(1)
 			playlist.clear()
-			listitem = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+			listitem = xbmcgui.ListItem(name.encode('utf-8'), iconImage="DefaultVideo.png", thumbnailImage=iconimage)
 			listitem.setProperty('mimetype', 'video/x-msvideo')
 			listitem.setProperty('IsPlayable', 'true')
 			playlist.add(url_video, listitem)
 			xbmcplugin.setResolvedUrl(int(sys.argv[1]),True,listitem)
 			player = xbmc.Player(xbmc.PLAYER_CORE_AUTO)
 			player.play(playlist)
-		
 		except: 
 			mensagemprogresso.close()
 			xbmcgui.Dialog().ok("Error:", "Unable to open torrent!")
 			print 'Error opening url'
 			self._end()
-		
+
 	def _start(self):
 		print '==============================================================================='
 		print '===                                  Joker                                  ==='
