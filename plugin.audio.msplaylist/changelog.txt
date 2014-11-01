@@ -1,4 +1,7 @@
-﻿Versão 1.0.6:
+﻿Versão 1.0.8:
+Corrigidos vídeos
+
+Versão 1.0.7:
 Corrigida opção para ver vídeos
 
 Versão 1.0.6:

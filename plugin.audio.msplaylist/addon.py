@@ -63,17 +63,14 @@ def listar_videos(name):
 	name2 = name.replace(' - ',' ')
 	name2 = urllib.quote(name2)
 	url = 'https://www.youtube.com/results?search_query=' + name2 + '&lclk=video&filters=video'
-	 
 	codigo_fonte = abrir_url(url)
 	try: 
-		match1 = re.compile('data-context-item-id="(.+?)">').findall(codigo_fonte)
-		match2 = re.compile('dir="ltr">(.+?)</a></h3><div class="yt-lockup-meta">').findall(codigo_fonte)
-		
+		ids = re.compile('tile" data-context-item-id="(.+?)"').findall(codigo_fonte)
+		titles = re.compile('rel="spf-prefetch">(.+?)</a></h3><div class="yt-lockup-meta">').findall(codigo_fonte)
 		match = []
-		for x in range(0, len(match1)):
-			temp = [match1[x],match2[x]]; 
-			match.append(temp);
-		
+		for x in range(0, len(ids)):
+			temp = [ids[x],titles[x]]; 
+			match.append(temp);		
 	except: 
 		print "Erro ao obter video!"
 		return
