@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+   <category label="2040">
+      <setting id="entra_canais" type="bool" label="2041" default="false"/>
+      <setting id="max_qual" type="bool" label="2042" default="false"/>
+	  <setting id="pass" type="bool" label="2043" default="false"/>
+	  <setting id="gay" type="bool" label="2058" default="false"/>
+	  <setting id="order" type="text" label="Order" default="rating" visible="False"/>
+   </category>
+   <category label="Download">
+		<setting id="download-folder" type="folder" label="2044" default=""/>
+   </category>
+   <category label="Info">
+		<setting id="nada3" label="$ADDON[plugin.video.adultstv 1000] $INFO[System.AddonVersion(plugin.video.adultstv)]" type="action" action="RunScript($CWD/resources/lib/viewer.py, version)"/>
+		<setting id="nada4" label="XBMC Tools $ADDON[plugin.video.adultstv 1001]" type="action" action="RunScript($CWD/resources/lib/viewer.py, xbmctools)" visible="System.HasAddon(plugin.video.xbmctools)"/>
+		<setting id="nada5" label="XBMC Tools $ADDON[plugin.video.adultstv 1002]" type="action" action="RunScript($CWD/resources/lib/viewer.py, xbmctools)" visible="!System.HasAddon(plugin.video.xbmctools)"/>
+		<setting id="nada" label="Changelog" type="action" action="RunScript($CWD/resources/lib/viewer.py, changelog)" />
+		<setting id="nada2" label="1004" type="action" action="RunScript($CWD/resources/lib/viewer.py, license)" />
+		<setting label="$LOCALIZE[24052]" type="lsep"/>
+		<setting id="nada6" label="1003" type="action" action="RunScript($CWD/resources/lib/viewer.py, disclaimer)" />
+		<setting id="nada7" label="2067" type="action" action="RunScript($CWD/resources/lib/viewer.py, help)" />
+   </category>
+</settings>
