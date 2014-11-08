@@ -133,17 +133,26 @@ def vk(url):
 		id1 = re.compile("var video_uid = '(.+?)'").findall(codigo_fonte)[0]
 		id2 = re.compile("var video_vtag = '(.+?)'").findall(codigo_fonte)[0]
 		res = re.compile("var video_max_hd = '(.+?)'").findall(codigo_fonte)[0]
-	
+		print 'VK Resolution: '+res
 		if res == '4': qualidade = ['960','720','480','360','240']
 		elif res == '3': qualidade = ['720','480','360','240']
 		elif res == '2': qualidade = ['480','360','240']
 		elif res == '1': qualidade = ['360','240']
 		else: qualidade = ['240']
 		
-		index = xbmcgui.Dialog().select(traducao(2012), qualidade)
-		if index == -1: return False
-		url_video = url + 'u' + id1 + '/videos/' + id2 + '.' + qualidade[index] + '.mp4'
-		return [url_video, qualidade[index]]
+		if selfAddon.getSetting('max_qual')=='true':
+			qualidade_int = []
+			for q in qualidade:
+				qualidade_int.append(int(q))
+			qualidade_ = str(max(qualidade_int))
+		else:
+			if len(qualidade)==1: qualidade_ = qualidade[0]
+			else: 
+				index = xbmcgui.Dialog().select(traducao(2012), qualidade)
+				if index == -1: return False
+				qualidade_ = qualidade[index]
+		url_video = url + 'u' + id1 + '/videos/' + id2 + '.' + qualidade_ + '.mp4'
+		return [url_video, qualidade_]
 	except: 
 		xbmcgui.Dialog().ok(traducao(2010),traducao(2030))
 		return False

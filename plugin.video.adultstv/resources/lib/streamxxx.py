@@ -83,8 +83,10 @@ def listar_fontes(name,url,iconimage):
 	if len(hosts) == 0:
 		xbmcgui.Dialog().ok(traducao(2010), traducao(2038))
 		return
-	index = xbmcgui.Dialog().select(traducao(2006), hosts)
-	if index == -1: return
+	if len(hosts) == 1: index=0
+	else:
+		index = xbmcgui.Dialog().select(traducao(2006), hosts)
+		if index == -1: return
 	if "myresolvers" in str(sources[index]): 
 		try: urlplayer = _myresolvers(sources[index].replace("myresolvers",""))
 		except:
@@ -102,12 +104,24 @@ def listar_fontes(name,url,iconimage):
 def myresolvers(url):
 	if "streamin.to" in url: return "streamin.to"
 	if "videowood.tv" in url: return "videowood.tv"
+	if "powvideo.net" in url: return "powvideo.net"
 	else: return None
 
 def _myresolvers(url):
 	if "streamin.to" in url: return streaminto(url)
 	if "videowood.tv" in url: return videowoodtv(url)
+	if "powvideo.net" in url: return powvideonet(url)
 	else: return None
+	
+def powvideonet(url):
+	import packer
+	form_values = {}
+	for i in re.finditer('<input.*?name="(.*?)".*?value="(.*?)".*?>', abrir_url(url)):
+		form_values[i.group(1)] = i.group(2)
+	html = net.http_POST(url, form_data=form_values).content
+	texto = 'eval(function(p,a,c,k,e,d)'+re.findall("<script type='text/javascript'>eval\(function\(p,a,c,k,e,d\)(.*?)</script>",html,re.DOTALL)[0]
+	url_video = 'http' + re.compile("file:'http(.+?)'").findall(packer.unpack(texto).replace('\\',''))[0]
+	return url_video
 	
 def videowoodtv(url):
 	if not "embed" in url: url = 'http://videowood.tv/embed/' + re.compile('src="http://videowood.tv/embed/(.+?)"').findall(abrir_url(url))[0]

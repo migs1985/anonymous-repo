@@ -1,2 +1,8 @@
-﻿[B]Version 1.0.0 (06/11/2014):[/B]
-Initial release
+﻿[B]Version 0.0.2 (08/11/2014):[/B]
+-Fixed option to set best quality
+-Player now starts automatically when only 1 resolver available
+-Added new resolver (powvideo.net)
+-Added option to enable/disable channels in settings
+
+[B]Version 0.0.1 (06/11/2014):[/B]
+-Initial release
