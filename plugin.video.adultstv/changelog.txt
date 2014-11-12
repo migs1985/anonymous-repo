@@ -1,4 +1,9 @@
-﻿[B]Version 0.0.2 (08/11/2014):[/B]
+﻿[B]Version 0.0.3 (12/11/2014):[/B]
+Added 3 channels: Redlight Premium, SCT, Hot.
+Added new source: abcast.biz
+Fixed some channels.
+
+[B]Version 0.0.2 (08/11/2014):[/B]
 -Fixed option to set best quality
 -Player now starts automatically when only 1 resolver available
 -Added new resolver (powvideo.net)

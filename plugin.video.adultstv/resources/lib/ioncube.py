@@ -5,6 +5,7 @@
 import math,re,urllib
 
 def open(html):
+	if not re.search('Page protected by ionCube',html): return html
 	try:
 		d = ''
 		c = re.compile('c="(.+?)"').findall(html)[0]

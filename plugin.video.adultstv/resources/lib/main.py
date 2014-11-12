@@ -73,7 +73,7 @@ def canais():
 	if _ch('pboytv'): addDir("Playboy TV",'-',7,artfolder + "playboy.png",False)
 	if _ch('pboytvchat'): addDir("Playboy TV Chat",'-',8,artfolder + "playboyhd.png",False)
 	if _ch('penthousehd'): addDir("Penthouse HD",'-',9,artfolder + "penthouse.png",False)
-	#if _ch('hot'): addDir("Hot",'-',10,artfolder + "hot.png",False)
+	if _ch('hot'): addDir("Hot",'-',10,artfolder + "hot.png",False)
 	if _ch('hustlerhd'): addDir("Hustler HD",'-',11,artfolder + "hustlerhd.png",False)
 	if _ch('viki'): addDir("Viki Enjoy Premium",'-',12,artfolder + "viki.png",False)
 	if _ch('vietsex'): addDir("Viet Sex TV",'-',13,artfolder + "vietsextv.png",False)
@@ -103,6 +103,8 @@ def canais():
 	if _ch('sexprive'): addDir("Sexprive Brasileirinhas",'-',40,artfolder + "sexprive.png",False)
 	if _ch('nightclub'): addDir("Nightclub TV",'-',41,artfolder + "nightclub.png",False)
 	if _ch('temptation'): addDir("Temptation TV",'-',42,artfolder + "temptationtv.png",False)
+	if _ch('sct'): addDir("SCT",'-',43,artfolder + "sct.png",False)
+	if _ch('redlight_premium'): addDir("Redlight Premium",'-',44,artfolder + "red_premium.png",False)
 	if selfAddon.getSetting('gay') == 'false':
 		#Conteúdo gay
 		if _ch('filthon-gay'): addDir("Filthon Gay",'-',39,artfolder + "filthongay.png",False)
@@ -160,8 +162,9 @@ http://live-cricketbd.blogspot.pt/p/blog-page_12.html
 http://tvxat.org/tv-online/adulto/
 http://tutvgratis.tv/
 http://tvxlive.blogspot.pt/p/live-channels.html
----www.portalzuca.net/canais/canal5.html
+http://www.portalzuca.net/canais/canal5.html   ---  Canal HOT
 -http://www.lovetv.ml/
+-http://peontv.com/
 http://ero-tv.org/
 http://alfabass.at.ua/index/
 http://www.funmastii.com/search/label/Live%20Adult%20TV
@@ -231,8 +234,16 @@ def penthouse(name,iconimage):
 	else: return
 	play(name,streamurl,iconimage)
 	
-def hot(name,iconimage):
-	return
+def hot(name,iconimage): 
+	try:
+		codigo_fonte = abrir_url('http://www.portalzuca.net/canais/canal5.html')
+		file = re.compile("file='(.+?)'").findall(codigo_fonte)[0]
+		link = 'http://abcast.biz/zuca.php?file=' + file 
+		streamurl = abcast_resolver(link)
+	except:
+		xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
+		return
+	play(name,streamurl,iconimage)
 	
 def hustlerhd(name,iconimage):
 	url = "http://verdirectotv.com/canales/hustlertv.html"
@@ -380,21 +391,43 @@ def sexprive(name,iconimage):
 	play(name,streamurl,iconimage)
 	
 def nightclub(name,iconimage):
-	index = xbmcgui.Dialog().select(traducao(2006), ['nnm-list.ru',traducao(2005)+' 2'])
+	index = xbmcgui.Dialog().select(traducao(2006), ['nnm-list.ru','Widih',traducao(2005)+' 2'])
 	if index==0: streamurl=nnm_list_resolver('Ночной клуб')
-	elif index==1: streamurl=myresolver(name)
+	elif index==1: streamurl=widih_resolver('http://id.widih.org/watch-tv/1873/nightclub-%D0%BD%D0%BE%D1%87%D0%BD%D0%BE%D0%B9-%D0%BA%D0%BB%D1%83%D0%B1+live+tv+streaming')
+	elif index==2: streamurl=myresolver(name)
 	else: return
 	play(name,streamurl,iconimage)
 	
 def temptationtv(name,iconimage):
-	index = xbmcgui.Dialog().select(traducao(2006), ['nnm-list.ru',traducao(2005)+' 2'])
+	index = xbmcgui.Dialog().select(traducao(2006), ['nnm-list.ru','Widih',traducao(2005)+' 2'])
 	if index==0: streamurl=nnm_list_resolver('Искушение')
-	elif index==1: streamurl=myresolver(name)
+	elif index==1: streamurl=widih_resolver('http://id.widih.org/watch-tv/1697/temptation-tv-%D0%B8%D1%81%D0%BA%D1%83%D1%88%D0%B5%D0%BD%D0%B8%D0%B5-%D1%82%D0%B2+live+tv+streaming')
+	elif index==2: streamurl=myresolver(name)
 	else: return
+	play(name,streamurl,iconimage)
+	
+def sct(name,iconimage):
+	streamurl = myresolver(name)
+	play(name,streamurl,iconimage)
+
+def redlight_premium(name,iconimage):
+	streamurl = myresolver(name)
 	play(name,streamurl,iconimage)
 	
 ########################################################################
 #RESOLVERS
+def abcast_resolver(url):
+	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
+	codigo_fonte = abrir_url(url)
+	file =  re.compile('file=(.+?)&').findall(codigo_fonte)[0]
+	rtmp =  re.compile('streamer=(.+?)&').findall(codigo_fonte)[0]
+	swf =  'http://abcast.biz/' + re.compile('<object data="(.+?)"').findall(codigo_fonte)[0]
+	#pageurl = url.replace(url.split('?')[0],'http://abcast.biz/embed.php')
+	try: file = file.replace('.'+file.split('.')[-1],'')
+	except: pass
+	streamurl=rtmp + ' playPath=' + file  + ' swfUrl=' + swf + ' live=true timeout=15 swfVfy=true pageUrl='+url
+	return streamurl
+	
 def nnm_list_resolver(name):
 	try:
 		mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
@@ -858,6 +891,8 @@ elif mode==39: filthon_gay(name,iconimage)
 elif mode==40: sexprive(name,iconimage)
 elif mode==41: nightclub(name,iconimage)
 elif mode==42: temptationtv(name,iconimage)
+elif mode==43: sct(name,iconimage)
+elif mode==44: redlight_premium(name,iconimage)
 #Brazzers Videos
 elif mode==200: brazzers.brazzers_menu()
 elif mode==201: brazzers.listar_videos(url)
