@@ -29,13 +29,13 @@ except:
 	dialog = xbmcgui.Dialog()
 	dialog.ok("Erro!","Não foi encontrado o add-on PDF Reader.","Por favor, instale-o.")
 	xbmc.executebuiltin('XBMC.ActivateWindow(Home)')
-
+	
 ###################################
 
 #PDF Functions:
 
 #open_settings():			# Open addon settings
-#pdf_read(name,url):		# Read and play pdf - url = url or filepath
+#pdf_read(name,url,videoaddon):		# Read and play pdf - url = url or filepath - videoaddon = (bool) optional
 #pdf_type(filepath):		# Returns the type of PDF
 #pdf_name(filepath):		# Returns the name of PDF
 #clean_temp():				# Delete temporary files
@@ -46,7 +46,7 @@ except:
 
 #CBX Functions:
 
-#cbx_read(name,url):		# Read and play cbr/cbz - url = url or filepath
+#cbx_read(name,url,videoaddon):		# Read and play cbr/cbz - url = url or filepath - videoaddon = (bool) optional
 #clean_temp():				# Delete temporary files
 
 #You must include 'cbx.' before functions you want to use. Example: cbx.cbx_read(name,url)
@@ -62,7 +62,7 @@ cbx = cbx()
 
 h = HTMLParser.HTMLParser()
 
-versao = '1.0.1'
+versao = '1.0.2'
 
 addon_id = 'plugin.image.pdfreader'
 selfAddon = xbmcaddon.Addon(id=addon_id)

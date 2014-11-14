@@ -22,7 +22,7 @@ except:
 #PDF Functions:
 
 #open_settings():			# Open addon settings
-#pdf_read(name,url):		# Read and play pdf - url = url or filepath
+#pdf_read(name,url,videoaddon):		# Read and play pdf - url = url or filepath - videoaddon = (bool) optional
 #pdf_type(filepath):		# Returns the type of PDF
 #pdf_name(filepath):		# Returns the name of PDF
 #clean_temp():				# Delete temporary files
@@ -33,7 +33,7 @@ except:
 
 #CBX Functions:
 
-#cbx_read(name,url):		# Read and play cbr/cbz - url = url or filepath
+#cbx_read(name,url,videoaddon):		# Read and play cbr/cbz - url = url or filepath - videoaddon = (bool) optional
 #clean_temp():				# Delete temporary files
 
 #You must include 'cbx.' before functions you want to use. Example: cbx.cbx_read(name,url)
@@ -68,7 +68,7 @@ class pdf:
 	def open_settings(self):		#Open addon settings
 		selfAddon.openSettings()
 
-	def pdf_read(self,name,url):	# Read and play pdf
+	def pdf_read(self,name,url,videoaddon=False):	# Read and play pdf
 		name = re.sub('[^a-z A-Z0-9\n\.]', '', name)
 		self._mensagem_inicial()
 		self.clean_temp()
@@ -80,7 +80,8 @@ class pdf:
 			else:
 				if not self._download(url): return
 				pdf_path = os.path.join(temp,'temp.pdf')
-		xbmc.executebuiltin('XBMC.Container.Update(%s?mode=1&url=%s&name=%s)' % ('plugin://plugin.image.pdfreader/', urllib.quote_plus(pdf_path),name)) #sys.argv[0]
+		if videoaddon: xbmc.executebuiltin('XBMC.RunAddon(plugin.image.pdfreader)')
+		xbmc.executebuiltin('XBMC.Container.Update(%s?mode=1&url=%s&name=%s)' % ('plugin://plugin.image.pdfreader/', urllib.quote_plus(pdf_path),name))
 
 	def _play(self,name,url):
 		images_name=[]
@@ -276,9 +277,10 @@ class pdf:
 		def __str__(self): return repr(self.value)
 		
 class cbx:
-	def cbx_read(self,name,url):
+	def cbx_read(self,name,url,videoaddon=False):
 		self.clean_temp()
 		xbmc.executebuiltin('XBMC.Extract('+url+','+temp+')')
+		if videoaddon: xbmc.executebuiltin('XBMC.RunAddon(plugin.image.pdfreader)')
 		xbmc.executebuiltin('XBMC.Container.Update(%s?mode=5&url=%s&name=%s)' % ('plugin://plugin.image.pdfreader/', urllib.quote_plus(url),name))
 	
 	def _play(self,name,url,folder=temp, page=1):
