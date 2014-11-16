@@ -33,4 +33,6 @@
 	<string id="4005">Always update thumbnails</string>
 	<string id="4006">Download</string>
 	<string id="4007">Thumbnails</string>
+	<string id="4008">Global settings</string>
+	<string id="4009">Show only files larger than 10KB</string>
 </strings>

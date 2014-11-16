@@ -70,8 +70,10 @@ class pdf:
 
 	def pdf_read(self,name,url,videoaddon=False):	# Read and play pdf
 		if videoaddon: 
+			xbmc.executebuiltin("ActivateWindow(busydialog)")
 			xbmc.executebuiltin('XBMC.RunAddon(plugin.image.pdfreader)')
-			#xbmc.sleep(100)
+			xbmc.sleep(2000)
+			xbmc.executebuiltin("Dialog.Close(busydialog)")
 		name = re.sub('[^a-z A-Z0-9\n\.]', '', name)
 		self._mensagem_inicial()
 		self.clean_temp()
@@ -163,12 +165,13 @@ class pdf:
 			else:
 				if thumbs2 == '0': aux = name+'-'+str(dim)+'.'+type
 				else: aux = name+'_'+str(dim)+'_%d=%d' % (random.randint(1, 10000), random.randint(1, 10000)) + '.'+type
-			image_path = os.path.join(save_path,aux)
-			imagefile = file(image_path, "wb")
-			imagefile.write(image)
-			imagefile.close()
-			images_name.append(aux)
-			dim += 1
+			if sys.getsizeof(image) > 10000 or selfAddon.getSetting('limite')=='false':
+				image_path = os.path.join(save_path,aux)
+				imagefile = file(image_path, "wb")
+				imagefile.write(image)
+				imagefile.close()
+				images_name.append(aux)
+				dim += 1
 			i = iend
 		f = open(temp+'names.txt',"w")
 		for image_name in images_name:
@@ -281,8 +284,10 @@ class pdf:
 class cbx:
 	def cbx_read(self,name,url,videoaddon=False):
 		if videoaddon: 
+			xbmc.executebuiltin("ActivateWindow(busydialog)")
 			xbmc.executebuiltin('XBMC.RunAddon(plugin.image.pdfreader)')
-			#xbmc.sleep(100)
+			xbmc.sleep(2000)
+			xbmc.executebuiltin("Dialog.Close(busydialog)")
 		self.clean_temp()
 		xbmc.executebuiltin('XBMC.Extract('+url+','+temp+')')
 		xbmc.executebuiltin('XBMC.Container.Update(%s?mode=5&url=%s&name=%s)' % ('plugin://plugin.image.pdfreader/', urllib.quote_plus(url),name))
