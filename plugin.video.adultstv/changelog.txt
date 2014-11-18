@@ -1,4 +1,10 @@
-﻿[B]Version 0.0.3 (12/11/2014):[/B]
+﻿[B]Version 0.0.4 (18/11/2014):[/B]
+Added magazine section
+Added mips.tv resolver
+Minor improvements
+-This version requires PDF Reader addon.
+
+[B]Version 0.0.3 (12/11/2014):[/B]
 Added 3 channels: Redlight Premium, SCT, Hot.
 Added new source: abcast.biz
 Fixed some channels.

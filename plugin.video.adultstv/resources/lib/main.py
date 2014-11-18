@@ -18,13 +18,24 @@
 
 ##############BIBLIOTECAS A IMPORTAR E DEFINICOES####################
 
-import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,xbmcvfs
+import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,xbmcvfs,time
 import brazzers
 import fhdp
 import streamxxx
 import uppod
 import boaf
 import ioncube
+
+try:
+	addon_pdf = xbmc.translatePath('special://home/addons/plugin.image.pdfreader/resources/lib')
+	sys.path.append(addon_pdf)
+	from pdf import pdf
+	pdf = pdf()
+except:
+	dialog = xbmcgui.Dialog()
+	dialog.ok("Error!","PDF Reader not found.","Please install it.")
+	sys.exit(0)
+
 h = HTMLParser.HTMLParser()
 
 addon_id = 'plugin.video.adultstv'
@@ -45,12 +56,39 @@ def traducao(texto):
 #MENUS############################################
 
 def CATEGORIES():
-	addDir(traducao(2000),'-',21,artfolder + 'canais.png')
-	addDir(traducao(2001),'-',1,artfolder + 'lista.png')
-	addDir(traducao(2002),'-',101,artfolder + 'movie.png')
-	addDir(traducao(2003),'-',22,artfolder + 'settings.png',False)
+	if selfAddon.getSetting('vista') == '0':
+		addDir(traducao(2000),'-',21,artfolder + 'canais.png')
+		addDir(traducao(2001),'-',1,artfolder + 'lista.png')
+		addDir(traducao(2002),'-',101,artfolder + 'movie.png')
+		addDir(traducao(2068),'-',105,artfolder + 'revistas.png')
+		addDir(traducao(2003),'-',22,artfolder + 'settings.png',False)
+		xbmc.executebuiltin("Container.SetViewMode(500)")
+		xbmcplugin.setContent(int(sys.argv[1]), 'episodes')
+	else:
+		addDir(traducao(2000),'-',21,artfolder + 'canais_m.png')
+		addDir(traducao(2001),'-',1,artfolder + 'lista_m.png')
+		addDir(traducao(2002),'-',101,artfolder + 'movie_m.png')
+		addDir(traducao(2068),'-',105,artfolder + 'revistas_m.png')
+		addDir(traducao(2003),'-',22,artfolder + 'settings_m.png',False)
+		xbmcplugin.setContent(int(sys.argv[1]), 'Movies')
+		xbmc.executebuiltin("Container.SetViewMode(501)")
 	if selfAddon.getSetting('pass') == "false": password()
-	xbmc.executebuiltin("Container.SetViewMode(500)")
+	
+def revistas(offset):
+	#http://www.mediafire.com/folder/uyf3rp6l2m141
+	id = 'uyf3rp6l2m141'
+	
+	#folders_url='http://www.mediafire.com/api/folder/get_content.php?folder_key='+id+'&chunk=1&content_type=folders&response_format=json&rand=1789'
+	#files_url='http://www.mediafire.com/api/folder/get_content.php?r=srhp&content_type=files&filter=all&order_by=name&order_direction=asc&chunk=1&version=2&folder_key='+id+'&response_format=json'
+
+	files_url='http://www.mediafire.com/api/folder/get_content.php?r=srhp&content_type=files&filter=all&order_by=name&order_direction=asc&chunk='+str(offset)+'&version=2&folder_key='+id+'&response_format=json'
+	codigo_fonte = abrir_url(files_url).replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
+	match=re.findall('"filename":"(.+?)".+?"normal_download":"(.+?)"',codigo_fonte)
+	for name, url in match:
+		addDir(name.replace('.pdf',''),url.replace('\\',''),106,artfolder + 'revistas.png',False)
+	if len(match)==100:
+		addDir(traducao(2050),'-',105,artfolder + 'next.png',offset=offset+1)
+	xbmc.executebuiltin("Container.SetViewMode(50)")
 	
 def videos():
 	addDir("Brazzers",'-',200,artfolder + 'brazzers_icon.png')
@@ -108,7 +146,9 @@ def canais():
 	if selfAddon.getSetting('gay') == 'false':
 		#Conteúdo gay
 		if _ch('filthon-gay'): addDir("Filthon Gay",'-',39,artfolder + "filthongay.png",False)
+		#if _ch('gboys'): addDir("G-Boys TV",'-',45,artfolder + "gboys.png",False)
 	xbmc.executebuiltin("Container.SetViewMode(500)")
+	xbmcplugin.setContent(int(sys.argv[1]), 'episodes')
 
 
 ###################################################################################
@@ -234,7 +274,7 @@ def penthouse(name,iconimage):
 	else: return
 	play(name,streamurl,iconimage)
 	
-def hot(name,iconimage): 
+def hot(name,iconimage):
 	try:
 		codigo_fonte = abrir_url('http://www.portalzuca.net/canais/canal5.html')
 		file = re.compile("file='(.+?)'").findall(codigo_fonte)[0]
@@ -317,16 +357,12 @@ def private(name,iconimage):
 	
 def private_gold(name,iconimage):
 	url="http://tutvgratis.tv/adultos/private-gold"
-	ucaster_link,referer = tutv_resolver(url)
-	if ucaster_link == 'erro': return
-	streamurl=ucaster_resolver(ucaster_link,referer)
+	streamurl = tutv_resolver(url)
 	play(name,streamurl,iconimage)
 	
 def venus(name,iconimage):
 	url="http://tutvgratis.tv/adultos/venus/"
-	ucaster_link,referer = tutv_resolver(url)
-	if ucaster_link == 'erro': return
-	streamurl=ucaster_resolver(ucaster_link,referer)
+	streamurl = tutv_resolver(url)
 	play(name,streamurl,iconimage)
 	
 def xdesire(name,iconimage):
@@ -414,19 +450,31 @@ def redlight_premium(name,iconimage):
 	streamurl = myresolver(name)
 	play(name,streamurl,iconimage)
 	
+def gboys(name,iconimage):
+	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
+	try:
+		url = 'http://g-boys.tk/'
+		streamurl = re.compile("Link for live stream: <a href='(.+?)'").findall(abrir_url(url))[0]
+		play(name,streamurl,iconimage)
+	except: xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
+
 ########################################################################
 #RESOLVERS
 def abcast_resolver(url):
 	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
-	codigo_fonte = abrir_url(url)
-	file =  re.compile('file=(.+?)&').findall(codigo_fonte)[0]
-	rtmp =  re.compile('streamer=(.+?)&').findall(codigo_fonte)[0]
-	swf =  'http://abcast.biz/' + re.compile('<object data="(.+?)"').findall(codigo_fonte)[0]
-	#pageurl = url.replace(url.split('?')[0],'http://abcast.biz/embed.php')
-	try: file = file.replace('.'+file.split('.')[-1],'')
+	try:
+		codigo_fonte = abrir_url(url)
+		file =  re.compile('file=(.+?)&').findall(codigo_fonte)[0]
+		rtmp =  re.compile('streamer=(.+?)&').findall(codigo_fonte)[0]
+		swf =  'http://abcast.biz/' + re.compile('<object data="(.+?)"').findall(codigo_fonte)[0]
+		#pageurl = url.replace(url.split('?')[0],'http://abcast.biz/embed.php')
+		try: file = file.replace('.'+file.split('.')[-1],'')
+		except: pass
+		streamurl=rtmp + ' playPath=' + file  + ' swfUrl=' + swf + ' live=true timeout=15 swfVfy=true pageUrl='+url
+		return streamurl
 	except: pass
-	streamurl=rtmp + ' playPath=' + file  + ' swfUrl=' + swf + ' live=true timeout=15 swfVfy=true pageUrl='+url
-	return streamurl
+	xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
+	return 'erro'	
 	
 def nnm_list_resolver(name):
 	try:
@@ -507,7 +555,7 @@ def tvxlive_resolver(url):
 def tutv_resolver(url):
 	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
 	try:
-		embed=re.compile('<iframe src="(.+?)"').findall(abrir_url(url))[0]
+		embed="http://tutvgratis.tv/embed/"+ re.compile('http://tutvgratis.tv/embed/(.+?)"').findall(abrir_url(url))[0]
 		code = urllib.unquote(re.compile("document.write\(unescape\('(.+?)'\)\)\;").findall(abrir_url(embed))[0])
 		url2 = re.compile('src="(.+?)"').findall(code)[0]
 		code2 = abrir_url(url2)
@@ -517,12 +565,37 @@ def tutv_resolver(url):
 		url3 = "http://tutvgratis.tv/embed/?type=%s&action=%s&channelID=%s" % (type,action,channelID)
 		referer = re.compile('"URL":"(.+?)"').findall(abrir_url(url3))[0]
 		code3=urllib.unquote(re.compile("document.write\(unescape\('(.+?)'\)\)\;").findall(abrir_url(referer))[1])
-		ucaster_link = 'http://www.ucaster.eu/embedded/' + re.compile("channel='(.+?)'").findall(code3)[0] + '/1/600/430'
-		return [ucaster_link,referer]
+		if 'ucaster.eu' in code3:
+			ucaster_link = 'http://www.ucaster.eu/embedded/' + re.compile("channel='(.+?)'").findall(code3)[0] + '/1/600/430'
+			streamurl = ucaster_resolver(ucaster_link,referer)
+			return streamurl
+		elif 'mips.tv' in code3:
+			mipstv_link = 'http://www.mips.tv/embedplayer/' + re.compile("channel='(.+?)'").findall(code3)[0] + '/1/650/400'
+			streamurl = mipstv_resolver(mipstv_link,referer)
+			return streamurl
 	except: 
 		xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
 		return ["erro","erro"]
-
+	
+def mipstv_resolver(embed,referer):
+	ref_data = {'Referer': referer,'User-Agent':user_agent}
+	html= abrir_url_tommy(embed,ref_data)
+	if re.search("The requested channel can't embedded on this domain name.",html):
+		chname = re.compile("embedplayer/(.+?)/").findall(embed)[0]
+		source='http://www.mips.tv/' + chname
+		ref_data = {'Referer': source,'User-Agent':user_agent}
+		html= abrir_url_tommy(embed,ref_data)
+	####
+	swf=re.compile('SWFObject.+?"(.+?)",').findall(html)[0]
+	flashvars=re.compile("so.addParam.+?'FlashVars'.+?'(.+?)'").findall(html)[0]
+	nocanal=re.compile("&s=(.+?)&").findall(flashvars)[0]
+	chid=re.compile("id=(.+?)&").findall(html)[0]
+	link=abrir_url('http://www.mips.tv:1935/loadbalancer')
+	rtmp='rtmp://'+re.compile(".*redirect=([\.\d]+).*").findall(link)[0]+'/live'
+	streamurl= rtmp + ' playPath=' + nocanal + '?id=' + chid + ' swfVfy=1 live=true timeout=15 conn=S:OK swfUrl=http://www.mips.tv' + swf + ' pageUrl=' + embed
+	return streamurl
+	
+	
 def ucaster_resolver(url,referer):
 	try:
 		ref_data = {'Referer': referer,'User-Agent':user_agent}
@@ -610,6 +683,70 @@ def livestream_resolver(url):
 	
 ###################################################################################
 #FUNCOES
+def get_mediafire_url(url):
+	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
+	mensagemprogresso.update(0)
+	url = url.replace('/view/','/download/')
+	m_id = url.split('/')[-2]
+	post_url = 'http://www.mediafire.com/?' + m_id
+	codigo_fonte = google_captcha(url,post_url)
+	mensagemprogresso.close()
+	try: return re.compile('kNO = "(.+?)"').findall(codigo_fonte)[0]
+	except: return "erro"
+	
+def google_captcha(url,post_url):
+	import random
+	from t0mm0.common.net import Net
+	net = Net()
+	
+	html = abrir_url(url).replace('\r','').replace('\n','').replace('\t','').replace('&nbsp;','')
+	if not 'recaptcha_challenge_field' in html: return html
+	
+	k = re.compile('http://www.google.com/recaptcha/api/noscript\?k\=(.+?)"').findall(html)[0]
+	challenge = "http://www.google.com/recaptcha/api/challenge?k=%s&ajax=1&cahcestop=%.17f" % (k, random.random())
+	challengehtml = abrir_url(challenge)
+	challengeToken = re.compile("challenge : '(.+?)'").findall(challengehtml)[0]
+	captcha_url = 'http://www.google.com/recaptcha/api/image?c=' + challengeToken
+	captcha_img = os.path.join(pastaperfil, "captcha.jpg")
+	open(captcha_img, 'wb').write( net.http_GET(captcha_url).content)
+	solver = InputWindow(captcha=captcha_img)
+	try:os.remove(captcha_img)
+	except: pass
+	puzzle = solver.get()
+	if puzzle:
+		form_values = {'recaptcha_challenge_field':challengeToken,'recaptcha_response_field':puzzle}
+		html = net.http_POST(post_url, form_data=form_values).content
+		if 'recaptcha_challenge_field' in html: 
+			xbmcgui.Dialog().ok(traducao(2010), traducao(2069))
+			return 'erro'
+		return html
+	return 'erro'
+	
+class InputWindow(xbmcgui.WindowDialog):# Cheers to Bastardsmkr code already done in Putlocker PRO resolver.
+    
+    def __init__(self, *args, **kwargs):
+        self.cptloc = kwargs.get('captcha')
+        xposition = 425
+        yposition = 5
+        hposition = 135
+        wposition = 405
+        self.img = xbmcgui.ControlImage(xposition,yposition,wposition,hposition,self.cptloc)
+        self.addControl(self.img)
+        self.kbd = xbmc.Keyboard('','Captcha:')
+
+    def get(self):
+        self.show()
+        time.sleep(3)
+        self.kbd.doModal()
+        if (self.kbd.isConfirmed()):
+            text = self.kbd.getText()
+            self.close()
+            return text
+        else:
+            self.close()
+            sys.exit(0)
+        self.close()
+        return False
 	
 def m3u8(m3u):
 	try:
@@ -654,8 +791,12 @@ def first_run():
 		savefile("passwd.txt","<flag='false'>")
 	
 def password():
-	if pass_status() == False: addDir(traducao(2013),'-',100,artfolder + 'password.png',False)
-	else: addDir(traducao(2014),'-',100,artfolder + 'password.png',False)
+	if selfAddon.getSetting('vista') == '0':
+		if pass_status() == False: addDir(traducao(2013),'-',100,artfolder + 'password.png',False)
+		else: addDir(traducao(2014),'-',100,artfolder + 'password.png',False)
+	else:
+		if pass_status() == False: addDir(traducao(2013),'-',100,artfolder + 'password_m.png',False)
+		else: addDir(traducao(2014),'-',100,artfolder + 'password_m.png',False)
 	
 def pass_status():
 	try:
@@ -777,8 +918,8 @@ def addLink(name,url,iconimage,total=1):
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz,totalItems=total)
 	return ok
 
-def addDir(name,url,mode,iconimage,pasta = True,total=1):
-	u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)
+def addDir(name,url,mode,iconimage,pasta = True,total=1,offset=1):
+	u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)+"&offset="+str(offset)
 	ok=True
 	liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
 	liz.setProperty('fanart_image', addonfolder + '/fanart.jpg')
@@ -848,9 +989,17 @@ elif mode==0: CATEGORIES()
 elif mode==1: listas()
 elif mode==2: lista_videos(url)
 elif mode==3: lista_videos2()
+elif mode==21: canais()
+elif mode==22: 
+	selfAddon.openSettings()
+	xbmcgui.Dialog().ok(traducao(2070), traducao(2071))
 elif mode==104: lista_videos3(url)
 elif mode==100: change_pass_status()
 elif mode==101: videos()
+elif mode==105: revistas(offset)
+elif mode==106: 
+	down_url = get_mediafire_url(url)
+	if down_url != 'erro': pdf.pdf_read(name,down_url,True)
 #CANAIS
 elif mode==4: brazzers_tv(name,iconimage)
 elif mode==5: brasileirinhas(name,iconimage)
@@ -869,8 +1018,6 @@ elif mode==17: filthon_adult(name,iconimage)
 elif mode==18: filthon_adult_fetish(name,iconimage)
 elif mode==19: xxl(name,iconimage)
 elif mode==20: french_lover(name,iconimage)
-elif mode==21: canais()
-elif mode==22: selfAddon.openSettings()
 elif mode==23: dorcel_tv(name,iconimage)
 elif mode==24: ipuretv(name,iconimage)
 elif mode==25: private(name,iconimage)
@@ -893,6 +1040,7 @@ elif mode==41: nightclub(name,iconimage)
 elif mode==42: temptationtv(name,iconimage)
 elif mode==43: sct(name,iconimage)
 elif mode==44: redlight_premium(name,iconimage)
+elif mode==45: gboys(name,iconimage)
 #Brazzers Videos
 elif mode==200: brazzers.brazzers_menu()
 elif mode==201: brazzers.listar_videos(url)
@@ -934,4 +1082,5 @@ elif mode==512: boaf.listar_videos2(url,offset)
 elif mode==513: boaf.settings()
 elif mode==514: boaf.listar_videos_pornstars(url,offset)
 elif mode==515: boaf.listar_videos_estudios(url,offset)
+
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

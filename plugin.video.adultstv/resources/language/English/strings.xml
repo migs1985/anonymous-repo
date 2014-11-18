@@ -6,6 +6,7 @@
 	<string id="1002">is not installed - Useful to update librtmp</string>
 	<string id="1003">The owners and submitters to this addon do not host or distribute any of the content displayed nor do they have any affiliation with the content providers.</string>
     <string id="1004">License</string>
+	<string id="1005">View type</string>
     <string id="2000">Channels</string>
     <string id="2001">Lists</string>
     <string id="2002">Videos</string>
@@ -74,4 +75,8 @@
 	<string id="2065">With XBMC Tools you can automatically update librtmp.</string>
 	<string id="2066">If you know any source (website) of channels or if you know a list you want to see on this addon, please send a message through the topic destined to the discussion of this addon.</string>
 	<string id="2067">Do you want to help?</string>
+	<string id="2068">Magazines</string>
+	<string id="2069">Wrong captcha!</string>
+	<string id="2070">Advice!</string>
+	<string id="2071">Restart the addon for the changes to take effect.</string>
 </strings>
