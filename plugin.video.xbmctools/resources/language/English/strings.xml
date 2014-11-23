@@ -63,4 +63,5 @@
 	<string id="2059">Hack librtmp on startup</string>
 	<string id="2060">New librtmp version available.</string>
 	<string id="2061">Update?</string>
+	<string id="2062">Time till the hack be applied</string>
 </strings>

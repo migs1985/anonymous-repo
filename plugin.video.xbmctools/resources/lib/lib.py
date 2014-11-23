@@ -31,8 +31,11 @@ class librtmp:
 		elif system == "windows":
 			librtmp_path = os.path.join(xbmc.translatePath("special://xbmc"), "system/players/dvdplayer/librtmp.dll")
 			md5 = self.abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/windows.xml.md5")
-		elif system == "android":		
-			librtmp_path = os.path.join(self.android_xbmc_path(), "lib","librtmp.so")	
+		elif system == "android":
+			xbmc_path = self.android_xbmc_path()
+			librtmp_path = os.path.join(xbmc_path, "lib","librtmp.so")
+			aux = os.path.join(xbmc_path, "lib", "libxbrtmp.so")
+			if os.path.exists(aux): librtmp_path = aux
 			md5 = self.abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/android.xml.md5")
 		elif system == "openelec":
 			md5 = self.abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/raspberry.xml.md5")
@@ -306,8 +309,14 @@ class librtmp:
 			return
 			
 		if "android" in url:
-			librtmp_path = os.path.join(self.android_xbmc_path(), "lib/librtmp.so")
-			bak_path = os.path.join(self.android_xbmc_path(), "lib/librtmp.so.bak")
+			xbmc_path = self.android_xbmc_path()
+			librtmp_path = os.path.join(xbmc_path, "lib/librtmp.so")
+			bak_path = os.path.join(xbmc_path, "lib/librtmp.so.bak")
+			
+			aux = os.path.join(xbmc_path, "lib", "libxbrtmp.so")
+			if os.path.exists(aux): 
+				librtmp_path = aux
+				bak_path = os.path.join(xbmc_path, "lib/libxbrtmp.so.bak")
 			
 			if ("remove" in url or "restore" in url) and not os.path.exists(bak_path): 
 				dialog.ok(traducao(2016), traducao(2023))
@@ -453,7 +462,11 @@ class librtmp:
 		
 	def librtmp_android(self,autorun = False):
 		my_librtmp = os.path.join(addonfolder,"resources","temp","librtmp.so")
-		librtmp_path = os.path.join(self.android_xbmc_path(), "lib", "librtmp.so")
+		xbmc_path = self.android_xbmc_path()
+		librtmp_path = os.path.join(xbmc_path, "lib", "librtmp.so")
+		aux = os.path.join(xbmc_path, "lib", "libxbrtmp.so")
+		if os.path.exists(aux): librtmp_path = aux
+			
 		md5 = self.abrir_url("http://anonymous-repo.googlecode.com/svn/trunk/xbmc-tools/librtmp/md5/android.xml.md5")
 		
 		if os.path.exists(librtmp_path) is False:

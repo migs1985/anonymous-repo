@@ -1,4 +1,9 @@
-﻿Versão 1.1.4:
+﻿Versão 1.1.5:
+Fix no "hack" para Android
+Adicionado suporte a SPMC
+Outras melhorias
+
+Versão 1.1.4:
 Addon reescrito - Agora pode ser chamado por outros addons
 Adicionado "hack" android - librtmp copiado sempre que se reinicia o Android
 Adicionada opção para actualizar o librtmp automaticamente

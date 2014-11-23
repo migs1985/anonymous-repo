@@ -23,7 +23,7 @@ from resources.lib.lib import librtmp
 librtmp = librtmp()
 h = HTMLParser.HTMLParser()
 
-versao = '1.1.4'
+versao = '1.1.5'
 addon_id = 'plugin.video.xbmctools'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
