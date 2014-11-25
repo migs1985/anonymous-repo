@@ -7,6 +7,7 @@
 	  <setting id="gay" type="bool" label="2058" default="false"/>
 	  <setting id="order" type="text" label="Order" default="rating" visible="False"/>
 	  <setting id="vista" type="enum" label="1005" values="Thumbnails|Poster" default="0"/>
+	  <setting id="nada8" label="2072" type="action" action="RunScript($CWD/resources/lib/viewer.py, import)" />
    </category>
    <category label="2000">
 		<setting id="brazzerstv" type="bool" label="Brazzers TV" default="true" visible="true"/>

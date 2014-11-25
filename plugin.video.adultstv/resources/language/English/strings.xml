@@ -79,4 +79,6 @@
 	<string id="2069">Wrong captcha!</string>
 	<string id="2070">Advice!</string>
 	<string id="2071">Restart the addon for the changes to take effect.</string>
+	<string id="2072">Import module</string>
+	<string id="2073">Invalid module!</string>
 </strings>

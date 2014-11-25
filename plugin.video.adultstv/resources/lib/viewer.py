@@ -37,6 +37,19 @@ class Viewer:
 		elif sys.argv[1] == "xbmctools": xbmcgui.Dialog().ok('XBMC Tools',traducao(2065),traducao(2064))
 		elif sys.argv[1] == "disclaimer": self.text(traducao(1003),'Disclaimer')
 		elif sys.argv[1] == "help": self.text(traducao(2066)+'\n\ni96751414\nAnonymous',traducao(2067))
+		elif sys.argv[1] == "import":
+			dir = xbmcgui.Dialog().browse(1,traducao(2072),"myprograms").replace('\\','/')
+			if dir == '': return
+			if self.file_name(dir) != 'bla.zip':
+				xbmcgui.Dialog().ok(traducao(2010),traducao(2073))
+				return
+			dest = os.path.join(addonfolder,'resources','lib')
+			xbmc.executebuiltin('XBMC.Extract('+dir+','+dest+')')
+			
+	def file_name(self,path):
+		import ntpath
+		head, tail = ntpath.split(path)
+		return tail or ntpath.basename(head)
 	
 	def abrir_url(self,url):
 		try:
