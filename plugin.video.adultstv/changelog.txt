@@ -1,4 +1,10 @@
-﻿[B]Version 0.0.4 (18/11/2014):[/B]
+﻿[B]Version 0.0.5 (25/11/2014):[/B]
+Added 3 channels: Bluebird, Hot, Star
+Added new resolver (firestorm media)
+Fixed powvideo.net resolver
+Other improvements
+
+[B]Version 0.0.4 (18/11/2014):[/B]
 Added magazine section
 Added mips.tv resolver
 Minor improvements

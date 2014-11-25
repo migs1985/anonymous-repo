@@ -47,6 +47,9 @@
 		<setting id="temptation" type="bool" label="Temptation TV" default="true" visible="true"/>
 		<setting id="sct" type="bool" label="SCT" default="true" visible="true"/>
 		<setting id="redlight_premium" type="bool" label="Redlight Premium" default="true" visible="true"/>
+		<setting id="bbtv" type="bool" label="Bluebird TV" default="true" visible="true"/>
+		<setting id="star" type="bool" label="Star 18+" default="true" visible="true"/>
+		<setting id="hotc" type="bool" label="Hot (China)" default="true" visible="true"/>
 		<setting type="sep"/>
 		<setting id="filthon-gay" type="bool" label="Filthon Gay" default="true" visible="true"/>
 		<setting id="gboys" type="bool" label="G-Boys TV" default="true" visible="false"/>

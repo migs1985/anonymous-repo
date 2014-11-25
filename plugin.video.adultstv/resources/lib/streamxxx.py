@@ -118,8 +118,9 @@ def powvideonet(url):
 	form_values = {}
 	for i in re.finditer('<input.*?name="(.*?)".*?value="(.*?)".*?>', abrir_url(url)):
 		form_values[i.group(1)] = i.group(2)
+	xbmc.sleep(1000)
 	html = net.http_POST(url, form_data=form_values).content
-	texto = 'eval(function(p,a,c,k,e,d)'+re.findall("<script type='text/javascript'>eval\(function\(p,a,c,k,e,d\)(.*?)</script>",html,re.DOTALL)[0]
+	texto = 'eval(function(p,a,c,k,e,d)'+re.findall("eval\(function\(p,a,c,k,e,d\)(.*?)</script>",html,re.DOTALL)[0]
 	url_video = 'http' + re.compile("file:'http(.+?)'").findall(packer.unpack(texto).replace('\\',''))[0]
 	return url_video
 	

@@ -143,6 +143,9 @@ def canais():
 	if _ch('temptation'): addDir("Temptation TV",'-',42,artfolder + "temptationtv.png",False)
 	if _ch('sct'): addDir("SCT",'-',43,artfolder + "sct.png",False)
 	if _ch('redlight_premium'): addDir("Redlight Premium",'-',44,artfolder + "red_premium.png",False)
+	if _ch('bbtv'): addDir("Bluebird TV",'-',46,artfolder + "bluebird.png",False)
+	if _ch('star'): addDir("Star 18+",'-',47,artfolder + "star18.png",False)
+	if _ch('hotc'): addDir("Hot (China)",'-',48,artfolder + "hotc.png",False)
 	if selfAddon.getSetting('gay') == 'false':
 		#Conteúdo gay
 		if _ch('filthon-gay'): addDir("Filthon Gay",'-',39,artfolder + "filthongay.png",False)
@@ -168,19 +171,31 @@ def listas():
 	addDir(traducao(2005)+" 3",'-',3,artfolder + "3.png")
 	addDir(traducao(2005)+" 4 - VOD",'http://01.gen.tr/HasBahCa/movies/XXX-VOD.m3u',2,artfolder + "4.png")
 	addDir(traducao(2005)+" 5 - nnm-list.ru",nnm_list,104,artfolder + "5.png")
+	lista_bla()
+	
+def lista_bla(url = 'nada',name = 'nada'):
+	try:
+		from bla import bla
+		if url=='nada':
+			addDir(traducao(2005)+" 6 - "+bla.list1_s(),'list1',103,bla.icon())
+			addDir(traducao(2005)+" 7 - "+bla.list1_s(),'list2',103,bla.icon())
+		elif url=='list1': bla.list1()
+		elif url=='list2': bla.list2()
+		elif url[:13]=='player_list2:': bla.player_list2(name,url.replace(url[:13],''))
+	except: pass
 	
 def lista_videos3(url):
 	m3u = abrir_url(url).splitlines()
 	for x in range(0,len(m3u)):
-		if "#EXTINF:-1," in m3u[x] and '(Для взрослых)' in m3u[x]: 
-			name = m3u[x].replace("#EXTINF:-1,","").replace('(Для взрослых)','').replace("\r","").replace("\n","")
+		if m3u[x].startswith('#EXTINF:') and '(Для взрослых)' in m3u[x]: 
+			name = m3u[x].replace('(Для взрослых)','').replace("\r","").replace("\n","").split(',')[1]
 			addLink(name,m3u[x+1].replace('rtmp://$OPT:rtmp-raw=',''),artfolder + "movie.png")
 	
 def lista_videos(url):
 	m3u = abrir_url(url).splitlines()
 	for x in range(0,len(m3u)):
-		if "#EXTINF:-1," in m3u[x]: 
-			name = m3u[x].replace("#EXTINF:-1,","").replace("\r","").replace("\n","")
+		if m3u[x].startswith('#EXTINF:'): 
+			name = m3u[x].replace("\r","").replace("\n","").split(',')[1]
 			addLink(name,m3u[x+1].replace('rtmp://$OPT:rtmp-raw=',''),artfolder + "movie.png")
 	
 def lista_videos2():
@@ -237,7 +252,7 @@ def sexyhot(name,iconimage):
 	play(name,streamurl,iconimage)
 	
 def playboy(name,iconimage):
-	index = xbmcgui.Dialog().select(traducao(2006), ["Livestream","ponlatv", "TVtuga","ero-tv"])
+	index = xbmcgui.Dialog().select(traducao(2006), ["Livestream","ponlatv", "TVtuga","ero-tv","TVxLive"])
 	if index == 0:
 		url = "http://livestreamcast.org/embed.php?c=pboytv"
 		streamurl = livestream_resolver(url)
@@ -250,6 +265,9 @@ def playboy(name,iconimage):
 	elif index == 3:
 		url= "http://ero-tv.org/playboytv_live/"
 		streamurl = ero_tv_resolver(url)
+	elif index==4:
+		url = 'http://tvxlive.blogspot.pt/2014/11/playboyhd-19-hd.html'
+		streamurl = tvxlive_resolver(url)
 	else: return
 	play(name,streamurl,iconimage)
 	
@@ -276,13 +294,24 @@ def penthouse(name,iconimage):
 	
 def hot(name,iconimage):
 	try:
-		codigo_fonte = abrir_url('http://www.portalzuca.net/canais/canal5.html')
-		file = re.compile("file='(.+?)'").findall(codigo_fonte)[0]
-		link = 'http://abcast.biz/zuca.php?file=' + file 
-		streamurl = abcast_resolver(link)
-	except:
-		xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
-		return
+		from bla import bla
+		index = xbmcgui.Dialog().select(traducao(2006), ["portalzuca",bla.hot_s()])
+	except: index = 0
+	if index==0: 
+		try:
+			codigo_fonte = abrir_url('http://www.portalzuca.net/canais/canal5.html')
+			file = re.compile("file='(.+?)'").findall(codigo_fonte)[0]
+			link = 'http://abcast.biz/zuca.php?file=' + file 
+			streamurl = abcast_resolver(link)
+		except:
+			xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
+			return
+	elif index==1:
+		try:
+			streamurl = bla.hot()
+			if not streamurl: return 
+		except: return
+	else: return
 	play(name,streamurl,iconimage)
 	
 def hustlerhd(name,iconimage):
@@ -458,8 +487,49 @@ def gboys(name,iconimage):
 		play(name,streamurl,iconimage)
 	except: xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
 
+def bluebird(name,iconimage):
+	streamurl = firestormmedia_resolver('http://api.firestormmedia.tv/iptv/iframes/player/?type=133&affid=1738889&channelName=Bluebird+1')
+	play(name,streamurl,iconimage)
+	
+def star18(name,iconimage):
+	streamurl = widih_resolver('http://www.widih.org/watch-tv/4764/xing-ying-star-%E6%98%9F%E9%A2%96star-18+live+tv+streaming')
+	play(name,streamurl,iconimage)
+	
+def hotc(name,iconimage):
+	streamurl = widih_resolver('http://www.widih.org/watch-tv/3399/hot-18+live+tv+streaming')
+	play(name,streamurl,iconimage)
+	
 ########################################################################
 #RESOLVERS
+
+def firestormmedia_resolver(url):
+	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
+	try:
+		html = abrir_url(url)
+		swf = re.compile('data="(.+?)"').findall(html)[0]
+		config_url = re.compile('config_urls\[\"load_config\"\] \= \"(.+?)\"').findall(html)[0]
+		html2 = abrir_url(config_url)
+		
+		servers = re.compile('servers="(.+?)"').findall(html2)
+		s = []
+		for server in servers:
+			s.append(server.split(','))
+		
+		streamname = re.compile('streamName="(.+?)"').findall(html2)
+		for i in range(0,len(streamname)):
+			if i==0: streamname[i] = streamname[i].replace('_one','') + '1'
+			else: streamname[i] = streamname[i].replace('_two','2').replace('_three','3').replace('_four','4')
+		
+		app = re.compile('application="(.+?)"').findall(html2)
+
+		i = 0
+		server_i = 0
+		streamurl = 'rtmp://'+s[i][server_i]+'/'+app[i] + '/ playPath=' + streamname[i] + ' live=true swfVfy=true swfUrl=' + swf + ' pageUrl=' + url 
+		return streamurl
+	except: pass
+	xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
+	return 'erro'
+	
 def abcast_resolver(url):
 	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
 	try:
@@ -993,6 +1063,7 @@ elif mode==21: canais()
 elif mode==22: 
 	selfAddon.openSettings()
 	xbmcgui.Dialog().ok(traducao(2070), traducao(2071))
+elif mode==103: lista_bla(url,name)
 elif mode==104: lista_videos3(url)
 elif mode==100: change_pass_status()
 elif mode==101: videos()
@@ -1041,6 +1112,9 @@ elif mode==42: temptationtv(name,iconimage)
 elif mode==43: sct(name,iconimage)
 elif mode==44: redlight_premium(name,iconimage)
 elif mode==45: gboys(name,iconimage)
+elif mode==46: bluebird(name,iconimage)
+elif mode==47: star18(name,iconimage)
+elif mode==48: hotc(name,iconimage)
 #Brazzers Videos
 elif mode==200: brazzers.brazzers_menu()
 elif mode==201: brazzers.listar_videos(url)
