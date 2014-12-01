@@ -223,7 +223,7 @@ def httpDownload(url, filename, headers=None, reporthook=None,postData=None):
 	dp.create('Download')
 	try:
 		if headers==None:
-			headers = {'User-Agent', 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.99 Safari/535.1'}
+			headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.99 Safari/535.1'}
 		reqObj = urllib2.Request(url, postData, headers)
 		fp = urllib2.urlopen(reqObj)
 		headers = fp.info()
