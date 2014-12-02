@@ -1,4 +1,9 @@
-﻿[B]Version 0.0.5 (25/11/2014):[/B]
+﻿[B]Version 0.0.6 (02/12/2014):[/B]
+Added ero-tik.com videos
+Added videomega resolver
+Minor improvements
+
+[B]Version 0.0.5 (25/11/2014):[/B]
 Added 3 channels: Bluebird, Hot, Star
 Added new resolver (firestorm media)
 Fixed powvideo.net resolver

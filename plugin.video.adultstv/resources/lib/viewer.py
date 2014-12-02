@@ -45,6 +45,7 @@ class Viewer:
 				return
 			dest = os.path.join(addonfolder,'resources','lib')
 			xbmc.executebuiltin('XBMC.Extract('+dir+','+dest+')')
+			xbmcgui.Dialog().ok(traducao(2070),traducao(2075))
 			
 	def file_name(self,path):
 		import ntpath

@@ -25,6 +25,7 @@ import streamxxx
 import uppod
 import boaf
 import ioncube
+import erotik
 
 try:
 	addon_pdf = xbmc.translatePath('special://home/addons/plugin.image.pdfreader/resources/lib')
@@ -95,6 +96,7 @@ def videos():
 	addDir("Free HD Porn",'-',300,artfolder + 'fhdp_icon.png')
 	addDir("Streamxxx",'-',400,artfolder + 'streamxxx.png')
 	addDir('BoaFoda.com','-',500,artfolder + 'boaf.png')
+	addDir('Ero-tik','-',600,artfolder + 'erotik.png')
 	xbmc.executebuiltin("Container.SetViewMode(500)")
 	
 def _ch(name):
@@ -1156,5 +1158,8 @@ elif mode==512: boaf.listar_videos2(url,offset)
 elif mode==513: boaf.settings()
 elif mode==514: boaf.listar_videos_pornstars(url,offset)
 elif mode==515: boaf.listar_videos_estudios(url,offset)
+#Ero-tik
+elif mode>=600 and mode <= 699: 
+	erotik.mode(mode,name,url,iconimage,offset)
 
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
