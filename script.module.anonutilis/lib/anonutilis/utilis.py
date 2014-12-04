@@ -236,6 +236,54 @@ class utilis:
 			return
 		dp.close()
 
+	'''
+	Download with headers or postData
+	str1 and str2 are both optional. Their current language is Portuguese; ex str1='Estimated Time:' str2='of'
+	'''
+	
+	def httpDownload(self, url, down_path, headers=None, postData=None,str1='Tempo estimado:',str2='de'):
+		if os.path.isdir(down_path) is True:
+			print 'Error: Path was a dir path'
+			return
+		
+		dp = xbmcgui.DialogProgress()
+		dp.create('Download')
+		try:
+			if headers==None:
+				headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.99 Safari/535.1'}
+			reqObj = urllib2.Request(url, postData, headers)
+			fp = urllib2.urlopen(reqObj)
+			headers = fp.info()
+
+			tfp = open(down_path, 'wb')
+			result = down_path, headers
+			bs = 1024*8
+			size = -1
+			read = 0
+			blocknum = 0
+			start_time = time.time()
+			if "content-length" in headers:
+				size = int(headers["Content-Length"])
+			self._dialogdown(blocknum, bs, size, dp, start_time,str1,str2)
+
+			while 1:
+				block = fp.read(bs)
+				if block == "": break
+				read += len(block)
+				tfp.write(block)
+				blocknum += 1
+				self._dialogdown(blocknum, bs, size, dp, start_time,str1,str2)
+
+			fp.close()
+			tfp.close()
+			del fp
+			del tfp
+		except:
+			while os.path.exists(down_path): 
+				try: os.remove(down_path); break 
+				except: pass
+		dp.close()
+		
 	def _dialogdown(self,numblocks, blocksize, filesize, dp, start_time,str1,str2):
 		try:
 			percent = min(numblocks * blocksize * 100 / filesize, 100)
@@ -243,6 +291,7 @@ class utilis:
 			kbps_speed = numblocks * blocksize / (time.time() - start_time) 
 			if kbps_speed > 0: eta = (filesize - numblocks * blocksize) / kbps_speed 
 			else: eta = 0 
+			if eta < 0: eta = 0
 			kbps_speed = kbps_speed / 1024 
 			total = float(filesize) / (1024 * 1024) 
 			mbs = '%.02f MB %s %.02f MB' % (currently_downloaded,str2,total) 
@@ -255,7 +304,8 @@ class utilis:
 		if dp.iscanceled(): 
 			dp.close()
 			raise StopDownloading('Stopped Downloading')
-
+			print 'Stop Downloading'
+			
 	class StopDownloading(Exception):
 		def __init__(self, value): self.value = value 
 		def __str__(self): return repr(self.value)
