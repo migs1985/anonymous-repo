@@ -83,4 +83,5 @@
 	<string id="2073">Módulo inválido!</string>
 	<string id="2074">Vídeo aleatório</string>
 	<string id="2075">Módulo instalado com sucesso.</string>
+	<string id="2076">Para que possa visualizar este tipo de streams, necessita de ter o addon p2p-streams instalado e configurado.</string>
 </strings>

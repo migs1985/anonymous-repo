@@ -1,4 +1,10 @@
-﻿[B]Version 0.0.6 (02/12/2014):[/B]
+﻿[B]Version 0.0.7 (15/12/2014):[/B]
+Added new channels.
+Some streams requires p2p-streams addon.
+Added new sources: Megatube, Alfabass, Torrent-TV.
+Multiple improvements.
+
+[B]Version 0.0.6 (02/12/2014):[/B]
 Added ero-tik.com videos
 Added videomega resolver
 Minor improvements

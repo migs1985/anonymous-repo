@@ -35,7 +35,7 @@
 		<setting id="xdesire" type="bool" label="xDesire" default="true" visible="false"/>
 		<setting id="blue-hustler" type="bool" label="Blue Hustler" default="true" visible="false"/>
 		<setting id="olala" type="bool" label="O-la-la" default="true" visible="true"/>
-		<setting id="eroxxx" type="bool" label="Ero XXX" default="true" visible="false"/>
+		<setting id="eroxxx" type="bool" label="Ero XXX" default="true" visible="true"/>
 		<setting id="amateritv" type="bool" label="Amateri TV" default="true" visible="true"/>
 		<setting id="russian-nights" type="bool" label="Russian Nights" default="true" visible="true"/>
 		<setting id="hustlertv" type="bool" label="Hustler TV" default="true" visible="true"/>
@@ -51,6 +51,11 @@
 		<setting id="bbtv" type="bool" label="Bluebird TV" default="true" visible="true"/>
 		<setting id="star" type="bool" label="Star 18+" default="true" visible="true"/>
 		<setting id="hotc" type="bool" label="Hot (China)" default="true" visible="true"/>
+		<setting id="paparazzo" type="bool" label="Paparazzo TV" default="true" visible="true"/>
+		<setting id="erox" type="bool" label="Erox HD" default="true" visible="true"/>
+		<setting id="dusk" type="bool" label="Dusk TV" default="true" visible="true"/>
+		<setting id="xxx1" type="bool" label="XXX1" default="true" visible="true"/>
+		<setting id="xxx2" type="bool" label="XXX2" default="true" visible="true"/>
 		<setting type="sep"/>
 		<setting id="filthon-gay" type="bool" label="Filthon Gay" default="true" visible="true"/>
 		<setting id="gboys" type="bool" label="G-Boys TV" default="true" visible="false"/>

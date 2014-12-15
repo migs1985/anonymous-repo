@@ -18,7 +18,7 @@
 
 ##############BIBLIOTECAS A IMPORTAR E DEFINICOES####################
 
-import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,xbmcvfs,time
+import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,xbmcvfs,time,requests
 import brazzers
 import fhdp
 import streamxxx
@@ -132,7 +132,7 @@ def canais():
 	#if _ch('xdesire'): addDir("xDesire",'-',28,artfolder + "xdesire.png",False)
 	#if _ch('blue-hustler'): addDir("Blue Hustler",'-',29,artfolder + "hustlerblue.png",False)
 	if _ch('olala'): addDir("O-la-la",'-',30,artfolder + "olala.png",False)
-	#if _ch('eroxxx'): addDir("Ero XXX",'-',31,artfolder + "eroxxx.png",False)
+	if _ch('eroxxx'): addDir("Ero XXX",'-',31,artfolder + "eroxxx.png",False)
 	if _ch('amateritv'): addDir("Amateri TV",'-',32,artfolder + "amateritv.png",False)
 	if _ch('russian-nights'): addDir("Russian Nights",'-',33,artfolder + "russiannights.png",False)
 	if _ch('hustlertv'): addDir("Hustler TV",'-',34,artfolder + "hustlertv.png",False)
@@ -148,6 +148,11 @@ def canais():
 	if _ch('bbtv'): addDir("Bluebird TV",'-',46,artfolder + "bluebird.png",False)
 	if _ch('star'): addDir("Star 18+",'-',47,artfolder + "star18.png",False)
 	if _ch('hotc'): addDir("Hot (China)",'-',48,artfolder + "hotc.png",False)
+	if _ch('paparazzo'): addDir("Paparazzo TV",'-',49,artfolder + "paparazzo.png",False)
+	if _ch('erox'): addDir("Erox HD",'-',50,artfolder + "erox.png",False)
+	if _ch('dusk'): addDir("Dusk TV",'-',51,artfolder + "dusk.png",False)
+	if _ch('xxx1'): addDir("XXX1",'-',52,artfolder + "xxx1.png",False)
+	if _ch('xxx2'): addDir("XXX2",'-',53,artfolder + "xxx2.png",False)
 	if selfAddon.getSetting('gay') == 'false':
 		#Conteúdo gay
 		if _ch('filthon-gay'): addDir("Filthon Gay",'-',39,artfolder + "filthongay.png",False)
@@ -160,7 +165,7 @@ def canais():
 #LISTAS
 
 def listas():
-	addDir(traducao(2005)+" 1",'http://01.gen.tr/HasBahCa/XXX.m3u',2,artfolder + "1.png")
+	addDir(traducao(2005)+" 1 - HasBahCa",'http://01.gen.tr/HasBahCa/XXX.m3u',2,artfolder + "1.png")
 	'''
 	try:
 		html = abrir_url('https://www.dropbox.com/s/h6ln6hb8l0hl4wo/userbouquet.ilu_xxx_adult.tv')
@@ -169,20 +174,37 @@ def listas():
 	except: data = ''
 	'''
 	#http://axenttv.ru/forum/24-365-10
-	addDir(traducao(2005)+" 2",'http://anonymous-repo.googlecode.com/svn/trunk/adultstv/list.m3u',2,artfolder + "2.png")
-	addDir(traducao(2005)+" 3",'-',3,artfolder + "3.png")
+	addDir(traducao(2005)+" 2 - Adults TV",'http://anonymous-repo.googlecode.com/svn/trunk/adultstv/list.m3u',2,artfolder + "2.png")
+	addDir(traducao(2005)+" 3 - Nobody28",'-',3,artfolder + "3.png")
 	addDir(traducao(2005)+" 4 - VOD",'http://01.gen.tr/HasBahCa/movies/XXX-VOD.m3u',2,artfolder + "4.png")
 	addDir(traducao(2005)+" 5 - nnm-list.ru",nnm_list,104,artfolder + "5.png")
+	addDir(traducao(2005)+" 6 - tv-sv.com (p2p)",'-',108,artfolder + "6.png")
+	addDir(traducao(2005)+" 7 - torrent-tv.ru (p2p)",'-',109,artfolder + "7.png")
 	lista_bla()
+	
+def ttv():
+	m3u = abrir_url('http://api.torrent-tv.ru/t/BgF2xM3fd1KWxgEVO21eprkQPkZi55b0LosbJU8oeZVikr1wPAmjkV%2ByixKZYNGt').splitlines()
+	for x in range(0,len(m3u)):
+		if m3u[x].startswith('#EXTINF:') and '(Для взрослых)' in m3u[x]: 
+			name = m3u[x].replace('(Для взрослых)','').replace("\r","").replace("\n","").split(',')[1]
+			addDir(name,m3u[x+1],107,artfolder + "ttv.png",False)
+	xbmc.executebuiltin("Container.SetViewMode(51)")
+	
+def tv_sv():
+	html = abrir_url('http://www.tv-sv.com/2010/11/18.html')
+	match = re.compile('href="http://torrentstream.org/embed/(.+?)\?autoplay=1" target="myiframe">(.+?)</a>').findall(html)
+	for ace, name in match:
+		addDir(name,ace,107,artfolder + "tv-sv.jpg",False)
+	xbmc.executebuiltin("Container.SetViewMode(51)")
 	
 def lista_bla(url = 'nada',name = 'nada'):
 	try:
 		from bla import bla
 		if url=='nada':
-			addDir(traducao(2005)+" 6 - "+bla.list1_s(),'list1',103,bla.icon())
-			addDir(traducao(2005)+" 7 - "+bla.list1_s(),'list2',103,bla.icon())
-		elif url=='list1': bla.list1()
-		elif url=='list2': bla.list2()
+			addDir(traducao(2005)+" 8 - "+bla.list1_s(),'list1',103,bla.icon())
+			addDir(traducao(2005)+" 9 - "+bla.list1_s(),'list2',103,bla.icon())
+		elif url=='list1': bla.list1(); xbmc.executebuiltin("Container.SetViewMode(51)")
+		elif url=='list2': bla.list2(); xbmc.executebuiltin("Container.SetViewMode(51)")
 		elif url[:13]=='player_list2:': bla.player_list2(name,url.replace(url[:13],''))
 	except: pass
 	
@@ -192,6 +214,7 @@ def lista_videos3(url):
 		if m3u[x].startswith('#EXTINF:') and '(Для взрослых)' in m3u[x]: 
 			name = m3u[x].replace('(Для взрослых)','').replace("\r","").replace("\n","").split(',')[1]
 			addLink(name,m3u[x+1].replace('rtmp://$OPT:rtmp-raw=',''),artfolder + "movie.png")
+	xbmc.executebuiltin("Container.SetViewMode(51)")
 	
 def lista_videos(url):
 	m3u = abrir_url(url).splitlines()
@@ -199,6 +222,7 @@ def lista_videos(url):
 		if m3u[x].startswith('#EXTINF:'): 
 			name = m3u[x].replace("\r","").replace("\n","").split(',')[1]
 			addLink(name,m3u[x+1].replace('rtmp://$OPT:rtmp-raw=',''),artfolder + "movie.png")
+	xbmc.executebuiltin("Container.SetViewMode(51)")
 	
 def lista_videos2():
 	lista = abrir_url("https://dl.dropboxusercontent.com/s/h6ln6hb8l0hl4wo/userbouquet.ilu_xxx_adult.tv?dl=1&token_hash=AAGXNUUoQs_6kNFrZzSEo8OQjVwKSQcIrsgVM4VbsORgew&expiry=1400359776").splitlines()
@@ -206,7 +230,8 @@ def lista_videos2():
 		if "#DESCRIPTION: " in lista[x]:
 			name = lista[x].replace("#DESCRIPTION: ","").replace("\r","").replace("\n","")
 			addLink(name,lista[x-1].replace('rtmp://$OPT:rtmp-raw=','').replace("#SERVICE 4097:0:1:0:0:0:0:0:0:0:","").replace("%3a",":").replace("...",""),artfolder + "movie.png")
-
+	xbmc.executebuiltin("Container.SetViewMode(51)")
+			
 ###############################################################
 #CANAIS
 
@@ -222,16 +247,26 @@ http://tvxlive.blogspot.pt/p/live-channels.html
 http://www.portalzuca.net/canais/canal5.html   ---  Canal HOT
 -http://www.lovetv.ml/
 -http://peontv.com/
+http://megatube.eu/
 http://ero-tv.org/
+http://www.hd-porn.tv/
 http://alfabass.at.ua/index/
+http://torrent-tv.ru/
 http://www.funmastii.com/search/label/Live%20Adult%20TV
 '''
 
 def brazzers_tv(name,iconimage):
-	index = xbmcgui.Dialog().select(traducao(2006), ["Widih",'nnm-list.ru',traducao(2005)+' 2'])
+	index = xbmcgui.Dialog().select(traducao(2006), ["Widih",'nnm-list.ru',traducao(2005)+' 2','Megatube','Alfabass'])
 	if index==0: streamurl=widih_resolver("http://www.widih.org/watch-tv/1731/brazzers-18+live+tv+streaming")
 	elif index==1: streamurl=nnm_list_resolver(name)
 	elif index==2: streamurl=myresolver(name)
+	elif index==3: 
+		megatube_resolver(name,'http://megatube.eu/viewtopic.php?f=14&t=183',iconimage)
+		return
+	elif index==4:
+		ace = alfabass_ace('http://alfabass.at.ua/index/brazzers_europe_torent/0-20')
+		acestream(name,ace,iconimage)
+		return
 	else: return
 	play(name,streamurl,iconimage)
 	
@@ -317,8 +352,15 @@ def hot(name,iconimage):
 	play(name,streamurl,iconimage)
 	
 def hustlerhd(name,iconimage):
-	url = "http://verdirectotv.com/canales/hustlertv.html"
-	streamurl = ponlatv_resolver(url)
+	index = xbmcgui.Dialog().select(traducao(2006), ["ponlatv", "Torrent-TV"])
+	if index == 0:
+		url = "http://verdirectotv.com/canales/hustlertv.html"
+		streamurl = ponlatv_resolver(url)
+	elif index == 1:
+		#ace = torrentv_ace('http://torrent-tv.ru/torrent-online.php?translation=789')
+		acestream(name,'44ff3fc130a953c88d825fb723e6f77e1f5d8f6c',iconimage)
+		return
+	else: return
 	play(name,streamurl,iconimage)
 	
 def viki_enjoy_premium(name,iconimage):
@@ -383,7 +425,12 @@ def ipuretv(name,iconimage):
 	play(name,m3u8,iconimage)
 	
 def private(name,iconimage):
-	streamurl=livestream_resolver("http://livestreamcast.org/embed.php?c=privatee&vw=100%&vh=100%")
+	index = xbmcgui.Dialog().select(traducao(2006), ["Livestream","Megatube"])
+	if index==0: streamurl=livestream_resolver("http://livestreamcast.org/embed.php?c=privatee&vw=100%&vh=100%")
+	elif index==1:
+		megatube_resolver(name,'http://megatube.eu/viewtopic.php?f=14&t=184',iconimage)
+		return
+	else: return	
 	play(name,streamurl,iconimage)
 	
 def private_gold(name,iconimage):
@@ -409,7 +456,12 @@ def olala(name,iconimage):
 	play(name,streamurl,iconimage)
 	
 def eroxxx(name,iconimage):
-	streamurl = tvxlive_resolver("http://tvxlive.blogspot.pt/2014/07/eroxx-hd-18.html")
+	index = xbmcgui.Dialog().select(traducao(2006), ["TVxLive","Megatube"])
+	if index == 0: streamurl = tvxlive_resolver("http://tvxlive.blogspot.pt/2014/07/eroxx-hd-18.html")
+	elif index == 1:
+		megatube_resolver(name,'http://megatube.eu/viewtopic.php?f=14&t=181',iconimage)
+		return
+	else: return
 	play(name,streamurl,iconimage)
 	
 def amateritv(name,iconimage):
@@ -427,7 +479,13 @@ def russiannights(name,iconimage):
 	play(name,streamurl,iconimage)
 	
 def hustlertv(name,iconimage):
-	streamurl = livestream_resolver("http://livestreamcast.org/embed.php?c=hustlerr&vw=100%&vh=100%")
+	index = xbmcgui.Dialog().select(traducao(2006), ["Livestream","Alfabass"])
+	if index==0: streamurl = livestream_resolver("http://livestreamcast.org/embed.php?c=hustlerr&vw=100%&vh=100%")
+	elif index==1:
+		ace = alfabass_ace('http://alfabass.at.ua/index/hustler_blue_toren/0-19')
+		acestream(name,ace,iconimage)
+		return
+	else: return
 	play(name,streamurl,iconimage)
 	
 def sexzonehd(name,iconimage):
@@ -443,9 +501,13 @@ def hallotv(name,iconimage):
 	play(name,streamurl,iconimage)
 	
 def platinum_tv(name,iconimage):
-	index = xbmcgui.Dialog().select(traducao(2006), ["ero-tv",'nnm-list.ru'])
+	index = xbmcgui.Dialog().select(traducao(2006), ["ero-tv",'nnm-list.ru','Alfabass'])
 	if index==0: streamurl=ero_tv_resolver('http://ero-tv.org/platinum_tv_online/')
 	elif index==1: streamurl=nnm_list_resolver(name)
+	elif index==2:
+		ace = alfabass_ace('http://alfabass.at.ua/index/platinum_torent/0-21')
+		acestream(name,ace,iconimage)
+		return
 	else: return
 	play(name,streamurl,iconimage)
 	
@@ -474,11 +536,21 @@ def temptationtv(name,iconimage):
 	play(name,streamurl,iconimage)
 	
 def sct(name,iconimage):
-	streamurl = myresolver(name)
+	index = xbmcgui.Dialog().select(traducao(2006), ['hd-porn.tv',traducao(2005)+' 2'])
+	if index==0: 
+		hdporn_resolver(name,'http://www.hd-porn.tv/sct_8b35df0e1.html',iconimage)
+		return
+	elif index==1: streamurl = myresolver(name)
+	else: return
 	play(name,streamurl,iconimage)
 
 def redlight_premium(name,iconimage):
-	streamurl = myresolver(name)
+	index = xbmcgui.Dialog().select(traducao(2006), ['hd-porn.tv',traducao(2005)+' 2'])
+	if index==0: 
+		hdporn_resolver(name,'http://www.hd-porn.tv/redlight-premium_df7e4fee2.html',iconimage)
+		return
+	elif index==1: streamurl = myresolver(name)
+	else: return
 	play(name,streamurl,iconimage)
 	
 def gboys(name,iconimage):
@@ -501,8 +573,118 @@ def hotc(name,iconimage):
 	streamurl = widih_resolver('http://www.widih.org/watch-tv/3399/hot-18+live+tv+streaming')
 	play(name,streamurl,iconimage)
 	
+def paparazzo(name,iconimage):
+	megatube_resolver(name,'http://megatube.eu/viewtopic.php?f=14&t=185',iconimage)
+	
+def dusk(name,iconimage):
+	megatube_resolver(name,'http://megatube.eu/viewtopic.php?f=14&t=182',iconimage)
+	
+def erox(name,iconimage):
+	megatube_resolver(name,'http://megatube.eu/viewtopic.php?f=14&t=180',iconimage)
+	
+def xxx1(name, iconimage):
+	hdporn_resolver(name,'http://www.hd-porn.tv/privet_d419c839d.html',iconimage)
+	
+def xxx2(name, iconimage):
+	hdporn_resolver(name,'http://www.hd-porn.tv/xxx-hd_2093a135a.html',iconimage)
+	
 ########################################################################
 #RESOLVERS
+def hdporn_resolver(name,url,iconimage):
+	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
+	try:
+		id = re.compile('<input type="hidden" name="bin-rating-uniq_id" value="(.+?)">').findall(abrir_url(url))[0]
+		ajax = 'http://www.hd-porn.tv/ajax.php?p=video&do=getplayer&vid='+id+'&aid=1&player=detail'
+	except: 
+		xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
+		return
+	try:
+		flashvars = re.compile('flashvars="(.+?)"').findall(abrir_url(ajax))[0] + '&'
+		file = re.compile('file=(.+?)&').findall(flashvars)[0]
+		streamurl = m3u8(file)
+		play(name,streamurl,iconimage)
+		return
+	except: pass
+	try:
+		iframe = re.compile('src="(.+?)"').findall(abrir_url(ajax))[0]
+		ace = re.compile('this.loadPlayer\("(.+?)"').findall(abrir_url(iframe))[0]
+		acestream(name,ace,iconimage)
+		return
+	except: pass
+	xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
+
+def torrentv_ace(url):
+	print abrir_url(url)
+	return re.compile('this.loadPlayer\("(.+?)"').findall(abrir_url(url))[0]
+
+def alfabass_ace(url):
+	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
+	try:
+		texto = re.findall('<noindex>(.*?)</noindex>',abrir_url(url),re.DOTALL)[0]
+		htmlcomments=re.findall('<!--(.*?)-->',texto,re.DOTALL)
+		for comentario in htmlcomments:
+			texto=texto.replace('<!--'+comentario+'-->','')
+		link = re.compile('src="(.+?)"').findall(texto)[0]
+		ace = re.compile('this.loadPlayer\("(.+?)"').findall(abrir_url(link))[0]
+		return ace
+	except: pass
+	xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
+	return 'erro'	
+
+def megatube_resolver(name,url,iconimage):
+	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
+	try:
+		embed = re.compile('<iframe src="(.+?)"').findall(abrir_url(url))[0]
+		ip = embed.split('/')[2]
+		headers = {'Host':ip,
+				   'Connection':'keep-alive',
+				   'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+				   'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
+				   'Referer':url}
+				   
+		html = abrir_url_tommy(embed,headers)
+		m3u = re.compile('<param name="MRL" value="(.+?)"').findall(html)[0]
+		url_video = abrir_url(m3u).splitlines()[3]
+		
+		headers = {'Host':'megatube.eu',
+				   'User-Agent':'VLC/2.1.5 LibVLC/2.1.5',
+				   'Connection':'close',
+				   'Range':'bytes=0-',
+				   'Icy-MetaData':'1',
+				   'Accept':'',
+				   'Accept-Charset':''}
+		
+		mypath = os.path.join(pastaperfil,'temp.mp4')
+		start = True
+		with open(mypath, 'wb') as handle:
+			response = requests.get(url_video, stream=True,headers=headers)
+			if not response.ok: return
+			i = 0
+			liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+			player = xbmc.Player(xbmc.PLAYER_CORE_AUTO)
+			for block in response.iter_content(1024):
+				if not block: break
+				handle.write(block)
+				if i<2000: 
+					i+=1
+					if mensagemprogresso.iscanceled():
+						break
+				else:
+					if start: 
+						mensagemprogresso.close()
+						player.play(mypath,liz)
+						start = False
+						j = 0
+						while not player.isPlaying():
+							if j == 30: break
+							xbmc.sleep(100)
+							j += 1
+						continue
+					if not player.isPlaying(): break
+		while os.path.exists(mypath):
+			try: os.remove(mypath)
+			except: pass
+	except: xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
 
 def firestormmedia_resolver(url):
 	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
@@ -755,6 +937,26 @@ def livestream_resolver(url):
 	
 ###################################################################################
 #FUNCOES
+def acestream(name,something,iconimage):
+	#plugin://plugin.video.p2p-streams/?url=_some_hash&mode=1&name=acestream+title
+	#plugin://plugin.video.p2p-streams/?url=acestream://_some_hash&mode=1&name=acestream+title
+	#plugin://plugin.video.p2p-streams/?url=http://something.torrent&mode=1&name=acestream+title
+	#plugin://plugin.video.p2p-streams/?url=http://something.acelive&mode=1&name=acestream+title
+	if not xbmc.getCondVisibility('System.HasAddon(plugin.video.p2p-streams)'):
+		xbmcgui.Dialog().ok(traducao(2010), traducao(2076),'http://forum.kodi.tv/showthread.php?tid=201894')
+		return
+	xbmc.executebuiltin('RunPlugin(plugin://plugin.video.p2p-streams/?url='+something+'&mode=1&name='+name+'&iconimage='+iconimage+')')
+
+def headers_str(headers):
+	start = True
+	headers_str = ''
+	for k,v in headers.items():
+		if start:
+			headers_str += '|'+urllib.quote_plus(k)+'='+urllib.quote_plus(v)
+			start = False
+		else: headers_str += '&'+urllib.quote_plus(k)+'='+urllib.quote_plus(v)
+	return headers_str
+	
 def get_mediafire_url(url):
 	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
 	mensagemprogresso.update(0)
@@ -843,7 +1045,8 @@ def m3u8(m3u):
 			if 'BANDWIDTH='+qualidade_escolhida in inf[x]:
 				m3u8 = inf[x+1]
 				break
-		m3u8 = m3u.replace(file_name(m3u),m3u8)
+		if not re.search('http://', m3u8):
+			m3u8 = m3u.replace(file_name(m3u),m3u8)
 		return m3u8
 	except:
 		xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
@@ -1073,6 +1276,9 @@ elif mode==105: revistas(offset)
 elif mode==106: 
 	down_url = get_mediafire_url(url)
 	if down_url != 'erro': pdf.pdf_read(name,down_url,True)
+elif mode==107: acestream(name,url,iconimage)
+elif mode==108: tv_sv()
+elif mode==109: ttv()
 #CANAIS
 elif mode==4: brazzers_tv(name,iconimage)
 elif mode==5: brasileirinhas(name,iconimage)
@@ -1117,6 +1323,11 @@ elif mode==45: gboys(name,iconimage)
 elif mode==46: bluebird(name,iconimage)
 elif mode==47: star18(name,iconimage)
 elif mode==48: hotc(name,iconimage)
+elif mode==49: paparazzo(name,iconimage)
+elif mode==50: erox(name,iconimage)
+elif mode==51: dusk(name,iconimage)
+elif mode==52: xxx1(name,iconimage)
+elif mode==53: xxx2(name,iconimage)
 #Brazzers Videos
 elif mode==200: brazzers.brazzers_menu()
 elif mode==201: brazzers.listar_videos(url)
