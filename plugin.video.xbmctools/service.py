@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import datetime,xbmc,xbmcplugin,xbmcgui,xbmcaddon,os,re
+import datetime,xbmc,xbmcplugin,xbmcgui,xbmcaddon,os,re,subprocess,time
 from resources.lib.lib import librtmp
 librtmp = librtmp()
 
@@ -11,6 +11,8 @@ if selfAddon.getSetting('auto_update_librtmp') == "false": auto_update_librtmp =
 else: auto_update_librtmp = True
 if selfAddon.getSetting('force-openelec') == "false": forcar_openelec = False
 else: forcar_openelec = True
+if selfAddon.getSetting('force-shutdown') == "false": forcar_shutdown = False
+else: forcar_shutdown = True
 
 class service:
 	def __init__(self):
@@ -45,5 +47,27 @@ class service:
 					if auto_update_librtmp: librtmp.librtmp_openelec("-",True)
 				else:
 					if auto_update_librtmp: librtmp.librtmp_linux("linux",True)
+					
+		###################     Force Shutdown 		###################
+		if forcar_shutdown and (xbmc.getCondVisibility('system.platform.windows') 
+		or (xbmc.getCondVisibility('system.platform.linux') and not xbmc.getCondVisibility('system.platform.Android')) 
+		or xbmc.getCondVisibility('System.Platform.OSX')):
+			while not xbmc.abortRequested:
+				time.sleep(1)
+			print('Forcing shutdown...')
+			if xbmc.getCondVisibility('system.platform.windows'):
+				if self.version() < 14: subprocess.call("taskkill /IM XBMC.exe /F")
+				else: subprocess.call("taskkill /IM Kodi.exe /F")
+			elif xbmc.getCondVisibility('system.platform.linux') and not xbmc.getCondVisibility('system.platform.Android'):
+				if self.version() < 14: subprocess.call("killall -9 xbmc.bin", shell=True)
+				else: subprocess.call("killall -9 kodi.bin", shell=True)
+			elif xbmc.getCondVisibility('System.Platform.OSX'):
+				if self.version() < 14: subprocess.call("killall -9 XBMC", shell=True)
+				else: subprocess.call("killall -9 Kodi", shell=True)
+	
+	def version(self):
+		try: v = int(xbmc.getInfoLabel("System.BuildVersion" )[0:2])
+		except: v = -1
+		return v
 					
 service()

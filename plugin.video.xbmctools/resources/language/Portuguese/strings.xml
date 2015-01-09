@@ -56,7 +56,7 @@
     <string id="2052">Definicoes gerais</string>
     <string id="2053">Já tem o hack feito.</string>
     <string id="2054">Deseja refazê-lo?</string>
-    <string id="2055">Forcar Openelec (RaspberryPI)</string>
+    <string id="2055">Forcar Openelec</string>
 	<string id="2056">Qual é a sua versão do XBMC?</string>
 	<string id="2057">Versao do XBMC</string>
 	<string id="2058">Fazer update do librtmp automaticamente</string>
@@ -64,4 +64,7 @@
 	<string id="2060">Existe uma nova versão do librtmp.</string>
 	<string id="2061">Deseja actualizar?</string>
 	<string id="2062">Tempo até o hack ser aplicado</string>
+	<string id="2063">Apagar Backup</string>
+	<string id="2064">Definições do addon</string>
+	<string id="2065">Forçar shutdown (Win/Linux/OSx)</string>
 </strings>

@@ -56,7 +56,7 @@
 	<string id="2052">Global settings</string>
 	<string id="2053">The hack is already done.</string>
     <string id="2054">Do it again?</string>
-	<string id="2055">Force Openelec (RaspberryPI)</string>
+	<string id="2055">Force Openelec</string>
 	<string id="2056">What is your XBMC version?</string>
 	<string id="2057">XBMC version</string>
 	<string id="2058">Auto update librtmp</string>
@@ -64,4 +64,7 @@
 	<string id="2060">New librtmp version available.</string>
 	<string id="2061">Update?</string>
 	<string id="2062">Time till the hack be applied</string>
+	<string id="2063">Delete Backup</string>
+	<string id="2064">Addon settings</string>
+	<string id="2065">Force shutdown (Win/Linux/OSx)</string>
 </strings>

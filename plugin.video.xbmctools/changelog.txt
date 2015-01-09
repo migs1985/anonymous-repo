@@ -1,4 +1,10 @@
-﻿Versão 1.1.5:
+﻿Versão 1.1.6:
+Adicionado 'Forçar openelec' em PC
+Nome do addon alterado para "K0di Tools"
+Adicionado suporte para OSx (Kodi)
+Adicionada opção para forçar shutdown
+
+Versão 1.1.5:
 Fix no "hack" para Android
 Adicionado suporte a SPMC
 Outras melhorias
