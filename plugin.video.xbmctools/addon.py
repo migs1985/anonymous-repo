@@ -170,7 +170,7 @@ def erro_os():
 def versao_disponivel():
 	try:
 		codigo_fonte=abrir_url('http://anonymous-repo.googlecode.com/svn/trunk/anonymous-repo/plugin.video.xbmctools/addon.xml')
-		match=re.compile('<addon id="plugin.video.xbmctools" name="XBMC Tools" version="(.+?)"').findall(codigo_fonte)[0]
+		match=re.compile('<addon id="plugin.video.xbmctools" name="K0di Tools" version="(.+?)"').findall(codigo_fonte)[0]
 	except:
 		match='Erro ao verificar a versão!'
 	return match
