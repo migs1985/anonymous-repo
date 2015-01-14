@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.tugafilmes" name="Tuga Filmes" version="1.0.3" provider-name="Anonymous">
+<addon id="plugin.video.tugafilmes" name="Tuga Filmes" version="1.0.4" provider-name="Anonymous">
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
+	<import addon="script.module.t0mm0.common"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>video</provides>

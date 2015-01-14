@@ -1,4 +1,8 @@
-﻿Versão 1.0.3:
+﻿Versão 1.0.4:
+Corrigida opção de Download
+Corrigido servidor
+
+Versão 1.0.3:
 Adicionada opção de fanart
 
 Versão 1.0.2:

@@ -21,7 +21,7 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,time,os,json
 h = HTMLParser.HTMLParser()
 
-versao = '1.0.3'
+versao = '1.0.4'
 addon_id = 'plugin.video.tugafilmes'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
@@ -76,17 +76,32 @@ def download(name,url):
 	mensagemprogresso = xbmcgui.DialogProgress()
 	mensagemprogresso.create('Tuga-Filmes', 'A resolver link','Por favor aguarde...')
 	mensagemprogresso.update(33)
+	
 	matriz = []
 	codigo_fonte = abrir_url(url)
-	try: url_video = re.compile('<iframe frameborder=".+?" height=".+?" scrolling=".+?" src="(.+?)"').findall(codigo_fonte)[0]
-	except: return
+	
+	try:  
+		matriz = videomega_resolver(url)
+		url_video = 'nada'
+	except:
+		try: url_video = re.compile('frameborder=".+?" height=".+?" scrolling=".+?" src="(.+?)"').findall(codigo_fonte)[0]
+		except: 
+			try: url_video = re.compile("width='.+?' height='.+?' scrolling='.+?' frameborder='.+?' src='(.+?)'").findall(codigo_fonte)[0]
+			except:
+				try: url_video = re.compile('width=".+?" height=".+?".+?frameborder=".+?" src="(.+?)"').findall(codigo_fonte)[0]
+				except: return
+
 	mensagemprogresso.update(66)
-	if 'videomega' in url_video: matriz = obtem_url_videomega(url_video)
+	
+	if url_video == 'nada': pass
 	elif 'dropvideo' in url_video: matriz = obtem_url_dropvideo(url_video)
-	else: matriz[0] = matriz[1] = '-'
+	elif 'videowood' in url_video: matriz = videowood(url_video)
+	else: return
+	
 	url = matriz[0]
 	if url=='-': return
 	legendas = matriz[1]
+	
 	mensagemprogresso.update(100)
 	mensagemprogresso.close()
 	
@@ -97,7 +112,7 @@ def download(name,url):
 			  
 	dp = xbmcgui.DialogProgress()
 	dp.create('Download')
-	start_time = time.time()		# url - url do ficheiro    mypath - localizacao ex: c:\file.mp3
+	start_time = time.time()
 	try:
 		if legendas != '-': urllib.urlretrieve(legendas, mypath_legendas, lambda nb, bs, fs: dialogdown(nb, bs, fs, dp, start_time))
 		urllib.urlretrieve(url, mypath, lambda nb, bs, fs: dialogdown(nb, bs, fs, dp, start_time))
@@ -245,6 +260,56 @@ def videowood(url):
 	srt = re.compile("addSubtitles\('(.+?)'").findall(codigo_fonte)[0]
 	return [file,srt]
 	
+def abrir_url_tommy(url,referencia,form_data=None,erro=True):
+	print "A fazer request tommy de: " + url
+	from t0mm0.common.net import Net
+	net = Net()
+	try:
+		if form_data==None:link = net.http_GET(url,referencia).content
+		else:link= net.http_POST(url,form_data=form_data,headers=referencia).content.encode('latin-1','ignore')
+		return link
+
+	except urllib2.HTTPError, e:
+		return "Erro"
+	except urllib2.URLError, e:
+		return "Erro"
+	
+def videomega_resolver(referer):
+	html = abrir_url(referer)
+	if re.search('http://videomega.tv/iframe.js',html):
+		lines = html.splitlines()
+		aux = ''
+		for line in lines:
+			if re.search('http://videomega.tv/iframe.js',line):
+				aux = line
+				break;
+		ref = re.compile('ref="(.+?)"').findall(line)[0]
+	else:
+		try:
+			hash = re.compile('"http://videomega.tv/validatehash.php\?hashkey\=(.+?)"').findall(html)[0]
+			ref = re.compile('ref="(.+?)"').findall(abrir_url("http://videomega.tv/validatehash.php?hashkey="+hash))[0]
+		except:
+			try:
+				hash = re.compile("'http://videomega.tv/validatehash.php\?hashkey\=(.+?)'").findall(html)[0]
+				ref = re.compile('ref="(.+?)"').findall(abrir_url("http://videomega.tv/validatehash.php?hashkey="+hash))[0]
+			except:
+				iframe = re.compile('"http://videomega.tv/iframe.php\?(.+?)"').findall(html)[0] + '&'
+				ref = re.compile('ref=(.+?)&').findall(iframe)[0]
+	
+	ref_data={'Host':'videomega.tv',
+			  'Connection':'Keep-alive',
+			  'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+			  'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
+			  'Referer':referer}
+	url = 'http://videomega.tv/iframe.php?ref=' + ref
+	code = re.compile('document.write\(unescape\("(.+?)"\)\)\;').findall(abrir_url_tommy(url,ref_data))
+	texto = urllib.unquote(code[0])
+	try: url_video = re.compile('file: "(.+?)"').findall(texto)[0]
+	except: url_video = '-'
+	try: url_legendas = re.compile('http://videomega.tv/servesrt.php\?s=(.+?).srt').findall(texto)[0] + '.srt'
+	except: url_legendas = '-'
+	return [url_video,url_legendas]
+	
 def player(name,url,iconimage):
 	mensagemprogresso = xbmcgui.DialogProgress()
 	mensagemprogresso.create('Tuga-Filmes', 'A resolver link','Por favor aguarde...')
@@ -252,21 +317,21 @@ def player(name,url,iconimage):
 	
 	matriz = []
 	codigo_fonte = abrir_url(url)
-	try: url_video = re.compile('frameborder=".+?" height=".+?" scrolling=".+?" src="(.+?)"').findall(codigo_fonte)[0]
-	except: 
-		try: url_video = re.compile("width='.+?' height='.+?' scrolling='.+?' frameborder='.+?' src='(.+?)'").findall(codigo_fonte)[0]
-		except:
-			try: url_video = re.compile('width=".+?" height=".+?".+?frameborder=".+?" src="(.+?)"').findall(codigo_fonte)[0]
-			except: 
-				try:
-					js = re.compile("<script type='text/javascript' src='(.+?)'").findall(codigo_fonte)[0]
-					ref = re.compile('var ref="(.+?)";').findall(abrir_url(js))[0]
-					url_video = 'http://videomega.tv/iframe.php?ref=' + ref
+	
+	try:  
+		matriz = videomega_resolver(url)
+		url_video = 'nada'
+	except:
+		try: url_video = re.compile('frameborder=".+?" height=".+?" scrolling=".+?" src="(.+?)"').findall(codigo_fonte)[0]
+		except: 
+			try: url_video = re.compile("width='.+?' height='.+?' scrolling='.+?' frameborder='.+?' src='(.+?)'").findall(codigo_fonte)[0]
+			except:
+				try: url_video = re.compile('width=".+?" height=".+?".+?frameborder=".+?" src="(.+?)"').findall(codigo_fonte)[0]
 				except: return
 
 	mensagemprogresso.update(66)
 	
-	if 'videomega' in url_video: matriz = obtem_url_videomega(url_video)
+	if url_video == 'nada': pass
 	elif 'dropvideo' in url_video: matriz = obtem_url_dropvideo(url_video)
 	elif 'videowood' in url_video: matriz = videowood(url_video)
 	else: return
