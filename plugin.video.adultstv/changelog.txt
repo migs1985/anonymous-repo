@@ -1,4 +1,10 @@
-﻿[B]Version 0.0.7 (15/12/2014):[/B]
+﻿[B]Version 0.0.8 (16/01/2015):[/B]
+Added new channels.
+Some videos requires "Abelhas.pt" addon.
+Added XVideos.
+Multiple fixes
+
+[B]Version 0.0.7 (15/12/2014):[/B]
 Added new channels.
 Some streams requires p2p-streams addon.
 Added new sources: Megatube, Alfabass, Torrent-TV.

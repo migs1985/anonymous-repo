@@ -18,6 +18,7 @@ def traducao(texto):
 #MENUS############################################
 
 def fhdp_menu():
+	addDir('New HD Porn','http://www.freehdporn.ws/',301,artfolder + 'videos.png')
 	addDir(traducao(2022),'-',303,artfolder + 'search.png')
 	addDir(traducao(2031),'-',304,artfolder + 'estudios.png')
 	addDir(traducao(2032),'-',305,artfolder + 'pstars.png')
@@ -50,7 +51,7 @@ def download(name,url):
 	mensagemprogresso.close()  
 	dp = xbmcgui.DialogProgress()
 	dp.create('Download')
-	start_time = time.time()		# url - url do ficheiro    mypath - localizacao ex: c:\file.mp3
+	start_time = time.time()
 	try: urllib.urlretrieve(url, mypath, lambda nb, bs, fs: dialogdown(nb, bs, fs, dp, start_time))
 	except:
 		while os.path.exists(mypath): 
@@ -113,7 +114,7 @@ def listar_categorias():
 	
 def listar_videos(url):
 	codigo_fonte = abrir_url(url)
-	match = re.compile('<a href="/(.+?)" title="(.+?)><img src="(.+?)"').findall(codigo_fonte)
+	match = re.compile('<a href="(.+?)" rel="noreferrer" target="_blank" title="(.+?)><img src="(.+?)"').findall(codigo_fonte)
 	i=1
 	total = len(match)
 	for url,titulo,img in match:
@@ -125,7 +126,7 @@ def listar_videos(url):
 			img = 'http://freehdporn.ws' + img
 		titulo = titulo.replace("&#8211;","-")
 		titulo = titulo.replace("&#8217;","'")
-		addDir(titulo,base_url+url,302,img,total,False,True)
+		addDir(titulo,url,302,img,total,False,True)
 	
 	page = re.compile("class='active'>.+?</a><a href='(.+?)'>.+?<").findall(codigo_fonte)
 	try: url_base = re.compile('<link rel="canonical" href="(.+?)"').findall(codigo_fonte)[0]
@@ -138,10 +139,10 @@ def listar_videos(url):
 def encontrar_fontes(name,url,iconimage):
 	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
 	mensagemprogresso.update(0)
-	codigo_fonte = abrir_url(url)
-	try: video_url = re.compile('<iframe src="(.+?)" class="modal_video"').findall(codigo_fonte)[0].replace('../',base_url)
-	except: return
-	url_video = vk(video_url)
+	#codigo_fonte = abrir_url(url)
+	#try: video_url = re.compile('<iframe src="(.+?)" class="modal_video"').findall(codigo_fonte)[0].replace('../',base_url)
+	#except: return
+	url_video = vk(url)
 	if url_video: play(name,url_video[0],iconimage)
 	
 def vk(url):
@@ -211,3 +212,13 @@ def addDir(name,url,mode,iconimage,total=1,pasta = True,video=False):
 		liz.addContextMenuItems(cm, replaceItems=True) 	
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=pasta,totalItems=total)
 	return ok
+	
+def mode(mode,name,url,iconimage):
+	if mode==300: fhdp_menu()
+	elif mode==301: listar_videos(url)
+	elif mode==302: encontrar_fontes(name,url,iconimage)
+	elif mode==303: pesquisa()
+	elif mode==304: listar_estudios()
+	elif mode==305: listar_actrizes()
+	elif mode==306: listar_categorias()
+	elif mode==307: download(name,url)

@@ -122,6 +122,7 @@ def encontrar_fontes(name,url,iconimage):
 	codigo_fonte = abrir_url(url)
 	try: video_url = re.compile('<iframe src="(.+?)"').findall(codigo_fonte)[0]
 	except: return
+	if video_url[:2] == '//': video_url = 'http:' + video_url
 	url_video = vk(video_url)
 	if url_video: play(name,url_video[0],iconimage)
 	

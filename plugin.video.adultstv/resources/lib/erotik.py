@@ -58,7 +58,15 @@ def listar_videos(url,offset):
 	
 def playvideo(name,url,iconimage,offset=0):
 	if not offset: mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
-	html = abrir_url(url)
+	url_video = videomega_resolver(url)
+	mensagemprogresso.close()
+	liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+	player = xbmc.Player(xbmc.PLAYER_CORE_AUTO)
+	player.play(url_video,liz)
+	
+def videomega_resolver(referer):
+
+	html = abrir_url(referer)
 	if re.search('http://videomega.tv/iframe.js',html):
 		lines = html.splitlines()
 		aux = ''
@@ -74,15 +82,15 @@ def playvideo(name,url,iconimage,offset=0):
 		except:
 			iframe = re.compile('"http://videomega.tv/iframe.php\?(.+?)"').findall(html)[0] + '&'
 			ref = re.compile('ref=(.+?)&').findall(iframe)[0]
-	url_video = videomega_resolver(ref)
-	mensagemprogresso.close()
-	liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
-	player = xbmc.Player(xbmc.PLAYER_CORE_AUTO)
-	player.play(url_video,liz)
-		
-def videomega_resolver(ref):
+	
+	ref_data={'Host':'videomega.tv',
+			  'Connection':'Keep-alive',
+			  'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+			  'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
+			  'Referer':referer}
 	url = 'http://videomega.tv/iframe.php?ref=' + ref
-	code = re.compile('document.write\(unescape\("(.+?)"\)\)\;').findall(abrir_url(url))
+	#url = 'http://videomega.tv/cdn.php?ref='+ref+'&width=638&height=431&val=1'
+	code = re.compile('document.write\(unescape\("(.+?)"\)\)\;').findall(abrir_url_tommy(url,ref_data))
 	texto = urllib.unquote(code[0])
 	try: url_video = re.compile('file: "(.+?)"').findall(texto)[0]
 	except: url_video = '-'
@@ -104,6 +112,20 @@ def mode(mode,name,url,iconimage,offset):
 	elif mode==604: cat()
 	elif mode==605: pesquisa()
 
+def abrir_url_tommy(url,referencia,form_data=None,erro=True):
+	print "A fazer request tommy de: " + url
+	from t0mm0.common.net import Net
+	net = Net()
+	try:
+		if form_data==None:link = net.http_GET(url,referencia).content
+		else:link= net.http_POST(url,form_data=form_data,headers=referencia).content.encode('latin-1','ignore')
+		return link
+
+	except urllib2.HTTPError, e:
+		return "Erro"
+	except urllib2.URLError, e:
+		return "Erro"
+	
 def abrir_url(url):
 	req = urllib2.Request(url)
 	req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
