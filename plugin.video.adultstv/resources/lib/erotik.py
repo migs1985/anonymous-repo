@@ -96,7 +96,22 @@ def videomega_resolver(referer):
 	except: url_video = '-'
 	#try: url_legendas = re.compile('http://videomega.tv/servesrt.php\?s=(.+?).srt').findall(texto)[0] + '.srt'
 	#except: url_legendas = '-'
-	return url_video
+	ref_data={'Host':url_video.split('/')[2],
+			  'Connection':'Keep-alive',
+			  'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+			  'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
+			  'Referer':'http://videomega.tv/player/jwplayer.flash.swf'}
+	return url_video+headers_str(ref_data)
+
+def headers_str(headers):
+	start = True
+	headers_str = ''
+	for k,v in headers.items():
+		if start:
+			headers_str += '|'+urllib.quote_plus(k)+'='+urllib.quote_plus(v)
+			start = False
+		else: headers_str += '&'+urllib.quote_plus(k)+'='+urllib.quote_plus(v)
+	return headers_str
 
 '''	
 addDir('Ero-tik','-',600,artfolder + 'erotik.png')
