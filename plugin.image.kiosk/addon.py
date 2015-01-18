@@ -49,8 +49,52 @@ mensagemprogresso = xbmcgui.DialogProgress()
 #MENUS############################################
 
 def CATEGORIES():
-	listar('http://pdf-kiosk.com')
+	#listar('http://pdf-kiosk.com')
+	listar_scribd('https://pt.scribd.com/gigatuga')
+	
+def listar_scribd(url):
+	html = abrir_url(url)
+	match = re.compile('''style="background-image: url\('(.+?)'\)"><div class="shadow_overlay"></div><div class="cell_data"><div class="document_title"><a href="(.+?)">(.+?)</a>''').findall(html)
+	for img, link, title in match:
+		addDir(title,link,3,img)
+	
+def scribd(url):
+	xbmc.executebuiltin("Dialog.Close(busydialog)")
+	mensagemprogresso.create('Kiosk', 'A abrir ficheiro...')
+	mensagemprogresso.update(0)
+	html = abrir_url(url)
+	if re.search('"format_ext">.TXT',html) and (not re.search('"format_ext">.PDF',html)):
+		xbmcgui.Dialog().ok('Erro:', 'Impossível abrir ficheiro...')
+		return
+	total = int(re.compile('"page_count":(.+?),').findall(html)[0])
+	imgs = re.compile('<img class="absimg" style=".+?" orig="(.+?)"/>').findall(html)
+	i = len(imgs)
+	mensagemprogresso.update(int((float(i)/total)*100))
+	jsonp = re.compile('pageParams.contentUrl = "(.+?)"').findall(html)
+	
+	for j in jsonp:
+		if mensagemprogresso.iscanceled():
+			return
+		host = j.split('/')[2]
+		headers = {'Host':host,
+				   'Connection':'keep-alive',
+				   'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+				   'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36'}
+		img = re.compile('orig="(.+?)"').findall(net.http_GET(j,headers).content.replace('\\',''))[0]
+		imgs.append(img)
+		i += 1
+		mensagemprogresso.update(int((float(i)/total)*100))
+	mensagemprogresso.close()
+	
+	i = 1
+	for p in imgs:
+		addLink('Página '+str(i),p,p)
+		i += 1
 
+'''
+Código antigo
+'''
+	
 def listar(url):
 	html = abrir_url(url)
 	match = re.compile('<div class="grid-box-img"><a href="(.+?)" rel="bookmark" title="(.+?)"><img width=".+?" height=".+?" src="(.+?)" class="attachment-full wp-post-image" alt=".+?"').findall(html)
@@ -345,7 +389,7 @@ def addLink(name,url,iconimage,total=1):
 	ok=True
 	liz=xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
 	liz.setProperty('fanart_image', addonfolder + '/fanart.jpg')
-	liz.setInfo( type="Video", infoLabels={ "Title": name } )
+	liz.setInfo( type="Image", infoLabels={ "Title": name } )
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz,totalItems=total)
 	return ok
 
@@ -405,4 +449,5 @@ print "Iconimage: "+str(iconimage)
 if mode==None or url==None or len(url)<1: CATEGORIES()
 elif mode==1: listar(url)
 elif mode==2: encontrar_fontes(url)
+elif mode==3: scribd(url)
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

@@ -1,2 +1,6 @@
-﻿Versão 1.0.0:
+﻿Versão 0.0.2:
+Corrigido addon
+Adicionado scribd
+
+Versão 0.0.1:
 Primeira versão
