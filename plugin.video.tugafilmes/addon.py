@@ -21,7 +21,7 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,time,os,json
 h = HTMLParser.HTMLParser()
 
-versao = '1.0.4'
+versao = '1.0.6'
 addon_id = 'plugin.video.tugafilmes'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
@@ -302,10 +302,21 @@ def videomega_resolver(referer):
 			  'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
 			  'Referer':referer}
 	url = 'http://videomega.tv/iframe.php?ref=' + ref
-	code = re.compile('document.write\(unescape\("(.+?)"\)\)\;').findall(abrir_url_tommy(url,ref_data))
-	texto = urllib.unquote(code[0])
-	try: url_video = re.compile('file: "(.+?)"').findall(texto)[0]
-	except: url_video = '-'
+	iframe_html = abrir_url_tommy(url,ref_data)
+	code = re.compile('document.write\(unescape\("(.+?)"\)\)\;').findall(iframe_html)
+	id = re.compile('<div id="(.+?)" name="adblock"').findall(iframe_html)[0]
+	texto = ''
+	for c in code:
+		aux = urllib.unquote(c)
+		if re.search(id,aux):
+			texto = aux
+			break
+	if texto == '': return ['-','-']
+	try: url_video = re.compile('file:"(.+?)"').findall(texto)[0]
+	except: 
+		try: url_video = re.compile('file: "(.+?)"').findall(texto)[0]
+		except: url_video = '-'
+	if not 'mp4' in url_video: return ['-','-']
 	try: url_legendas = re.compile('http://videomega.tv/servesrt.php\?s=(.+?).srt').findall(texto)[0] + '.srt'
 	except: url_legendas = '-'
 	ref_data={'Host':url_video.split('/')[2],

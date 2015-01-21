@@ -34,12 +34,11 @@ def download(name,url):
 		return
 	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
 	mensagemprogresso.update(0)
-	codigo_fonte = abrir_url(url)
-	try: video_url = re.compile('<iframe src="(.+?)" class="modal_video"').findall(codigo_fonte)[0].replace('../',base_url)
-	except: return
-	url_video = vk(video_url)
+	try: url = re.compile('<iframe src="(.+?)" class="modal_video"').findall(abrir_url(url))[0].replace('../',base_url)
+	except: pass
+	url_video = vkcom_resolver(url)
 	if not url_video: return
-	url = url_video[0]
+	url = url_video
 	
 	name = re.sub('[^-a-zA-Z0-9_.()\\\/ ]+', '',name)
 	name += ' - ' + url_video[1] + '.mp4'
@@ -115,6 +114,8 @@ def listar_categorias():
 def listar_videos(url):
 	codigo_fonte = abrir_url(url)
 	match = re.compile('<a href="(.+?)" rel="noreferrer" target="_blank" title="(.+?)><img src="(.+?)"').findall(codigo_fonte)
+	match += re.compile('<a href="(.+?)" title="(.+?)"><img src="(.+?)" alt=".+?" /></a>').findall(codigo_fonte)
+
 	i=1
 	total = len(match)
 	for url,titulo,img in match:
@@ -123,7 +124,9 @@ def listar_videos(url):
 			i += 1
 		else: titulo = titulo[:-1]
 		if 'freehdporn.ws' not in img:
-			img = 'http://freehdporn.ws' + img
+			img = base_url + img
+		if 'freehdporn.ws' not in url:
+			url = base_url + url
 		titulo = titulo.replace("&#8211;","-")
 		titulo = titulo.replace("&#8217;","'")
 		addDir(titulo,url,302,img,total,False,True)
@@ -139,43 +142,73 @@ def listar_videos(url):
 def encontrar_fontes(name,url,iconimage):
 	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
 	mensagemprogresso.update(0)
-	#codigo_fonte = abrir_url(url)
-	#try: video_url = re.compile('<iframe src="(.+?)" class="modal_video"').findall(codigo_fonte)[0].replace('../',base_url)
-	#except: return
-	url_video = vk(url)
-	if url_video: play(name,url_video[0],iconimage)
+	try: url = re.compile('<iframe src="(.+?)" class="modal_video"').findall(abrir_url(url))[0].replace('../',base_url)
+	except: pass
+	url_video = vkcom_resolver(url)
+	if url_video: play(name,url_video,iconimage)
+
+def abrir_url_custom(url,**kwargs):
+	for key, value in kwargs.items(): exec('%s = %s' % (key, repr(value)))
+	if 'post' in locals():
+		data = urllib.urlencode(post)
+		req = urllib2.Request(url,data)
+	else: req = urllib2.Request(url)
+	if 'headers' in locals():
+		for x in range(0, len(headers)):
+			req.add_header(headers.keys()[x], headers.values()[x])
+	if 'user_agent' in locals(): req.add_header('User-Agent', user_agent)
+	else: req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:33.0) Gecko/20100101 Firefox/33.0')
+	if 'referer' in locals(): req.add_header('Referer', referer)
+	if 'timeout' in locals(): response = urllib2.urlopen(req, timeout=timeout)
+	else: response = urllib2.urlopen(req)
+	link=response.read()
+	response.close()
+	return link
 	
-def vk(url):
-	codigo_fonte = abrir_url(url)
-	try:
-		#img = re.compile('<img id="player_thumb" src="(.+?)"/></div>').findall(codigo_fonte)[0]
-		url = re.compile("var video_host = '(.+?)'").findall(codigo_fonte)[0]
-		id1 = re.compile("var video_uid = '(.+?)'").findall(codigo_fonte)[0]
-		id2 = re.compile("var video_vtag = '(.+?)'").findall(codigo_fonte)[0]
-		res = re.compile("var video_max_hd = '(.+?)'").findall(codigo_fonte)[0]
-		print 'VK Resolution: '+res
-		if res == '4': qualidade = ['960','720','480','360','240']
-		elif res == '3': qualidade = ['720','480','360','240']
-		elif res == '2': qualidade = ['480','360','240']
-		elif res == '1': qualidade = ['360','240']
-		else: qualidade = ['240']
-		
-		if selfAddon.getSetting('max_qual')=='true':
-			qualidade_int = []
-			for q in qualidade:
-				qualidade_int.append(int(q))
-			qualidade_ = str(max(qualidade_int))
-		else:
-			if len(qualidade)==1: qualidade_ = qualidade[0]
-			else: 
-				index = xbmcgui.Dialog().select(traducao(2012), qualidade)
-				if index == -1: return False
-				qualidade_ = qualidade[index]
-		url_video = url + 'u' + id1 + '/videos/' + id2 + '.' + qualidade_ + '.mp4'
-		return [url_video, qualidade_]
-	except: 
+def vkcom_resolver(video_url):
+	import random
+	
+	if re.search("vk\.com/video([\d]+)_([\d]+)", video_url):
+		video_match = re.search("vk\.com/video([\d]+)_([\d]+)", video_url)
+		video_oid = video_match.group(1)
+		video_id = video_match.group(2)
+		javaplugin_referer = "http://javaplugin.org/WL/vk/plugins/gkplugins_vk.swf?rand=0."+str(random.randint(1000000000000000,9999999999999999))
+		codigo_fonte = abrir_url_custom("http://javaplugin.org/WL/vk/plugins/plugins_vk.php",referer = javaplugin_referer,post = {"url":video_url,"icookie":"","iagent":"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0","ihttpheader":"true","iheader":"true"})
+		codigo_fonte_2 = abrir_url_custom("http://javaplugin.org/WL/vk/plugins/plugins_vk.php",referer = javaplugin_referer,post = {"checkcookie":"true"})
+		codigo_fonte_3 = abrir_url_custom("http://javaplugin.org/WL/vk/plugins/plugins_vk.php",referer = javaplugin_referer,post = {"url":"https://vk.com/al_video.php","iagent":"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0","iheader":"true","icookie":"remixsid="+codigo_fonte_2[8:]+";remixlang=3","ipost":"true","ipostfield":"al=1&oid="+video_oid+"&act=video_embed_box&vid="+video_id,"isslverify":"true","ihttpheader":"true"})
+		video_hash = re.search("<iframe.*?src=\".*?vk\.com/video_ext\.php\?oid\=.*?&id\=.*?&hash\=(.+?)\".*?>", codigo_fonte_3).group(1)
+	elif re.search("vk\.com/video_ext\.php\?oid\=([-?\d]+)&id\=([\d]+)&hash\=(.+)", video_url):
+		video_match = re.search("vk\.com/video_ext\.php\?oid\=([-?\d]+)&id\=([\d]+)&hash\=(.+?)&", video_url+'&')
+		video_oid = video_match.group(1)
+		video_id = video_match.group(2)
+		video_hash = video_match.group(3)
+	else:
 		xbmcgui.Dialog().ok(traducao(2010),traducao(2030))
 		return False
+		
+	api = 'http://api.vk.com/method/video.getEmbed?oid='+video_oid+'&video_id='+video_id+'&embed_hash='+video_hash+'&callback=responseWork'
+	codigo_fonte = abrir_url_custom(api)
+	qualidade = []
+	urls = []
+	for x in ["1080","960","720","480","360","240"]:
+		try: u = re.compile('"url'+x+'":"(.+?)"').findall(codigo_fonte)[0]
+		except: continue
+		qualidade.append(x)
+		urls.append(u.replace('\\',''))
+	if len(urls)==0:
+		xbmcgui.Dialog().ok(traducao(2010),traducao(2030))
+		return False
+	index = -1
+	if selfAddon.getSetting('max_qual')=='true':
+		max = 0
+		for x in range(0,len(qualidade)):
+			if int(qualidade[x])>max:
+				max = qualidade[x]
+				index = x
+	else:
+		index = xbmcgui.Dialog().select(traducao(2012), qualidade)
+	if index==-1: return False
+	return urls[index]
 	
 def play(name,streamurl,iconimage = "DefaultVideo.png"):
 	listitem = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)

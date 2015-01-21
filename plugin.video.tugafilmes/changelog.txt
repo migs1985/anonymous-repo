@@ -1,4 +1,10 @@
-﻿Versão 1.0.4:
+﻿Versão 1.0.6:
+Re-fix de servidores
+
+Versão 1.0.5:
+Fix de servidores
+
+Versão 1.0.4:
 Corrigida opção de Download
 Corrigido servidor
 
