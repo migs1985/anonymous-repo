@@ -27,6 +27,7 @@ import boaf
 import ioncube
 import erotik
 import xvideos
+from utilis import *
 
 try:
 	addon_pdf = xbmc.translatePath('special://home/addons/plugin.image.pdfreader/resources/lib')
@@ -179,7 +180,7 @@ def canais():
 #LISTAS
 
 def listas():
-	addDir(traducao(2005)+" 1 - HasBahCa",'http://01.gen.tr/HasBahCa/XXX.m3u',2,artfolder + "1.png")
+	addDir(traducao(2005)+" 1 - HasBahCa",'http://hasbahcaiptv.com/m3u/iptv/XXX.m3u',2,artfolder + "1.png")
 	'''
 	try:
 		html = abrir_url('https://www.dropbox.com/s/h6ln6hb8l0hl4wo/userbouquet.ilu_xxx_adult.tv')
@@ -190,7 +191,7 @@ def listas():
 	#http://axenttv.ru/forum/24-365-10
 	addDir(traducao(2005)+" 2 - Adults TV",'http://anonymous-repo.googlecode.com/svn/trunk/adultstv/list.m3u',2,artfolder + "2.png")
 	addDir(traducao(2005)+" 3 - Nobody28",'-',3,artfolder + "3.png")
-	addDir(traducao(2005)+" 4 - VOD",'http://01.gen.tr/HasBahCa/movies/XXX-VOD.m3u',2,artfolder + "4.png")
+	addDir(traducao(2005)+" 4 - VOD",'http://hasbahcaiptv.com/m3u/movies/XXX-VOD.m3u',2,artfolder + "4.png")
 	addDir(traducao(2005)+" 5 - nnm-list.ru",nnm_list,104,artfolder + "5.png")
 	addDir(traducao(2005)+" 6 - tv-sv.com (p2p)",'-',108,artfolder + "6.png")
 	addDir(traducao(2005)+" 7 - torrent-tv.ru (p2p)",'-',109,artfolder + "7.png")
@@ -1114,37 +1115,6 @@ class InputWindow(xbmcgui.WindowDialog):# Cheers to Bastardsmkr code already don
         self.close()
         return False
 	
-def m3u8(m3u):
-	try:
-		inf = abrir_url(m3u).splitlines()
-		qualidade = []
-		qualidade_str = []
-		for line in inf:
-			line=line.strip()
-			if line.startswith('#EXT-X-STREAM-INF'): 
-				qualidade.append(str_int(line.split('#EXT-X-STREAM-INF')[1].split('BANDWIDTH=')[1]))
-				qualidade_str.append('%s kbps' % (str_int(line.split('#EXT-X-STREAM-INF')[1].split('BANDWIDTH=')[1])/1000))
-		m3u8=''
-		if len(qualidade)==0:
-			#xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
-			#return "erro"
-			return m3u
-		if selfAddon.getSetting('max_qual')=='true': qualidade_escolhida = str(max(qualidade))
-		else:
-			index = xbmcgui.Dialog().select(traducao(2012), qualidade_str)
-			if index == -1: return
-			qualidade_escolhida = str(qualidade[index])
-		for x in range(0,len(inf)):
-			if 'BANDWIDTH='+qualidade_escolhida in inf[x]:
-				m3u8 = inf[x+1]
-				break
-		if not re.search('http://', m3u8):
-			m3u8 = m3u.replace(file_name(m3u),m3u8)
-		return m3u8
-	except:
-		xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
-		return "erro"
-	
 def check_version():
 	try:
 		codigo_fonte=abrir_url('http://anonymous-repo.googlecode.com/svn/trunk/anonymous-repo-adults/plugin.video.adultstv/addon.xml')
@@ -1228,19 +1198,6 @@ def openfile(filename,pastafinal=pastaperfil):
 	except:
 		print "Falhou a abrir txt"
 		return None
-	
-def str_int(str):
-	try: int(str[0])
-	except: return -1
-	for x in range(0,len(str)):
-		try: int(str[x])
-		except: return int(str[0:x])
-	return int(str)
-	
-def file_name(path):
-	import ntpath
-	head, tail = ntpath.split(path)
-	return tail or ntpath.basename(head)
 
 def play(name,streamurl,iconimage = "DefaultVideo.png"):
 	#streamurl += ' timeout=15'
@@ -1253,20 +1210,6 @@ def play(name,streamurl,iconimage = "DefaultVideo.png"):
 	'''
 	player = xbmc.Player(xbmc.PLAYER_CORE_AUTO)
 	player.play(streamurl,liz)
-	
-def abrir_url_tommy(url,referencia,form_data=None,erro=True):
-	print "A fazer request tommy de: " + url
-	from t0mm0.common.net import Net
-	net = Net()
-	try:
-		if form_data==None:link = net.http_GET(url,referencia).content
-		else:link= net.http_POST(url,form_data=form_data,headers=referencia).content.encode('latin-1','ignore')
-		return link
-
-	except urllib2.HTTPError, e:
-		return "Erro"
-	except urllib2.URLError, e:
-		return "Erro"
 	
 def abrir_url(url):
 	try:

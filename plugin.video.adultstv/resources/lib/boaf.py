@@ -3,6 +3,7 @@
 # 2014 - Anonymous
 
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time
+from utilis import *
 
 addon_id = 'plugin.video.adultstv'
 selfAddon = xbmcaddon.Addon(id=addon_id)
@@ -248,78 +249,22 @@ def listar_fontes(name,url,iconimage):
 			link.append(m)
 			type.append('m3u8')
 	if len(link)==0: return
+	if selfAddon.getSetting('max_qual')=='true':
+		for x in range(0,len(type)):
+			if type[x] == 'mp4':
+				play(name,link[x],iconimage)
+				return
 	index = xbmcgui.Dialog().select(traducao(2048), type)
 	if index == -1: return
 	if type[index]=='mp4': play(name,link[index],iconimage)
 	elif type[index]=='m3u8':
 		streamurl = m3u8(link[index])
 		play(name,streamurl,iconimage)
-
-def m3u8(m3u):
-	try:
-		inf = abrir_url(m3u).splitlines()
-		qualidade = []
-		qualidade_str = []
-		for line in inf:
-			line=line.strip()
-			if line.startswith('#EXT-X-STREAM-INF'): 
-				qualidade.append(str_int(line.split('#EXT-X-STREAM-INF')[1].split('BANDWIDTH=')[1]))
-				qualidade_str.append('%s kbps' % (str_int(line.split('#EXT-X-STREAM-INF')[1].split('BANDWIDTH=')[1])/1000))
-		m3u8=''
-		if selfAddon.getSetting('max_qual')=='true': qualidade_escolhida = str(max(qualidade))
-		else:
-			index = xbmcgui.Dialog().select(traducao(2012), qualidade_str)
-			if index == -1: return
-			qualidade_escolhida = str(qualidade[index])
-		for x in range(0,len(inf)):
-			if 'BANDWIDTH='+qualidade_escolhida in inf[x]:
-				m3u8 = inf[x+1]
-				break
-		m3u8 = m3u.replace(file_name(m3u),m3u8)
-		return m3u8
-	except:
-		xbmcgui.Dialog().ok(traducao(2010), traducao(2011))
-		return "erro"
-	
-def str_int(str):
-	try: int(str[0])
-	except: return -1
-	for x in range(0,len(str)):
-		try: int(str[x])
-		except: return int(str[0:x])
-	return int(str)
-	
-def file_name(path):
-	import ntpath
-	head, tail = ntpath.split(path)
-	return tail or ntpath.basename(head)
 	
 def play(name,streamurl,iconimage = "DefaultVideo.png"):
 	listitem = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
 	player = xbmc.Player(xbmc.PLAYER_CORE_AUTO)
 	player.play(streamurl,listitem)
-	
-def abrir_url_tommy(url,referencia,form_data=None,erro=True):
-	print "A fazer request tommy de: " + url
-	from t0mm0.common.net import Net
-	net = Net()
-	try:
-		if form_data==None:link = net.http_GET(url,referencia).content
-		else:link= net.http_POST(url,form_data=form_data,headers=referencia).content.encode('latin-1','ignore')
-		return link
-
-	except urllib2.HTTPError, e:
-		return "Erro"
-	except urllib2.URLError, e:
-		return "Erro"
-	
-def abrir_url(url):
-	req = urllib2.Request(url)
-	req.add_header('User-Agent', 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3')
-	response = urllib2.urlopen(req)
-	link=response.read()
-	response.close()
-	return link
 
 def addDir(name,url,mode,iconimage,total=1,pasta = True,video=False,offset=0,letra=''):
 	u=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.quote_plus(name)+"&iconimage="+urllib.quote_plus(iconimage)+"&offset="+str(offset)+"&letra="+str(letra)

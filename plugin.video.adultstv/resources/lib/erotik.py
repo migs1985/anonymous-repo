@@ -3,6 +3,7 @@
 # 2014 - Anonymous
 
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time
+from resolvers import *
 
 addon_id = 'plugin.video.adultstv'
 selfAddon = xbmcaddon.Addon(id=addon_id)
@@ -63,55 +64,6 @@ def playvideo(name,url,iconimage,offset=0):
 	liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
 	player = xbmc.Player(xbmc.PLAYER_CORE_AUTO)
 	player.play(url_video,liz)
-	
-def videomega_resolver(referer):
-
-	html = abrir_url(referer)
-	if re.search('http://videomega.tv/iframe.js',html):
-		lines = html.splitlines()
-		aux = ''
-		for line in lines:
-			if re.search('http://videomega.tv/iframe.js',line):
-				aux = line
-				break;
-		ref = re.compile('ref="(.+?)"').findall(line)[0]
-	else:
-		try:
-			hash = re.compile('"http://videomega.tv/validatehash.php\?hashkey\=(.+?)"').findall(html)[0]
-			ref = re.compile('ref="(.+?)"').findall(abrir_url("http://videomega.tv/validatehash.php?hashkey="+hash))[0]
-		except:
-			iframe = re.compile('"http://videomega.tv/iframe.php\?(.+?)"').findall(html)[0] + '&'
-			ref = re.compile('ref=(.+?)&').findall(iframe)[0]
-	
-	ref_data={'Host':'videomega.tv',
-			  'Connection':'Keep-alive',
-			  'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-			  'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
-			  'Referer':referer}
-	url = 'http://videomega.tv/iframe.php?ref=' + ref
-	#url = 'http://videomega.tv/cdn.php?ref='+ref+'&width=638&height=431&val=1'
-	code = re.compile('document.write\(unescape\("(.+?)"\)\)\;').findall(abrir_url_tommy(url,ref_data))
-	texto = urllib.unquote(code[0])
-	try: url_video = re.compile('file: "(.+?)"').findall(texto)[0]
-	except: url_video = '-'
-	#try: url_legendas = re.compile('http://videomega.tv/servesrt.php\?s=(.+?).srt').findall(texto)[0] + '.srt'
-	#except: url_legendas = '-'
-	ref_data={'Host':url_video.split('/')[2],
-			  'Connection':'Keep-alive',
-			  'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-			  'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
-			  'Referer':'http://videomega.tv/player/jwplayer.flash.swf'}
-	return url_video+headers_str(ref_data)
-
-def headers_str(headers):
-	start = True
-	headers_str = ''
-	for k,v in headers.items():
-		if start:
-			headers_str += '|'+urllib.quote_plus(k)+'='+urllib.quote_plus(v)
-			start = False
-		else: headers_str += '&'+urllib.quote_plus(k)+'='+urllib.quote_plus(v)
-	return headers_str
 
 '''	
 addDir('Ero-tik','-',600,artfolder + 'erotik.png')
@@ -126,20 +78,6 @@ def mode(mode,name,url,iconimage,offset):
 	elif mode==603: random_video()
 	elif mode==604: cat()
 	elif mode==605: pesquisa()
-
-def abrir_url_tommy(url,referencia,form_data=None,erro=True):
-	print "A fazer request tommy de: " + url
-	from t0mm0.common.net import Net
-	net = Net()
-	try:
-		if form_data==None:link = net.http_GET(url,referencia).content
-		else:link= net.http_POST(url,form_data=form_data,headers=referencia).content.encode('latin-1','ignore')
-		return link
-
-	except urllib2.HTTPError, e:
-		return "Erro"
-	except urllib2.URLError, e:
-		return "Erro"
 	
 def abrir_url(url):
 	req = urllib2.Request(url)

@@ -4,9 +4,7 @@
 
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time
 import urlresolver
-from t0mm0.common.addon import Addon
-from t0mm0.common.net import Net
-net = Net()
+from resolvers import *
 
 addon_id = 'plugin.video.adultstv'
 selfAddon = xbmcaddon.Addon(id=addon_id)
@@ -14,7 +12,7 @@ addonfolder = selfAddon.getAddonInfo('path')
 artfolder = addonfolder + '/resources/img/'
 down_path = selfAddon.getSetting('download-folder')
 mensagemprogresso = xbmcgui.DialogProgress()
-addon = Addon(addon_id)
+
 ################################################## 
 
 def traducao(texto):
@@ -112,37 +110,6 @@ def _myresolvers(url):
 	if "videowood.tv" in url: return videowoodtv(url)
 	if "powvideo.net" in url: return powvideonet(url)
 	else: return None
-	
-def powvideonet(url):
-	import packer
-	form_values = {}
-	for i in re.finditer('<input.*?name="(.*?)".*?value="(.*?)".*?>', abrir_url(url)):
-		form_values[i.group(1)] = i.group(2)
-	xbmc.sleep(1000)
-	html = net.http_POST(url, form_data=form_values).content
-	texto = 'eval(function(p,a,c,k,e,d)'+re.findall("eval\(function\(p,a,c,k,e,d\)(.*?)</script>",html,re.DOTALL)[0]
-	url_video = 'http' + re.compile("file:'http(.+?)'").findall(packer.unpack(texto).replace('\\',''))[0]
-	return url_video
-	
-def videowoodtv(url):
-	if not "embed" in url: url = 'http://videowood.tv/embed/' + re.compile('src="http://videowood.tv/embed/(.+?)"').findall(abrir_url(url))[0]
-	codigo_fonte = abrir_url(url)
-	file = re.compile('file: "(.+?)"').findall(codigo_fonte)[0]
-	swf = re.compile('flashplayer: "(.+?)"').findall(codigo_fonte)[0]
-	#streamurl = file + ' swfUrl=' + swf
-	return file
-	
-def streaminto(url):
-	form_values = {}
-	for i in re.finditer('<input.*?name="(.*?)".*?value="(.*?)".*?>', abrir_url(url)):
-		form_values[i.group(1)] = i.group(2)
-	addon.show_countdown(5)
-	html = net.http_POST(url, form_data=form_values).content
-	rtmp = re.compile('streamer: "(.+?)"').findall(html)[0]
-	playpath = re.compile(' file: "(.+?)"').findall(html)[0]
-	swf = re.compile(' src: "(.+?)"').findall(html)[0]
-	streamurl=rtmp + ' playPath=' + playpath + ' swfUrl=' + swf + ' live=true pageUrl=' + url
-	return streamurl
 
 def find_sources(url):
 	sources=[]

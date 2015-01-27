@@ -3,6 +3,7 @@
 # 2014 - Anonymous
 
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time
+from resolvers import *
 
 addon_id = 'plugin.video.adultstv'
 selfAddon = xbmcaddon.Addon(id=addon_id)
@@ -30,12 +31,12 @@ def download(name,url):
 		return
 	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
 	mensagemprogresso.update(0)
-	codigo_fonte = abrir_url(url)
-	try: video_url = re.compile('<iframe src="(.+?)"').findall(codigo_fonte)[0]
+	
+	try: video_url = re.compile('<iframe src="(.+?)"').findall(abrir_url(url))[0]
 	except: return
-	url_video = vk(video_url)
-	if not url_video: return
-	url = url_video[0]
+	if re.search('urlvk=',video_url): video_url = urllib.unquote(video_url.split('urlvk=')[1])
+	if video_url[:2] == '//': video_url = 'http:' + video_url
+	url_video = vkcom_resolver(video_url)
 	
 	name = re.sub('[^-a-zA-Z0-9_.()\\\/ ]+', '',name)
 	name += ' - ' + url_video[1] + '.mp4'
@@ -107,56 +108,36 @@ def listar_videos(url):
 	for url,titulo,img in a:
 		titulo = titulo.replace("&#8211;","-")
 		titulo = titulo.replace("&#8217;","'")
+		if img[:2] == '//': img = 'http:' + img
 		addDir(titulo,url,202,img+'320x180.jpg',False,total,True)
 	
-	page = re.compile('<link rel="next" href="(.+?)"/>').findall(codigo_fonte)
-	for url_prox_pagina in page:
-		addDir(traducao(2050),url_prox_pagina,201,artfolder + 'next.png')
-		break
+	try:
+		page = re.compile('<link rel="next" href="(.+?)"').findall(codigo_fonte)[0]
+		if page[:2] == '//': page = 'http:' + page
+		addDir(traducao(2050),page,201,artfolder + 'next.png')
+	except: pass
 	
 	xbmc.executebuiltin("Container.SetViewMode(500)")
 	
 def encontrar_fontes(name,url,iconimage):
 	mensagemprogresso.create('Adults TV', traducao(2008),traducao(2009))
 	mensagemprogresso.update(0)
-	codigo_fonte = abrir_url(url)
-	try: video_url = re.compile('<iframe src="(.+?)"').findall(codigo_fonte)[0]
-	except: return
-	if video_url[:2] == '//': video_url = 'http:' + video_url
-	url_video = vk(video_url)
-	if url_video: play(name,url_video[0],iconimage)
-	
-def vk(url):
-	codigo_fonte = abrir_url(url)
-	try:
-		#img = re.compile('<img id="player_thumb" src="(.+?)"/></div>').findall(codigo_fonte)[0]
-		url = re.compile("var video_host = '(.+?)'").findall(codigo_fonte)[0]
-		id1 = re.compile("var video_uid = '(.+?)'").findall(codigo_fonte)[0]
-		id2 = re.compile("var video_vtag = '(.+?)'").findall(codigo_fonte)[0]
-		res = re.compile("var video_max_hd = '(.+?)'").findall(codigo_fonte)[0]
-		print 'VK Resolution: '+res
-		if res == '4': qualidade = ['960','720','480','360','240']
-		elif res == '3': qualidade = ['720','480','360','240']
-		elif res == '2': qualidade = ['480','360','240']
-		elif res == '1': qualidade = ['360','240']
-		else: qualidade = ['240']
-		
-		if selfAddon.getSetting('max_qual')=='true':
-			qualidade_int = []
-			for q in qualidade:
-				qualidade_int.append(int(q))
-			qualidade_ = str(max(qualidade_int))
-		else:
-			if len(qualidade)==1: qualidade_ = qualidade[0]
-			else: 
-				index = xbmcgui.Dialog().select(traducao(2012), qualidade)
-				if index == -1: return False
-				qualidade_ = qualidade[index]
-		url_video = url + 'u' + id1 + '/videos/' + id2 + '.' + qualidade_ + '.mp4'
-		return [url_video, qualidade_]
+	html = abrir_url(url)
+	try: 
+		video_url = re.compile('vk.com(.+?)"').findall(html)[0]
+		video_url = 'http://vk.com' + video_url
 	except: 
-		xbmcgui.Dialog().ok(traducao(2010),traducao(2030))
-		return False
+		try: 
+			video_url = re.compile('hqq.tv(.+?)"').findall(html)[0]
+			video_url = 'http://hqq.tv' + video_url
+		except: return
+	video_url = urllib.unquote(video_url)
+	
+	if re.search('vk.com',video_url): url_video = vkcom_resolver(video_url)
+	elif re.search('hqq.tv',video_url): url_video = hqq_resolver(video_url)
+	else: return 
+	
+	if url_video: play(name,url_video,iconimage)
 	
 def play(name,streamurl,iconimage = "DefaultVideo.png"):
 	listitem = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)

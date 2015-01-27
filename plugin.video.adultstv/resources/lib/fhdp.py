@@ -3,6 +3,7 @@
 # 2014 - Anonymous
 
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,os,sys,time
+from resolvers import *
 
 addon_id = 'plugin.video.adultstv'
 selfAddon = xbmcaddon.Addon(id=addon_id)
@@ -146,69 +147,6 @@ def encontrar_fontes(name,url,iconimage):
 	except: pass
 	url_video = vkcom_resolver(url)
 	if url_video: play(name,url_video,iconimage)
-
-def abrir_url_custom(url,**kwargs):
-	for key, value in kwargs.items(): exec('%s = %s' % (key, repr(value)))
-	if 'post' in locals():
-		data = urllib.urlencode(post)
-		req = urllib2.Request(url,data)
-	else: req = urllib2.Request(url)
-	if 'headers' in locals():
-		for x in range(0, len(headers)):
-			req.add_header(headers.keys()[x], headers.values()[x])
-	if 'user_agent' in locals(): req.add_header('User-Agent', user_agent)
-	else: req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:33.0) Gecko/20100101 Firefox/33.0')
-	if 'referer' in locals(): req.add_header('Referer', referer)
-	if 'timeout' in locals(): response = urllib2.urlopen(req, timeout=timeout)
-	else: response = urllib2.urlopen(req)
-	link=response.read()
-	response.close()
-	return link
-	
-def vkcom_resolver(video_url):
-	import random
-	
-	if re.search("vk\.com/video([\d]+)_([\d]+)", video_url):
-		video_match = re.search("vk\.com/video([\d]+)_([\d]+)", video_url)
-		video_oid = video_match.group(1)
-		video_id = video_match.group(2)
-		javaplugin_referer = "http://javaplugin.org/WL/vk/plugins/gkplugins_vk.swf?rand=0."+str(random.randint(1000000000000000,9999999999999999))
-		codigo_fonte = abrir_url_custom("http://javaplugin.org/WL/vk/plugins/plugins_vk.php",referer = javaplugin_referer,post = {"url":video_url,"icookie":"","iagent":"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0","ihttpheader":"true","iheader":"true"})
-		codigo_fonte_2 = abrir_url_custom("http://javaplugin.org/WL/vk/plugins/plugins_vk.php",referer = javaplugin_referer,post = {"checkcookie":"true"})
-		codigo_fonte_3 = abrir_url_custom("http://javaplugin.org/WL/vk/plugins/plugins_vk.php",referer = javaplugin_referer,post = {"url":"https://vk.com/al_video.php","iagent":"Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0","iheader":"true","icookie":"remixsid="+codigo_fonte_2[8:]+";remixlang=3","ipost":"true","ipostfield":"al=1&oid="+video_oid+"&act=video_embed_box&vid="+video_id,"isslverify":"true","ihttpheader":"true"})
-		video_hash = re.search("<iframe.*?src=\".*?vk\.com/video_ext\.php\?oid\=.*?&id\=.*?&hash\=(.+?)\".*?>", codigo_fonte_3).group(1)
-	elif re.search("vk\.com/video_ext\.php\?oid\=([-?\d]+)&id\=([\d]+)&hash\=(.+)", video_url):
-		video_match = re.search("vk\.com/video_ext\.php\?oid\=([-?\d]+)&id\=([\d]+)&hash\=(.+?)&", video_url+'&')
-		video_oid = video_match.group(1)
-		video_id = video_match.group(2)
-		video_hash = video_match.group(3)
-	else:
-		xbmcgui.Dialog().ok(traducao(2010),traducao(2030))
-		return False
-		
-	api = 'http://api.vk.com/method/video.getEmbed?oid='+video_oid+'&video_id='+video_id+'&embed_hash='+video_hash+'&callback=responseWork'
-	codigo_fonte = abrir_url_custom(api)
-	qualidade = []
-	urls = []
-	for x in ["1080","960","720","480","360","240"]:
-		try: u = re.compile('"url'+x+'":"(.+?)"').findall(codigo_fonte)[0]
-		except: continue
-		qualidade.append(x)
-		urls.append(u.replace('\\',''))
-	if len(urls)==0:
-		xbmcgui.Dialog().ok(traducao(2010),traducao(2030))
-		return False
-	index = -1
-	if selfAddon.getSetting('max_qual')=='true':
-		max = 0
-		for x in range(0,len(qualidade)):
-			if int(qualidade[x])>max:
-				max = qualidade[x]
-				index = x
-	else:
-		index = xbmcgui.Dialog().select(traducao(2012), qualidade)
-	if index==-1: return False
-	return urls[index]
 	
 def play(name,streamurl,iconimage = "DefaultVideo.png"):
 	listitem = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)

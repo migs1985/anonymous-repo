@@ -1,4 +1,9 @@
-﻿[B]Version 0.0.8 (16/01/2015):[/B]
+﻿[B]Version 0.0.9 (27/01/2015):[/B]
+Multiple fixes;
+New addon structure.
+Added Hqq.tv resolver
+
+[B]Version 0.0.8 (16/01/2015):[/B]
 Added new channels.
 Some videos requires "Abelhas.pt" addon.
 Added XVideos.
