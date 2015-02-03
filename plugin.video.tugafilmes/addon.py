@@ -21,7 +21,7 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,time,os,json
 h = HTMLParser.HTMLParser()
 
-versao = '1.0.6'
+versao = '1.0.7'
 addon_id = 'plugin.video.tugafilmes'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
@@ -36,7 +36,7 @@ subs = selfAddon.getSetting('subs')
 
 def CATEGORIES():
 	addDir('Categorias','-',1,artfolder + 'categorias.png')
-	addDir('Filmes 2014','http://www.tuga-filmes.info/search/label/-%20Filmes%202013',2,artfolder + 'categorias.png')
+	addDir('Filmes Recentes','http://www.tuga-filmes.info/search/label/-%20Filmes%202013',2,artfolder + 'categorias.png')
 	addDir('Destaques','http://www.tuga-filmes.info/search/label/destaque',2,artfolder + 'destaques.png')
 	addDir('Pesquisar','-',3,artfolder + 'pesquisar.png')
 	
@@ -276,6 +276,13 @@ def abrir_url_tommy(url,referencia,form_data=None,erro=True):
 	
 def videomega_resolver(referer):
 	html = abrir_url(referer)
+	
+	ref_data={'Host':'videomega.tv',
+			  'Connection':'Keep-alive',
+			  'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+			  'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
+			  'Referer':referer}
+	
 	if re.search('http://videomega.tv/iframe.js',html):
 		lines = html.splitlines()
 		aux = ''
@@ -287,20 +294,15 @@ def videomega_resolver(referer):
 	else:
 		try:
 			hash = re.compile('"http://videomega.tv/validatehash.php\?hashkey\=(.+?)"').findall(html)[0]
-			ref = re.compile('ref="(.+?)"').findall(abrir_url("http://videomega.tv/validatehash.php?hashkey="+hash))[0]
+			ref = re.compile('ref="(.+?)"').findall(abrir_url_tommy("http://videomega.tv/validatehash.php?hashkey="+hash,ref_data))[0]
 		except:
 			try:
 				hash = re.compile("'http://videomega.tv/validatehash.php\?hashkey\=(.+?)'").findall(html)[0]
-				ref = re.compile('ref="(.+?)"').findall(abrir_url("http://videomega.tv/validatehash.php?hashkey="+hash))[0]
+				ref = re.compile('ref="(.+?)"').findall(abrir_url_tommy("http://videomega.tv/validatehash.php?hashkey="+hash,ref_data))[0]
 			except:
 				iframe = re.compile('"http://videomega.tv/iframe.php\?(.+?)"').findall(html)[0] + '&'
 				ref = re.compile('ref=(.+?)&').findall(iframe)[0]
 	
-	ref_data={'Host':'videomega.tv',
-			  'Connection':'Keep-alive',
-			  'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-			  'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
-			  'Referer':referer}
 	url = 'http://videomega.tv/iframe.php?ref=' + ref
 	iframe_html = abrir_url_tommy(url,ref_data)
 	code = re.compile('document.write\(unescape\("(.+?)"\)\)\;').findall(iframe_html)

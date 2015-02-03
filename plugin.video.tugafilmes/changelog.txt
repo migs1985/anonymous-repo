@@ -1,4 +1,7 @@
-﻿Versão 1.0.6:
+﻿Versão 1.0.7:
+Pequenas correcções nos servidores
+
+Versão 1.0.6:
 Re-fix de servidores
 
 Versão 1.0.5:
