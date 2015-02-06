@@ -21,7 +21,7 @@
 import urllib,urllib2,re,xbmcplugin,xbmcgui,xbmc,xbmcaddon,HTMLParser,time,os,json
 h = HTMLParser.HTMLParser()
 
-versao = '1.0.7'
+versao = '1.0.8'
 addon_id = 'plugin.video.tugafilmes'
 selfAddon = xbmcaddon.Addon(id=addon_id)
 addonfolder = selfAddon.getAddonInfo('path')
@@ -303,7 +303,7 @@ def videomega_resolver(referer):
 				iframe = re.compile('"http://videomega.tv/iframe.php\?(.+?)"').findall(html)[0] + '&'
 				ref = re.compile('ref=(.+?)&').findall(iframe)[0]
 	
-	url = 'http://videomega.tv/iframe.php?ref=' + ref
+	url = 'http://videomega.tv/cdn.php?ref='+ref+'&width=638&height=431&val=1'
 	iframe_html = abrir_url_tommy(url,ref_data)
 	code = re.compile('document.write\(unescape\("(.+?)"\)\)\;').findall(iframe_html)
 	id = re.compile('<div id="(.+?)" name="adblock"').findall(iframe_html)[0]
