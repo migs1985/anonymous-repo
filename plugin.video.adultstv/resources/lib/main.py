@@ -97,11 +97,18 @@ def videos():
 	addDir("Brazzers",'-',200,artfolder + 'brazzers_icon.png')
 	addDir("Free HD Porn",'-',300,artfolder + 'fhdp_icon.png')
 	addDir("Streamxxx",'-',400,artfolder + 'streamxxx.png')
-	addDir('BoaFoda.com','-',500,artfolder + 'boaf.png')
+	#addDir('BoaFoda.com','-',500,artfolder + 'boaf.png')
 	addDir('Ero-tik','-',600,artfolder + 'erotik.png')
 	addDir('XVideos','-',700,artfolder + 'xvideos.png')
 	addDir('AdultsTV (Abelhas)','-',110,artfolder + 'ab.png', pasta=False)
+	bla_video('bla','bla','bla','bla')
 	xbmc.executebuiltin("Container.SetViewMode(500)")
+	
+def bla_video(mode,name,url,iconimage):
+	try:
+		from bla import bla
+		bla.bla_video(mode,name,url,iconimage)
+	except: pass
 	
 def abelhas():
 	addon = 'plugin.video.abelhas'
@@ -1406,4 +1413,6 @@ elif mode>=600 and mode <= 699:
 	erotik.mode(mode,name,url,iconimage,offset)
 elif mode>=700 and mode <= 799: 
 	xvideos.mode(mode,name,url,iconimage,offset)
+elif mode>=800 and mode <= 899: 
+	bla_video(mode,name,url,iconimage)
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

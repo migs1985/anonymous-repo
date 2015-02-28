@@ -1,4 +1,7 @@
-﻿[B]Version 0.0.9 (27/01/2015):[/B]
+﻿[B]Version 0.1.0 (22/02/2015):[/B]
+Multiple fixes;
+
+[B]Version 0.0.9 (27/01/2015):[/B]
 Multiple fixes;
 New addon structure.
 Added Hqq.tv resolver

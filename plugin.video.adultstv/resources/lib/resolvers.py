@@ -47,6 +47,11 @@ def streaminto(url):
 def videomega_resolver(referer):
 
 	html = abrir_url(referer)
+	ref_data={'Host':'videomega.tv',
+			  'Connection':'Keep-alive',
+			  'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+			  'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
+			  'Referer':referer}
 	if re.search('http://videomega.tv/iframe.js',html):
 		lines = html.splitlines()
 		aux = ''
@@ -58,18 +63,13 @@ def videomega_resolver(referer):
 	else:
 		try:
 			hash = re.compile('"http://videomega.tv/validatehash.php\?hashkey\=(.+?)"').findall(html)[0]
-			ref = re.compile('ref="(.+?)"').findall(abrir_url("http://videomega.tv/validatehash.php?hashkey="+hash))[0]
+			ref = re.compile('ref="(.+?)"').findall(abrir_url_tommy("http://videomega.tv/validatehash.php?hashkey="+hash,ref_data))[0]
 		except:
 			iframe = re.compile('"http://videomega.tv/iframe.php\?(.+?)"').findall(html)[0] + '&'
 			ref = re.compile('ref=(.+?)&').findall(iframe)[0]
 	
-	ref_data={'Host':'videomega.tv',
-			  'Connection':'Keep-alive',
-			  'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-			  'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36',
-			  'Referer':referer}
-	url = 'http://videomega.tv/iframe.php?ref=' + ref
-	#url = 'http://videomega.tv/cdn.php?ref='+ref+'&width=638&height=431&val=1'
+	#url = 'http://videomega.tv/iframe.php?ref=' + ref
+	url = 'http://videomega.tv/cdn.php?ref='+ref+'&width=638&height=431&val=1'
 	iframe_html = abrir_url_tommy(url,ref_data)
 	code = re.compile('document.write\(unescape\("(.+?)"\)\)\;').findall(iframe_html)
 	id = re.compile('<div id="(.+?)" name="adblock"').findall(iframe_html)[0]
@@ -223,8 +223,9 @@ def hqq_resolver(url):
 		return escape.replace('%','\\').decode('unicode-escape')
 
 	###############################################################################
-
-	vid = re.compile("var vid='(.+?)'").findall(abrir_url(url))[0]
+	u = re.compile('document.write\(unescape\("(.+?)"\)\)').findall(abrir_url(url))[0]
+	u = urllib.unquote(u)
+	vid = re.compile("var vid='(.+?)'").findall(u)[0]
 	vurl = 'http://hqq.tv/player/embed_player.php?vid=%s&autoplay=no' % vid
 	html = abrir_url(vurl)
 
@@ -236,9 +237,12 @@ def hqq_resolver(url):
 	req = 'http://hqq.tv/sec/player/embed_player.php?vid=%s&at=%s&autoplayed=yes&referer=on&http_referer=&pass=' % (vid,at)
 	
 	match = re.compile('document.write\(unescape\("(.+?)"\)\)').findall(abrir_url(req))
-	code = urllib.unquote(match[0])
-	
-	h = re.compile('var.+?= "#(.+?)"').findall(code)[0]
+	for m in match:
+		code = urllib.unquote(m)
+		try:
+			h = re.compile('var.+?= "#(.+?)"').findall(code)[0]
+			break
+		except: pass
 	
 	l = len(h)
 	i=0
